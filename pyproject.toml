@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-control-plane"
+version = "1.0.0"
+description = "Provider-agnostic LLM gateway with evaluations, cost attribution, and audit-grade traceability."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Soumya Debnath" }]
+keywords = ["llm", "gateway", "evaluations", "observability", "audit", "python"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110", "uvicorn>=0.27"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.6", "httpx>=0.25", "fastapi>=0.110"]
+
+[project.urls]
+Homepage = "https://github.com/itsoumya-d/llm-control-plane"
+Issues = "https://github.com/itsoumya-d/llm-control-plane/issues"
+
+[tool.setuptools.packages.find]
+include = ["llm_control_plane*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+
+[tool.coverage.run]
+source = ["llm_control_plane"]
