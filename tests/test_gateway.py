@@ -1,6 +1,7 @@
 import pytest
 
 from llm_control_plane.gateway import GatewayConfig, LLMGateway
+from llm_control_plane.policy import PolicyEngine, PolicyViolation
 from llm_control_plane.providers import FakeProvider, provider_map
 from llm_control_plane.rate_limit import TenantRateLimiter
 from llm_control_plane.routing import RoutingTable
@@ -18,7 +19,7 @@ class Clock:
         self.now += seconds
 
 
-def make_gateway(primary, fallback=None, config=None, clock=None, limiter=None):
+def make_gateway(primary, fallback=None, config=None, clock=None, limiter=None, policy=None):
     providers = {"fake-primary": primary}
     targets = [{"provider": "fake-primary", "model": "fake-large"}]
     if fallback is not None:
@@ -31,6 +32,7 @@ def make_gateway(primary, fallback=None, config=None, clock=None, limiter=None):
         config=config or GatewayConfig(max_attempts_per_target=1),
         clock=clock or (lambda: 0.0),
         limiter=limiter,
+        policy=policy,
     )
 
 
@@ -181,3 +183,21 @@ def test_health_and_metrics_output():
     assert "provider_success_total" in metrics
     provider.healthy = False
     assert gateway.health() == {"fake-primary": False}
+
+
+def test_policy_denial_happens_before_provider_call():
+    provider = FakeProvider("fake-primary", responses=["should not run"])
+    gateway = make_gateway(
+        provider,
+        policy=PolicyEngine(allowed_models=frozenset({"approved"})),
+    )
+    with pytest.raises(PolicyViolation):
+        gateway.complete(request())
+    assert provider.calls == []
+    assert gateway.audit.verify() is True
+    assert gateway.audit.events()[-1].event_type == "request.policy_denied"
+    denied = gateway.metrics.counter_value(
+        "gateway_policy_denied_total",
+        {"tenant": "tenant-a", "model": "smart", "policy": "default"},
+    )
+    assert denied == 1.0

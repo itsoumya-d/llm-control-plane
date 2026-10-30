@@ -10,6 +10,7 @@ from typing import Callable, Dict, List, Optional
 
 from .audit import AuditLog, canonical_json, sha256_hex
 from .metrics import MetricsRegistry
+from .policy import PolicyEngine, PolicyViolation
 from .pricing import Pricebook, default_pricebook
 from .rate_limit import TenantRateLimiter
 from .redaction import Redactor
@@ -42,6 +43,7 @@ class LLMGateway:
         audit: Optional[AuditLog] = None,
         limiter: Optional[TenantRateLimiter] = None,
         metrics: Optional[MetricsRegistry] = None,
+        policy: Optional[PolicyEngine] = None,
         config: Optional[GatewayConfig] = None,
         clock: Callable[[], float] = time.monotonic,
         sleeper: Callable[[float], None] = time.sleep,
@@ -52,6 +54,7 @@ class LLMGateway:
         self.pricebook = pricebook or default_pricebook()
         self.audit = audit or AuditLog()
         self.metrics = metrics or MetricsRegistry()
+        self.policy = policy
         self.config = config or GatewayConfig()
         self.limiter = limiter or TenantRateLimiter(
             capacity=self.config.rate_limit_capacity,
@@ -93,6 +96,30 @@ class LLMGateway:
                 {"tenant": request.tenant_id, "model": request.model},
             )
             return cached
+
+        if self.policy is not None:
+            decision = self.policy.evaluate(request)
+            if not decision.allowed:
+                self.metrics.inc(
+                    "gateway_policy_denied_total",
+                    {
+                        "tenant": request.tenant_id,
+                        "model": request.model,
+                        "policy": decision.policy_id,
+                    },
+                )
+                self.audit.append(
+                    "request.policy_denied",
+                    {
+                        "trace_id": trace_id,
+                        "tenant_id": request.tenant_id,
+                        "model": request.model,
+                        "use_case": request.use_case,
+                        "policy_id": decision.policy_id,
+                        "reasons": list(decision.reasons),
+                    },
+                )
+                raise PolicyViolation(decision)
 
         if not self.limiter.try_acquire(request.tenant_id):
             retry_after = self.limiter.retry_after(request.tenant_id)

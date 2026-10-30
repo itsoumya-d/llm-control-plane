@@ -19,6 +19,7 @@ from .evals import (
 )
 from .gateway import GatewayConfig, LLMGateway
 from .metrics import MetricsRegistry
+from .policy import PolicyDecision, PolicyEngine, PolicyViolation
 from .pricing import Price, Pricebook, default_pricebook
 from .providers import EchoProvider, FakeProvider, RuleProvider, provider_map
 from .rate_limit import TenantRateLimiter, TokenBucket
@@ -59,6 +60,9 @@ __all__ = [
     "LLMGateway",
     "MetricsRegistry",
     "NumericToleranceScorer",
+    "PolicyDecision",
+    "PolicyEngine",
+    "PolicyViolation",
     "Price",
     "Pricebook",
     "ProviderError",

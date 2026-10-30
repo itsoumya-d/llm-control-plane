@@ -5,7 +5,7 @@
 [![CI](https://github.com/itsoumya-d/llm-control-plane/actions/workflows/ci.yml/badge.svg)](https://github.com/itsoumya-d/llm-control-plane/actions/workflows/ci.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Tests: 45](https://img.shields.io/badge/tests-45%20passing-brightgreen.svg)](#testing)
+[![Tests: 50](https://img.shields.io/badge/tests-50%20passing-brightgreen.svg)](#testing)
 
 Most teams add a second model provider and discover, too late, that nobody owns routing, retries, cost attribution, evaluation, or the audit trail. This project is a compact reference implementation of that missing layer: one Python package that routes model calls, fails over deterministically, enforces per-tenant rate limits, attributes cost, redacts PII, records a tamper-evident audit chain, and runs versioned evaluations with trace-level linkage.
 
@@ -35,7 +35,7 @@ flowchart LR
     AU --> TR
 ```
 
-The gateway owns the model boundary. Product teams send a model alias, not a provider URL. The control plane owns routing, retries, rate limits, redaction, cost, and evidence. The eval runner reuses the same boundary, so an evaluation run is recorded exactly like production traffic.
+The gateway owns the model boundary. Product teams send a model alias, not a provider URL. The control plane owns policy, routing, retries, rate limits, redaction, cost, and evidence. The eval runner reuses the same boundary, so an evaluation run is recorded exactly like production traffic.
 
 ---
 
@@ -48,6 +48,7 @@ The gateway owns the model boundary. Product teams send a model alias, not a pro
 | **Rate limiting** | Thread-safe per-tenant token bucket with injectable clock |
 | **Cost attribution** | Per-provider/model pricebook; cost recorded per request, tenant, model, and use case |
 | **PII protection** | Email, phone, card, IBAN, and IPv4 redaction before provider calls and audit writes |
+| **Policy guardrails** | Pre-flight model and use-case allowlists, token caps, tenant checks, trace requirements, and blocked metadata; denials are audited before any provider call |
 | **Audit trail** | Append-only SHA-256 hash chain; `verify()` detects any tampered event |
 | **Idempotency** | Caller-supplied `trace_id` makes retries safe and replayable |
 | **Observability** | Counters, latency observations, p50/p95, and Prometheus text output |
@@ -109,6 +110,23 @@ result = gateway.complete(CompletionRequest(
 print(result.text, result.cost_usd, result.trace_id)
 print(gateway.audit.verify())
 ```
+
+### Apply a pre-flight policy
+
+```python
+from llm_control_plane import PolicyEngine
+
+policy = PolicyEngine(
+    policy_id="banking-ai-v1",
+    allowed_models=frozenset({"smart"}),
+    allowed_use_cases=frozenset({"support", "evidence-summary"}),
+    max_tokens=1024,
+    require_trace_id=True,
+)
+gateway = LLMGateway(provider_map(primary, fallback), routing, policy=policy)
+```
+
+A denied request is rejected before the rate limiter and before any provider call. The audit chain records `request.policy_denied` with the policy ID and every failed reason; the provider never sees the prompt.
 
 ### Run the API
 
