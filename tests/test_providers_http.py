@@ -2,8 +2,10 @@ import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+import pytest
+
 from llm_control_plane.providers import GrokProvider
-from llm_control_plane.types import ChatMessage, CompletionRequest
+from llm_control_plane.types import ChatMessage, CompletionRequest, ProviderError
 
 
 class FakeChatHandler(BaseHTTPRequestHandler):
@@ -69,9 +71,6 @@ def _server_with_status(status_code):
 
 
 def test_grok_provider_5xx_is_retryable():
-    import pytest
-    from llm_control_plane.types import ProviderError
-
     server = _server_with_status(503)
     try:
         provider = GrokProvider(
@@ -93,9 +92,6 @@ def test_grok_provider_5xx_is_retryable():
 
 
 def test_grok_provider_4xx_is_not_retryable():
-    import pytest
-    from llm_control_plane.types import ProviderError
-
     server = _server_with_status(400)
     try:
         provider = GrokProvider(
@@ -116,9 +112,6 @@ def test_grok_provider_4xx_is_not_retryable():
 
 
 def test_grok_provider_connection_error_is_retryable():
-    import pytest
-    from llm_control_plane.types import ProviderError
-
     provider = GrokProvider(api_key="test-key", base_url="http://127.0.0.1:1/v1")
     with pytest.raises(ProviderError) as exc:
         provider.complete(
