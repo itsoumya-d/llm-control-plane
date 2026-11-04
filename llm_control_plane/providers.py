@@ -124,3 +124,102 @@ class RuleProvider:
 
 def provider_map(*providers: LLMProvider) -> Dict[str, LLMProvider]:
     return {provider.name: provider for provider in providers}
+
+
+class OpenAICompatibleProvider:
+    """Real HTTP provider for OpenAI-compatible chat-completions APIs.
+
+    The same adapter covers OpenAI, xAI Grok, and self-hosted gateways that
+    expose the ``/v1/chat/completions`` contract.
+    """
+
+    name = "openai-compatible"
+
+    def __init__(
+        self,
+        name: str,
+        base_url: str,
+        api_key: str,
+        default_model: str,
+        timeout_seconds: float = 30.0,
+    ) -> None:
+        self.name = name
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+        self.default_model = default_model
+        self.timeout_seconds = timeout_seconds
+
+    def complete(self, request: CompletionRequest) -> ProviderResponse:
+        import json
+        import urllib.error
+        import urllib.request
+
+        model = request.model or self.default_model
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": message.role, "content": message.content}
+                for message in request.messages
+            ],
+            "temperature": request.temperature,
+            "max_tokens": request.max_tokens,
+        }
+        http_request = urllib.request.Request(
+            f"{self.base_url}/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        started = time.perf_counter()
+        try:
+            with urllib.request.urlopen(http_request, timeout=self.timeout_seconds) as response:
+                body = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            raise ProviderError(
+                self.name,
+                f"HTTP {exc.code}",
+                status_code=exc.code,
+                retryable=exc.code == 429 or exc.code >= 500,
+            ) from exc
+        except urllib.error.URLError as exc:
+            raise ProviderError(self.name, str(exc.reason), retryable=True) from exc
+
+        choices = body.get("choices") or []
+        text = choices[0].get("message", {}).get("content", "") if choices else ""
+        usage = body.get("usage") or {}
+        return ProviderResponse(
+            text=text,
+            model=body.get("model", model),
+            provider=self.name,
+            usage=Usage(
+                prompt_tokens=int(usage.get("prompt_tokens", 0)),
+                completion_tokens=int(usage.get("completion_tokens", 0)),
+            ),
+            latency_ms=(time.perf_counter() - started) * 1000,
+            raw=body,
+        )
+
+    def health(self) -> bool:
+        return True
+
+
+class GrokProvider(OpenAICompatibleProvider):
+    """xAI Grok via the OpenAI-compatible API surface."""
+
+    def __init__(
+        self,
+        api_key: str,
+        default_model: str = "grok-2-latest",
+        base_url: str = "https://api.x.ai/v1",
+        timeout_seconds: float = 30.0,
+    ) -> None:
+        super().__init__(
+            name="grok",
+            base_url=base_url,
+            api_key=api_key,
+            default_model=default_model,
+            timeout_seconds=timeout_seconds,
+        )

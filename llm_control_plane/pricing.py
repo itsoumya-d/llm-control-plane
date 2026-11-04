@@ -45,6 +45,7 @@ def default_pricebook() -> Pricebook:
         ("openai", "gpt-4o"): Price(0.0025, 0.01),
         ("openai", "gpt-4o-mini"): Price(0.00015, 0.0006),
         ("anthropic", "claude-3-5-sonnet"): Price(0.003, 0.015),
+        ("grok", "grok-2-latest"): Price(0.002, 0.01),
         ("fake-primary", "fake-large"): Price(0.0005, 0.0015),
         ("fake-fallback", "fake-small"): Price(0.0001, 0.0003),
     }
@@ -52,6 +53,7 @@ def default_pricebook() -> Pricebook:
         "gemini": Price(0.001, 0.004),
         "openai": Price(0.002, 0.008),
         "anthropic": Price(0.003, 0.015),
+        "grok": Price(0.002, 0.01),
         "fake-primary": Price(0.0005, 0.0015),
         "fake-fallback": Price(0.0001, 0.0003),
     }
