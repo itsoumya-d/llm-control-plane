@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from llm_control_plane.api import create_app
+from llm_control_plane.connectors import ConnectorRegistry, MCPToolSpec, ToolArgSpec
 from llm_control_plane.demo import build_demo_gateway
 from llm_control_plane.gateway import GatewayConfig, LLMGateway
 from llm_control_plane.providers import FakeProvider, provider_map
@@ -126,3 +127,74 @@ def test_provider_error_response():
         json={"tenant_id": "t1", "messages": [{"role": "user", "content": "hi"}]},
     )
     assert response.status_code == 502
+
+
+def test_connector_endpoints_schema_approval_and_dry_run():
+    gateway = build_demo_gateway()
+    registry = ConnectorRegistry(
+        audit=gateway.audit,
+        metrics=gateway.metrics,
+        approval_secret="api-secret",
+    )
+    registry.register(
+        MCPToolSpec(
+            name="sap.post_invoice",
+            connector="sap",
+            description="Post vendor invoice in SAP",
+            risk_level="privileged",
+            requires_human_approval=True,
+            args={"vendor_id": ToolArgSpec(arg_type="string", required=True)},
+        ),
+        handler=lambda args: {"posted": args["vendor_id"]},
+    )
+    api = TestClient(create_app(gateway, connectors=registry))
+
+    listed = api.get("/v1/connectors")
+    assert listed.status_code == 200
+    assert listed.json()["tools"][0]["name"] == "sap.post_invoice"
+
+    missing = api.post(
+        "/v1/connectors/execute",
+        json={"tenant_id": "t1", "tool_name": "unknown.op", "arguments": {}},
+    )
+    assert missing.status_code == 404
+
+    invalid = api.post(
+        "/v1/connectors/execute",
+        json={"tenant_id": "t1", "tool_name": "sap.post_invoice", "arguments": {}},
+    )
+    assert invalid.status_code == 422
+
+    denied = api.post(
+        "/v1/connectors/execute",
+        json={"tenant_id": "t1", "tool_name": "sap.post_invoice", "arguments": {"vendor_id": "V-99"}},
+    )
+    assert denied.status_code == 403
+
+    dry = api.post(
+        "/v1/connectors/execute",
+        json={
+            "tenant_id": "t1",
+            "tool_name": "sap.post_invoice",
+            "arguments": {"vendor_id": "V-99"},
+            "dry_run": True,
+        },
+    )
+    assert dry.status_code == 200
+    assert dry.json()["status"] == "dry_run"
+
+    token = registry.issue_approval_token("t1", "sap.post_invoice", "fin-lead")
+    ok = api.post(
+        "/v1/connectors/execute",
+        json={
+            "tenant_id": "t1",
+            "tool_name": "sap.post_invoice",
+            "arguments": {"vendor_id": "V-99"},
+            "approver_id": "fin-lead",
+            "approval_token": token,
+        },
+    )
+    assert ok.status_code == 200
+    assert ok.json()["status"] == "executed"
+    assert ok.json()["output"] == {"posted": "V-99"}
+
