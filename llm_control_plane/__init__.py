@@ -1,6 +1,18 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
 from .audit import AuditEvent, AuditLog
+from .connectors import (
+    ApprovalRequiredError,
+    ConnectorError,
+    ConnectorNotFoundError,
+    ConnectorRegistry,
+    ConnectorSchemaError,
+    MCPToolSpec,
+    ToolArgSpec,
+    ToolCallRequest,
+    ToolCallResult,
+    ToolTrajectoryScorer,
+)
 from .evals import (
     ContainsScorer,
     Dataset,
@@ -39,10 +51,15 @@ from .types import (
 __version__ = "1.0.0"
 
 __all__ = [
+    "ApprovalRequiredError",
     "AuditEvent",
     "AuditLog",
     "ChatMessage",
     "CompletionRequest",
+    "ConnectorError",
+    "ConnectorNotFoundError",
+    "ConnectorRegistry",
+    "ConnectorSchemaError",
     "ContainsScorer",
     "Dataset",
     "EchoProvider",
@@ -58,6 +75,7 @@ __all__ = [
     "JsonSchemaScorer",
     "LatencyBudgetScorer",
     "LLMGateway",
+    "MCPToolSpec",
     "MetricsRegistry",
     "NumericToleranceScorer",
     "PolicyDecision",
@@ -77,6 +95,10 @@ __all__ = [
     "Score",
     "TenantRateLimiter",
     "TokenBucket",
+    "ToolArgSpec",
+    "ToolCallRequest",
+    "ToolCallResult",
+    "ToolTrajectoryScorer",
     "Usage",
     "compare_runs",
     "default_pricebook",
