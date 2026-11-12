@@ -8,6 +8,14 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
+from .connectors import (
+    ApprovalRequiredError,
+    ConnectorNotFoundError,
+    ConnectorRegistry,
+    ConnectorSchemaError,
+    ToolCallRequest,
+    ToolTrajectoryScorer,
+)
 from .evals import (
     ContainsScorer,
     Dataset,
@@ -58,19 +66,34 @@ class EvalRunIn(BaseModel):
     scorers: List[str] = Field(default_factory=lambda: ["contains"])
 
 
+class ConnectorCallIn(BaseModel):
+    tenant_id: str
+    tool_name: str
+    arguments: Dict[str, Any] = Field(default_factory=dict)
+    trace_id: Optional[str] = None
+    dry_run: bool = False
+    approver_id: Optional[str] = None
+    approval_token: Optional[str] = None
+
+
 SCORERS = {
     "exact_match": ExactMatchScorer,
     "contains": ContainsScorer,
     "json_schema": JsonSchemaScorer,
     "numeric_tolerance": NumericToleranceScorer,
+    "tool_trajectory": ToolTrajectoryScorer,
 }
 
 
-def create_app(gateway: Optional[LLMGateway] = None) -> FastAPI:
+def create_app(
+    gateway: Optional[LLMGateway] = None,
+    connectors: Optional[ConnectorRegistry] = None,
+) -> FastAPI:
     if gateway is None:
         from .demo import build_demo_gateway
 
         gateway = build_demo_gateway()
+    registry = connectors or ConnectorRegistry(audit=gateway.audit, metrics=gateway.metrics)
 
     app = FastAPI(
         title="LLM Control Plane",
@@ -153,6 +176,51 @@ def create_app(gateway: Optional[LLMGateway] = None) -> FastAPI:
             use_case=body.use_case,
         )
         return {"run": run.to_dict(), "markdown": render_markdown(run)}
+
+    @app.get("/v1/connectors")
+    def list_connectors(connector: Optional[str] = None) -> Dict[str, Any]:
+        specs = registry.list_specs(connector=connector)
+        return {
+            "tools": [
+                {
+                    "name": spec.name,
+                    "connector": spec.connector,
+                    "description": spec.description,
+                    "risk_level": spec.risk_level,
+                    "requires_human_approval": spec.requires_human_approval,
+                }
+                for spec in specs
+            ]
+        }
+
+    @app.post("/v1/connectors/execute")
+    def execute_connector(body: ConnectorCallIn) -> Any:
+        req = ToolCallRequest(
+            tenant_id=body.tenant_id,
+            tool_name=body.tool_name,
+            arguments=body.arguments,
+            trace_id=body.trace_id,
+            dry_run=body.dry_run,
+            approver_id=body.approver_id,
+            approval_token=body.approval_token,
+        )
+        try:
+            result = registry.execute(req)
+        except ConnectorNotFoundError as exc:
+            return JSONResponse(status_code=404, content={"error": "tool_not_found", "detail": str(exc)})
+        except ConnectorSchemaError as exc:
+            return JSONResponse(status_code=422, content={"error": "schema_validation_failed", "errors": exc.errors})
+        except ApprovalRequiredError as exc:
+            return JSONResponse(status_code=403, content={"error": "approval_required", "detail": exc.reason})
+        return {
+            "tool_name": result.tool_name,
+            "connector": result.connector,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "output": result.output,
+            "redactions": result.redactions,
+            "audit_seq": result.audit_seq,
+        }
 
     return app
 

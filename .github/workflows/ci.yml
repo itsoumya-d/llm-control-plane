@@ -37,7 +37,7 @@ jobs:
         run: ruff check .
 
       - name: Test with coverage
-        run: pytest --cov=llm_control_plane --cov-report=term-missing --cov-fail-under=90
+        run: pytest -o addopts="" --cov=llm_control_plane --cov-report=term-missing --cov-fail-under=90
 
       - name: Compile check
         run: python -m compileall -q llm_control_plane
