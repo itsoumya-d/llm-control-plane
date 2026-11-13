@@ -71,6 +71,20 @@ from .policy import PolicyDecision, PolicyEngine, PolicyViolation
 from .pricing import Price, Pricebook, default_pricebook
 from .providers import EchoProvider, FakeProvider, RuleProvider, provider_map
 from .rate_limit import TenantRateLimiter, TokenBucket
+from .ray_core_executor import (
+    RayActorHandle,
+    RayActorPool,
+    RayActorState,
+    RayClusterNode,
+    RayCoreClusterExecutor,
+    RayObjectRef,
+    RayObjectStore,
+    RayObjectStoreError,
+    RayPlacementGroup,
+    RayPlacementStrategy,
+    RaySchedulingError,
+    RayTaskSpec,
+)
 from .redaction import RedactionResult, Redactor
 from .routing import Route, RoutingTable
 from .singlestore_connector import (
@@ -157,6 +171,18 @@ __all__ = [
     "QueryCostProfiler",
     "QueryExecutionError",
     "RateLimitExceeded",
+    "RayActorHandle",
+    "RayActorPool",
+    "RayActorState",
+    "RayClusterNode",
+    "RayCoreClusterExecutor",
+    "RayObjectRef",
+    "RayObjectStore",
+    "RayObjectStoreError",
+    "RayPlacementGroup",
+    "RayPlacementStrategy",
+    "RaySchedulingError",
+    "RayTaskSpec",
     "RedactionResult",
     "Redactor",
     "ReliabilitySLOMonitor",
