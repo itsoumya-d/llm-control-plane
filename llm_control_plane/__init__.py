@@ -47,6 +47,16 @@ from .providers import EchoProvider, FakeProvider, RuleProvider, provider_map
 from .rate_limit import TenantRateLimiter, TokenBucket
 from .redaction import RedactionResult, Redactor
 from .routing import Route, RoutingTable
+from .singlestore_connector import (
+    SingleStoreConfig,
+    SingleStoreConnectionHandle,
+    SingleStoreConnectionPool,
+    SingleStoreMCPConnector,
+    SingleStorePoolExhaustedError,
+    SingleStoreQueryResult,
+    SingleStoreQueryTimeoutError,
+    SingleStoreSecurityError,
+)
 from .types import (
     ChatMessage,
     CompletionRequest,
@@ -111,6 +121,14 @@ __all__ = [
     "RoutingTable",
     "RuleProvider",
     "Score",
+    "SingleStoreConfig",
+    "SingleStoreConnectionHandle",
+    "SingleStoreConnectionPool",
+    "SingleStoreMCPConnector",
+    "SingleStorePoolExhaustedError",
+    "SingleStoreQueryResult",
+    "SingleStoreQueryTimeoutError",
+    "SingleStoreSecurityError",
     "SLISnapshot",
     "STANDARD_GPU_SPECS",
     "TenantRateLimiter",
