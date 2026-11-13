@@ -30,6 +30,15 @@ from .evals import (
     render_markdown,
 )
 from .gateway import GatewayConfig, LLMGateway
+from .gpu_finops import (
+    STANDARD_GPU_SPECS,
+    GPUClusterFinOpsTracker,
+    GPUModelSpec,
+    InferenceBatchRecord,
+    ReliabilitySLOMonitor,
+    RightSizingRecommendation,
+    SLISnapshot,
+)
 from .metrics import MetricsRegistry
 from .openrouter import ModelLatencyStats, OpenRouterProvider, OpenRouterTelemetryTracker
 from .policy import PolicyDecision, PolicyEngine, PolicyViolation
@@ -73,6 +82,9 @@ __all__ = [
     "FakeProvider",
     "GatewayConfig",
     "GatewayResult",
+    "GPUClusterFinOpsTracker",
+    "GPUModelSpec",
+    "InferenceBatchRecord",
     "JsonSchemaScorer",
     "LatencyBudgetScorer",
     "LLMGateway",
@@ -92,11 +104,15 @@ __all__ = [
     "RateLimitExceeded",
     "RedactionResult",
     "Redactor",
+    "ReliabilitySLOMonitor",
+    "RightSizingRecommendation",
     "Route",
     "RouteTarget",
     "RoutingTable",
     "RuleProvider",
     "Score",
+    "SLISnapshot",
+    "STANDARD_GPU_SPECS",
     "TenantRateLimiter",
     "TokenBucket",
     "ToolArgSpec",
