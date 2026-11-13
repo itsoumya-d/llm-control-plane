@@ -213,7 +213,10 @@ class DopplerSecretsBroker:
             max_access = max_access_count or self.config.default_max_accesses
 
             now = time.time()
-            lease_id = f"lease_{uuid.uuid4().hex[:16]}"
+            alpha_alphabet = "abcdefghijklmnop"
+            hex_id = uuid.uuid4().hex[:16]
+            alpha_suffix = "".join(alpha_alphabet[int(c, 16)] for c in hex_id)
+            lease_id = f"lease_dop_{alpha_suffix}"
             lease = SecretLease(
                 lease_id=lease_id,
                 secret_name=secret_name,
@@ -412,7 +415,9 @@ class DopplerSecretsBroker:
     ) -> None:
         """Generate and append an authenticated audit record."""
         now = time.time()
-        event_id = f"evt_{uuid.uuid4().hex[:12]}"
+        alpha_alphabet = "abcdefghijklmnop"
+        hex_id = uuid.uuid4().hex[:12]
+        event_id = "evt_dop_" + "".join(alpha_alphabet[int(c, 16)] for c in hex_id)
         payload = f"{event_id}:{now}:{event_type}:{tenant_id}:{secret_name}:{tool_name}:{lease_id}"
         sig = hmac.new(
             self.config.audit_hmac_secret.encode("utf-8"),
