@@ -27,6 +27,16 @@ from .evals import (
     render_markdown,
 )
 from .gateway import LLMGateway
+from .optimal_research_engine import (
+    CardSortPlacement,
+    QualitativeObservation,
+    ResearchObservationClusterer,
+    StudyType,
+    ThematicSynthesisEngine,
+    TreejackNavigationScorer,
+    TreeTestTaskResult,
+    UserResearchStudyManager,
+)
 from .types import ChatMessage, CompletionRequest, ProviderError, RateLimitExceeded
 
 
@@ -74,6 +84,61 @@ class ConnectorCallIn(BaseModel):
     dry_run: bool = False
     approver_id: Optional[str] = None
     approval_token: Optional[str] = None
+
+
+class CreateStudyIn(BaseModel):
+    study_id: str
+    name: str
+    study_type: str
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class CardSortPlacementIn(BaseModel):
+    participant_id: str
+    card_id: str
+    card_label: str
+    category_id: str
+    category_label: str
+
+
+class CardSortAnalyzeIn(BaseModel):
+    study_id: str
+    cards: List[str]
+    placements: List[CardSortPlacementIn]
+    cluster_threshold: float = 0.5
+
+
+class TreeTestResultIn(BaseModel):
+    participant_id: str
+    task_id: str
+    selected_node_id: str
+    path_taken: List[str]
+    time_spent_seconds: float
+    success: bool
+    direct: bool
+
+
+class TreeTestEvaluateIn(BaseModel):
+    study_id: str
+    task_id: str
+    target_node_id: str
+    results: List[TreeTestResultIn]
+
+
+class QualitativeObservationIn(BaseModel):
+    observation_id: str
+    session_id: str
+    raw_text: str
+    tags: List[str] = Field(default_factory=list)
+    participant_quote: Optional[str] = None
+    sentiment: str = "neutral"
+    impact_weight: float = 1.0
+
+
+class ReframerSynthesizeIn(BaseModel):
+    study_id: str
+    observations: List[QualitativeObservationIn]
+    min_theme_size: int = 1
 
 
 SCORERS = {
@@ -220,6 +285,99 @@ def create_app(
             "output": result.output,
             "redactions": result.redactions,
             "audit_seq": result.audit_seq,
+        }
+
+    research_manager = UserResearchStudyManager()
+
+    @app.post("/v1/research/studies")
+    def create_research_study(body: CreateStudyIn) -> Dict[str, Any]:
+        try:
+            stype = StudyType(body.study_type)
+        except ValueError:
+            return JSONResponse(status_code=400, content={"error": "invalid_study_type"})
+        study = research_manager.create_study(
+            study_id=body.study_id,
+            name=body.name,
+            study_type=stype,
+            metadata=body.metadata,
+        )
+        return {"study": study}
+
+    @app.post("/v1/research/cardsort/analyze")
+    def analyze_card_sort(body: CardSortAnalyzeIn) -> Dict[str, Any]:
+        placements = [
+            CardSortPlacement(
+                participant_id=p.participant_id,
+                card_id=p.card_id,
+                card_label=p.card_label,
+                category_id=p.category_id,
+                category_label=p.category_label,
+            )
+            for p in body.placements
+        ]
+        participants = len({p.participant_id for p in placements})
+        cooc = ResearchObservationClusterer.calculate_cooccurrence_matrix(
+            body.cards, placements
+        )
+        sim = ResearchObservationClusterer.calculate_similarity_matrix(
+            body.cards, cooc, participants
+        )
+        clusters = ResearchObservationClusterer.build_hierarchical_clusters(
+            body.cards, sim, body.cluster_threshold
+        )
+        return {
+            "study_id": body.study_id,
+            "total_participants": participants,
+            "cooccurrence_matrix": cooc,
+            "similarity_matrix": sim,
+            "clusters": clusters,
+        }
+
+    @app.post("/v1/research/treejack/evaluate")
+    def evaluate_tree_test(body: TreeTestEvaluateIn) -> Dict[str, Any]:
+        results = [
+            TreeTestTaskResult(
+                participant_id=r.participant_id,
+                task_id=r.task_id,
+                selected_node_id=r.selected_node_id,
+                path_taken=r.path_taken,
+                time_spent_seconds=r.time_spent_seconds,
+                success=r.success,
+                direct=r.direct,
+            )
+            for r in body.results
+        ]
+        metrics = TreejackNavigationScorer.evaluate_task(
+            body.task_id, body.target_node_id, results
+        )
+        first_clicks = TreejackNavigationScorer.identify_first_click_paths(results)
+        return {
+            "study_id": body.study_id,
+            "metrics": metrics,
+            "first_click_distribution": first_clicks,
+        }
+
+    @app.post("/v1/research/reframer/synthesize")
+    def synthesize_reframer(body: ReframerSynthesizeIn) -> Dict[str, Any]:
+        observations = [
+            QualitativeObservation(
+                observation_id=o.observation_id,
+                session_id=o.session_id,
+                raw_text=o.raw_text,
+                tags=o.tags,
+                participant_quote=o.participant_quote,
+                sentiment=o.sentiment,
+                impact_weight=o.impact_weight,
+            )
+            for o in body.observations
+        ]
+        themes = ThematicSynthesisEngine.extract_thematic_clusters(
+            observations, min_theme_size=body.min_theme_size
+        )
+        return {
+            "study_id": body.study_id,
+            "total_observations": len(observations),
+            "themes": themes,
         }
 
     return app
