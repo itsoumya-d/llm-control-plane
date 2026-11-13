@@ -91,6 +91,15 @@ from .modal_sandbox import (
 )
 from .openrouter import ModelLatencyStats, OpenRouterProvider, OpenRouterTelemetryTracker
 from .policy import PolicyDecision, PolicyEngine, PolicyViolation
+from .poolside_inference_scheduler import (
+    GPUClusterNode,
+    GPUNodeState,
+    GPUWorkloadType,
+    InferenceWorkload,
+    ObservabilityMetric,
+    PoolsideInferenceScheduler,
+    PoolsideKubernetesController,
+)
 from .pricing import Price, Pricebook, default_pricebook
 from .providers import EchoProvider, FakeProvider, RuleProvider, provider_map
 from .rate_limit import TenantRateLimiter, TokenBucket
@@ -197,13 +206,17 @@ __all__ = [
     "GatewayResult",
     "GPUAnomalyDetector",
     "GPUClusterFinOpsTracker",
+    "GPUClusterNode",
     "GPUFailureSeverity",
     "GPUFleetKnowledgeGraph",
     "GPUHealthTelemetry",
     "GPUModelSpec",
+    "GPUNodeState",
+    "GPUWorkloadType",
     "HardwareResetType",
     "IncidentDiagnosis",
     "InferenceBatchRecord",
+    "InferenceWorkload",
     "InfraInvestigatorAgent",
     "JsonSchemaScorer",
     "JWTToken",
@@ -217,12 +230,15 @@ __all__ = [
     "MotherDuckHybridEngine",
     "NodeLifecycleState",
     "NumericToleranceScorer",
+    "ObservabilityMetric",
     "OpenRouterProvider",
     "OpenRouterTelemetryTracker",
     "Permission",
     "PolicyDecision",
     "PolicyEngine",
     "PolicyViolation",
+    "PoolsideInferenceScheduler",
+    "PoolsideKubernetesController",
     "Price",
     "Pricebook",
     "PrincipalType",
