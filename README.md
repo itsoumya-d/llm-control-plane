@@ -233,10 +233,11 @@ llm_control_plane/
   poolside_inference_scheduler.py Poolside inference infra: distributed GPU workload scheduler, prefix KV-routing, and K8s controller
   tavily_web_access_engine.py Tavily agentic web access engine: HTTP/2 TLS fingerprinting (JA3/JA4), anti-bot challenge classification, and adaptive fetch scheduling
   resend_mta_transport.py Resend MTA transport infrastructure: multi-tier leaky bucket throttling, IP pool warmup state machines, and RFC 3463 delivery outcome classification
+  seo_rank_engine.py SEO rank engine & performance analytics: automated SERP harvesting, Core Web Vitals diagnostics, semantic intent clustering, and SHA-256 audit reports
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             176 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, and Resend MTA transport
+tests/             190 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, and SEO rank engine
 ```
 
 ---
