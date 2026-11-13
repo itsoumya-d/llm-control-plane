@@ -308,7 +308,10 @@ class PoolsideKubernetesController:
             self.current_replicas = desired_replicas
 
         # Inspect degraded nodes
-        degraded = [n for n in self.scheduler.nodes.values() if n.state in (GPUNodeState.DEGRADED_ECC, GPUNodeState.DRAINING)]
+        degraded = [
+            n for n in self.scheduler.nodes.values()
+            if n.state in (GPUNodeState.DEGRADED_ECC, GPUNodeState.DRAINING)
+        ]
         drained_count = 0
         for node in degraded:
             if node.node_id not in self.drained_nodes:

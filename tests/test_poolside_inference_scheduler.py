@@ -1,6 +1,5 @@
 """Tests for Poolside Inference Infrastructure: GPU Workload Scheduler & K8s Controller."""
 
-import pytest
 from llm_control_plane import (
     GPUClusterNode,
     GPUNodeState,
