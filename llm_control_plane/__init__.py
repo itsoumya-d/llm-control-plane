@@ -78,6 +78,14 @@ from .gpu_finops import (
     RightSizingRecommendation,
     SLISnapshot,
 )
+from .lakehouse_analytics_engine import (
+    MedallionLakehouseManager,
+    MedallionRecord,
+    SCD2Record,
+    SCDType2DimensionTracker,
+    SemanticMetric,
+    SemanticMetricCompiler,
+)
 from .metrics import MetricsRegistry
 from .modal_sandbox import (
     CgroupV2Limits,
@@ -276,6 +284,8 @@ __all__ = [
     "LatencyBudgetScorer",
     "LLMGateway",
     "MCPToolSpec",
+    "MedallionLakehouseManager",
+    "MedallionRecord",
     "MetricsRegistry",
     "ModalServerlessSandbox",
     "ModalWorkerPool",
@@ -338,6 +348,10 @@ __all__ = [
     "SandboxStatus",
     "SCIMUser",
     "Score",
+    "SCD2Record",
+    "SCDType2DimensionTracker",
+    "SemanticMetric",
+    "SemanticMetricCompiler",
     "SecretLease",
     "SingleStoreConfig",
     "SingleStoreConnectionHandle",
