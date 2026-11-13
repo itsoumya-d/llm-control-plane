@@ -142,6 +142,18 @@ from .resend_mta_transport import (
     ResendMTATransportEngine,
 )
 from .routing import Route, RoutingTable
+from .seo_rank_engine import (
+    ClientSEOAnalyticsAggregator,
+    CoreWebVitalsAuditor,
+    DeviceType,
+    MetricGrade,
+    ProxyConfig,
+    SearchIntent,
+    SemanticKeywordClusterer,
+    SERPRankTracker,
+    SERPResult,
+    SERPSnapshot,
+)
 from .singlestore_connector import (
     SingleStoreConfig,
     SingleStoreConnectionHandle,
@@ -361,6 +373,16 @@ __all__ = [
     "HTTP2StreamProfile",
     "TavilyWebAccessEngine",
     "XidErrorDefinition",
+    "ClientSEOAnalyticsAggregator",
+    "CoreWebVitalsAuditor",
+    "DeviceType",
+    "MetricGrade",
+    "ProxyConfig",
+    "SearchIntent",
+    "SemanticKeywordClusterer",
+    "SERPRankTracker",
+    "SERPResult",
+    "SERPSnapshot",
     "compare_runs",
     "default_pricebook",
     "provider_map",
