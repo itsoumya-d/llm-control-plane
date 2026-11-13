@@ -66,6 +66,16 @@ from .gpu_finops import (
     SLISnapshot,
 )
 from .metrics import MetricsRegistry
+from .modal_sandbox import (
+    CgroupV2Limits,
+    ModalServerlessSandbox,
+    ModalWorkerPool,
+    SandboxExecutionResult,
+    SandboxResourceError,
+    SandboxSnapshot,
+    SandboxSnapshotError,
+    SandboxStatus,
+)
 from .openrouter import ModelLatencyStats, OpenRouterProvider, OpenRouterTelemetryTracker
 from .policy import PolicyDecision, PolicyEngine, PolicyViolation
 from .pricing import Price, Pricebook, default_pricebook
@@ -114,6 +124,7 @@ __all__ = [
     "ApprovalRequiredError",
     "AuditEvent",
     "AuditLog",
+    "CgroupV2Limits",
     "ChatMessage",
     "ColumnarBatch",
     "ColumnarCache",
@@ -155,6 +166,8 @@ __all__ = [
     "LLMGateway",
     "MCPToolSpec",
     "MetricsRegistry",
+    "ModalServerlessSandbox",
+    "ModalWorkerPool",
     "ModelLatencyStats",
     "MotherDuckHybridEngine",
     "NumericToleranceScorer",
@@ -191,6 +204,11 @@ __all__ = [
     "RouteTarget",
     "RoutingTable",
     "RuleProvider",
+    "SandboxExecutionResult",
+    "SandboxResourceError",
+    "SandboxSnapshot",
+    "SandboxSnapshotError",
+    "SandboxStatus",
     "Score",
     "SecretLease",
     "SingleStoreConfig",
