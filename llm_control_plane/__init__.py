@@ -31,6 +31,7 @@ from .evals import (
 )
 from .gateway import GatewayConfig, LLMGateway
 from .metrics import MetricsRegistry
+from .openrouter import ModelLatencyStats, OpenRouterProvider, OpenRouterTelemetryTracker
 from .policy import PolicyDecision, PolicyEngine, PolicyViolation
 from .pricing import Price, Pricebook, default_pricebook
 from .providers import EchoProvider, FakeProvider, RuleProvider, provider_map
@@ -77,7 +78,10 @@ __all__ = [
     "LLMGateway",
     "MCPToolSpec",
     "MetricsRegistry",
+    "ModelLatencyStats",
     "NumericToleranceScorer",
+    "OpenRouterProvider",
+    "OpenRouterTelemetryTracker",
     "PolicyDecision",
     "PolicyEngine",
     "PolicyViolation",
