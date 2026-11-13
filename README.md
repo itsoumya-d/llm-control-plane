@@ -231,10 +231,11 @@ llm_control_plane/
   together_infra_agent.py Together AI infra agent systems: GPU fleet knowledge graph, Xid triage, and self-revalidation
   clickhouse_platform_auth.py ClickHouse Cloud platform auth: Zanzibar/ReBAC engine, SCIM 2.0, JWT, and audit telemetry
   poolside_inference_scheduler.py Poolside inference infra: distributed GPU workload scheduler, prefix KV-routing, and K8s controller
+  tavily_web_access_engine.py Tavily agentic web access engine: HTTP/2 TLS fingerprinting (JA3/JA4), anti-bot challenge classification, and adaptive fetch scheduling
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             146 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, and Poolside inference infra
+tests/             164 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, and Tavily web access engine
 ```
 
 ---
