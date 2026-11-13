@@ -229,10 +229,11 @@ llm_control_plane/
   duckdb_engine.py MotherDuck hybrid analytical execution engine, dual-execution planner, and cost profiler
   modal_sandbox.py Modal serverless container sandbox, microVM snapshotting, and cgroups v2 worker pool
   together_infra_agent.py Together AI infra agent systems: GPU fleet knowledge graph, Xid triage, and self-revalidation
+  clickhouse_platform_auth.py ClickHouse Cloud platform auth: Zanzibar/ReBAC engine, SCIM 2.0, JWT, and audit telemetry
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             136 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, and Together AI infra agents
+tests/             141 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, and ClickHouse auth
 ```
 
 ---
