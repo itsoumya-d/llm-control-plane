@@ -223,10 +223,11 @@ llm_control_plane/
   pricing.py       token pricebook and cost attribution
   metrics.py       counters, latency observations, Prometheus text
   evals.py         datasets, scorers, runs, experiment comparison
+  openrouter.py    OpenRouter provider adapter, fallback hierarchies, and latency telemetry
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             45 tests covering gateway, audit, eval, API, and benchmarks
+tests/             69 tests covering gateway, audit, eval, API, OpenRouter, and benchmarks
 ```
 
 ---
