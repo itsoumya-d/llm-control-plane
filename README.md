@@ -224,10 +224,15 @@ llm_control_plane/
   metrics.py       counters, latency observations, Prometheus text
   evals.py         datasets, scorers, runs, experiment comparison
   openrouter.py    OpenRouter provider adapter, fallback hierarchies, and latency telemetry
+  singlestore_connector.py SingleStore MCP vector connector, connection pooling, and hybrid vector search
+  ray_core_executor.py Ray Core distributed cluster executor, Plasma-style object store, and actor pool
+  duckdb_engine.py MotherDuck hybrid analytical execution engine, dual-execution planner, and cost profiler
+  modal_sandbox.py Modal serverless container sandbox, microVM snapshotting, and cgroups v2 worker pool
+  together_infra_agent.py Together AI infra agent systems: GPU fleet knowledge graph, Xid triage, and self-revalidation
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             69 tests covering gateway, audit, eval, API, OpenRouter, and benchmarks
+tests/             136 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, and Together AI infra agents
 ```
 
 ---
