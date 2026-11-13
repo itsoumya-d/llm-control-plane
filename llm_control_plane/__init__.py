@@ -130,6 +130,17 @@ from .ray_core_executor import (
     RayTaskSpec,
 )
 from .redaction import RedactionResult, Redactor
+from .resend_mta_transport import (
+    DeliveryCategory,
+    DeliveryOutcome,
+    DeliveryOutcomeClassifier,
+    IPPoolManager,
+    IPPoolType,
+    IPWarmupSchedule,
+    MTADeliveryTransaction,
+    MultiTierLeakyBucketThrottle,
+    ResendMTATransportEngine,
+)
 from .routing import Route, RoutingTable
 from .singlestore_connector import (
     SingleStoreConfig,
@@ -206,6 +217,9 @@ __all__ = [
     "ConnectorSchemaError",
     "ContainsScorer",
     "Dataset",
+    "DeliveryCategory",
+    "DeliveryOutcome",
+    "DeliveryOutcomeClassifier",
     "DopplerAuditEvent",
     "DopplerConfig",
     "DopplerHighPrivilegeApprovalRequiredError",
@@ -242,6 +256,9 @@ __all__ = [
     "InferenceBatchRecord",
     "InferenceWorkload",
     "InfraInvestigatorAgent",
+    "IPPoolManager",
+    "IPPoolType",
+    "IPWarmupSchedule",
     "JsonSchemaScorer",
     "JWTToken",
     "LatencyBudgetScorer",
@@ -252,6 +269,8 @@ __all__ = [
     "ModalWorkerPool",
     "ModelLatencyStats",
     "MotherDuckHybridEngine",
+    "MTADeliveryTransaction",
+    "MultiTierLeakyBucketThrottle",
     "NodeLifecycleState",
     "NumericToleranceScorer",
     "ObservabilityMetric",
@@ -292,6 +311,7 @@ __all__ = [
     "ReliabilitySLOMonitor",
     "RemediationExecutionResult",
     "ResearchObservationClusterer",
+    "ResendMTATransportEngine",
     "ResourceType",
     "RevalidationMetrics",
     "RightSizingRecommendation",
