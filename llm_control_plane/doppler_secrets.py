@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import re
 import threading
 import time
 import uuid
@@ -21,8 +20,6 @@ from .connectors import (
     ConnectorRegistry,
     MCPToolSpec,
     ToolArgSpec,
-    ToolCallRequest,
-    ToolCallResult,
 )
 
 

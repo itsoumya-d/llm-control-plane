@@ -7,7 +7,6 @@ import pytest
 
 from llm_control_plane import (
     ConnectorRegistry,
-    DopplerAuditEvent,
     DopplerConfig,
     DopplerHighPrivilegeApprovalRequiredError,
     DopplerLeaseExhaustedError,
@@ -16,7 +15,6 @@ from llm_control_plane import (
     DopplerSecretNotFoundError,
     DopplerSecretsBroker,
     DopplerTenantIsolationViolationError,
-    SecretLease,
     ToolCallRequest,
     register_doppler_mcp_tools,
 )
