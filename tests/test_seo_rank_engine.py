@@ -100,7 +100,13 @@ def test_track_rank_delta():
         timestamp=1700000000.0,
         results=[
             SERPResult(rank=1, title="Alpha", url="https://alpha.nz", snippet="...", domain="alpha.nz"),
-            SERPResult(rank=2, title="JustSEO", url="https://justseo.co.nz/enterprise", snippet="...", domain="justseo.co.nz"),
+            SERPResult(
+                rank=2,
+                title="JustSEO",
+                url="https://justseo.co.nz/enterprise",
+                snippet="...",
+                domain="justseo.co.nz",
+            ),
         ],
     )
 
@@ -167,7 +173,10 @@ def test_search_intent_classification():
     assert SemanticKeywordClusterer.classify_intent("seo quote nz") == SearchIntent.TRANSACTIONAL
     assert SemanticKeywordClusterer.classify_intent("best seo companies auckland review") == SearchIntent.COMMERCIAL
     assert SemanticKeywordClusterer.classify_intent("justseo client portal login") == SearchIntent.NAVIGATIONAL
-    assert SemanticKeywordClusterer.classify_intent("how to rank higher on google maps nz") == SearchIntent.INFORMATIONAL
+    assert (
+        SemanticKeywordClusterer.classify_intent("how to rank higher on google maps nz")
+        == SearchIntent.INFORMATIONAL
+    )
     assert SemanticKeywordClusterer.classify_intent("what is cumulative layout shift") == SearchIntent.INFORMATIONAL
 
 

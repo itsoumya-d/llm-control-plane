@@ -91,14 +91,18 @@ class SERPRankTracker:
     """Automated SERP rank tracking pipeline with proxy pooling and anti-bot mitigation."""
 
     DEFAULT_DESKTOP_UA = [
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
         "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0",
     ]
 
     DEFAULT_MOBILE_UA = [
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1",
-        "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 "
+        "(KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1",
+        "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
     ]
 
     def __init__(
@@ -302,19 +306,23 @@ class CoreWebVitalsAuditor:
         remediations: list[str] = []
         if grades["lcp"] != MetricGrade.GOOD:
             remediations.append(
-                f"LCP is {lcp_ms:.1f}ms (>2500ms). Preload hero image, deploy AVIF/WebP next-gen formats, and ensure edge CDN cache HIT."
+                f"LCP is {lcp_ms:.1f}ms (>2500ms). Preload hero image, deploy AVIF/WebP formats, "
+                "and ensure edge CDN cache HIT."
             )
         if grades["cls"] != MetricGrade.GOOD:
             remediations.append(
-                f"CLS is {cls_val:.3f} (>0.10). Specify explicit width/height on images and video wrappers; reserve DOM space for dynamic ad banners."
+                f"CLS is {cls_val:.3f} (>0.10). Specify explicit width/height on media wrappers; "
+                "reserve DOM space for dynamic ad banners."
             )
         if grades["inp"] != MetricGrade.GOOD:
             remediations.append(
-                f"INP is {inp_ms:.1f}ms (>200ms). Break up long JavaScript execution blocks (>50ms); defer non-critical hydrate scripts via web workers."
+                f"INP is {inp_ms:.1f}ms (>200ms). Break up long JavaScript execution blocks (>50ms); "
+                "defer non-critical hydrate scripts via web workers."
             )
         if grades["ttfb"] != MetricGrade.GOOD:
             remediations.append(
-                f"TTFB is {ttfb_ms:.1f}ms (>800ms). Enable server-side full page caching (e.g. Varnish/Fastly), tune SQL queries, or relocate edge workers."
+                f"TTFB is {ttfb_ms:.1f}ms (>800ms). Enable server-side full page caching (e.g. Fastly), "
+                "tune SQL queries, or relocate edge workers."
             )
 
         passed_all_core = (
