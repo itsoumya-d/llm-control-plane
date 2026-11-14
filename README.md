@@ -239,10 +239,11 @@ llm_control_plane/
   replit_cloud_orchestrator.py Replit Cloud infrastructure orchestrator: ephemeral container sandbox lifecycle, pre-warmed snapshot pool, dev/prod database branching with DDL safety gates, and custom domain ingress
   decagon_agent_platform.py Decagon Agent Platform runtime: hierarchical multi-model orchestration (Router/Planner/Supervisor), deterministic tool execution with idempotency hashing, and sub-15ms barge-in event handling
   airbyte_agent_infrastructure.py Airbyte Agent Infrastructure & MCP connector runtime: token-bucket connector rate limiting, semantic data modeling, stateful SaaS sandbox simulation, and cryptographic audit chaining
+  supabase_ai_platform.py Supabase AI Platform execution layer: model-agnostic runtime, durable WAL state checkpointing, structural risk tiers, async human review gate, atomic rollback engine, and golden evaluation suite
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             302 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, Replit Cloud orchestrator, Decagon Agent Platform runtime, and Airbyte Agent Infrastructure MCP connector runtime
+tests/             315 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, Replit Cloud orchestrator, Decagon Agent Platform runtime, Airbyte Agent Infrastructure, and Supabase AI Platform execution layer
 ```
 
 ---
