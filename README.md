@@ -235,10 +235,11 @@ llm_control_plane/
   resend_mta_transport.py Resend MTA transport infrastructure: multi-tier leaky bucket throttling, IP pool warmup state machines, and RFC 3463 delivery outcome classification
   seo_rank_engine.py SEO rank engine & performance analytics: automated SERP harvesting, Core Web Vitals diagnostics, semantic intent clustering, and SHA-256 audit reports
   lakehouse_analytics_engine.py Lakehouse analytics & governance engine: Medallion architecture (Bronze/Silver/Gold), SCD Type 2 dimension tracking, and declarative semantic metric layer
+  pinecone_experience_telemetry.py Pinecone Experience Platform telemetry & usage-based billing engine: sub-second RU/WU calculations, idempotent metering, spend alert management, and FinOps FOCUS v1.4 export
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             204 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, and Lakehouse analytics engine
+tests/             267 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, and Pinecone Experience telemetry
 ```
 
 ---
