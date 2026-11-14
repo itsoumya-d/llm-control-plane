@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from llm_control_plane.decagon_agent_platform import (
     ConversationTurn,
     DecagonAgentPlatform,
-    EvalBenchmarkResult,
     IntentCategory,
     SupervisorVerdict,
     ToolDefinition,

@@ -189,7 +189,10 @@ class DecagonAgentPlatform:
             if tool_call.tool_name == "initiate_dispute":
                 amt = tool_call.arguments.get("amount_usd", 0.0)
                 if amt > 10000.0:
-                    return SupervisorVerdict.HALT_UNSAFE, f"Dispute amount ${amt} exceeds automated agent cap of $10,000."
+                    return (
+                        SupervisorVerdict.HALT_UNSAFE,
+                        f"Dispute amount ${amt} exceeds automated agent cap of $10,000.",
+                    )
         return SupervisorVerdict.APPROVED, "Plan passes all enterprise safety guardrails."
 
     def execute_tool(self, invocation: ToolInvocation) -> ToolInvocation:
@@ -270,7 +273,9 @@ class DecagonAgentPlatform:
         turn.latency_breakdown_ms["supervisor_guard_ms"] = 3.2
 
         if verdict == SupervisorVerdict.HALT_UNSAFE:
-            turn.agent_response = f"I cannot fulfill this request automatically: {guard_msg}. Transferring to human agent."
+            turn.agent_response = (
+                f"I cannot fulfill this request automatically: {guard_msg}. Transferring to human agent."
+            )
             turn.state = TurnState.SPEAKING
             self._save_turn(conversation_id, turn)
             return turn
@@ -287,7 +292,6 @@ class DecagonAgentPlatform:
             self._save_turn(conversation_id, turn)
             return turn
 
-        t_exec_start = time.perf_counter()
         for tool_call in turn.planned_tools:
             self.execute_tool(tool_call)
         turn.latency_breakdown_ms["tool_exec_ms"] = round(
