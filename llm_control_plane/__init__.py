@@ -1,6 +1,19 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
 from .audit import AuditEvent, AuditLog
+from .fly_security_triage import (
+    AlertSeverity,
+    ClosedLoopRemediationTracker,
+    EBPFHostTelemetryCorrelator,
+    EBPFTelemetryEvent,
+    FindingStatus,
+    HostSecurityAlert,
+    PromptInjectionDefenseEngine,
+    SanitizedFindingEvaluation,
+    SyntheticFirecrackerSandboxHarness,
+    TriageActionDispatcher,
+    TriageEvaluatorSandbox,
+)
 from .clickhouse_platform_auth import (
     AccessDecisionTelemetry,
     AuthorizationDecision,
@@ -402,4 +415,15 @@ __all__ = [
     "provider_map",
     "register_doppler_mcp_tools",
     "render_markdown",
+    "AlertSeverity",
+    "ClosedLoopRemediationTracker",
+    "EBPFHostTelemetryCorrelator",
+    "EBPFTelemetryEvent",
+    "FindingStatus",
+    "HostSecurityAlert",
+    "PromptInjectionDefenseEngine",
+    "SanitizedFindingEvaluation",
+    "SyntheticFirecrackerSandboxHarness",
+    "TriageActionDispatcher",
+    "TriageEvaluatorSandbox",
 ]
