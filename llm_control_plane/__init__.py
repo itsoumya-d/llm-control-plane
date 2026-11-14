@@ -68,6 +68,19 @@ from .evals import (
     compare_runs,
     render_markdown,
 )
+from .fly_security_triage import (
+    AlertSeverity,
+    ClosedLoopRemediationTracker,
+    EBPFHostTelemetryCorrelator,
+    EBPFTelemetryEvent,
+    FindingStatus,
+    HostSecurityAlert,
+    PromptInjectionDefenseEngine,
+    SanitizedFindingEvaluation,
+    SyntheticFirecrackerSandboxHarness,
+    TriageActionDispatcher,
+    TriageEvaluatorSandbox,
+)
 from .gateway import GatewayConfig, LLMGateway
 from .gpu_finops import (
     STANDARD_GPU_SPECS,
@@ -402,4 +415,15 @@ __all__ = [
     "provider_map",
     "register_doppler_mcp_tools",
     "render_markdown",
+    "AlertSeverity",
+    "ClosedLoopRemediationTracker",
+    "EBPFHostTelemetryCorrelator",
+    "EBPFTelemetryEvent",
+    "FindingStatus",
+    "HostSecurityAlert",
+    "PromptInjectionDefenseEngine",
+    "SanitizedFindingEvaluation",
+    "SyntheticFirecrackerSandboxHarness",
+    "TriageActionDispatcher",
+    "TriageEvaluatorSandbox",
 ]
