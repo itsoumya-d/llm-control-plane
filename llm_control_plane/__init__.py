@@ -1,5 +1,18 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
+from .anthropic_startup_applied_ai_platform import (
+    CacheControlPoint,
+    CacheTelemetry,
+    ClaudeModel,
+    ClaudePromptCacheManager,
+    EvaluationResult,
+    EvaluationSample,
+    MCPStartupToolGateway,
+    MCPToolDefinition,
+    PairwiseLLMJudgeEvaluator,
+    StartupAgentDeploymentOrchestrator,
+    ToolExecutionRisk,
+)
 from .audit import AuditEvent, AuditLog
 from .cerebras_mlir_compiler import (
     CerebrasModelBringupHarness,
@@ -538,4 +551,15 @@ __all__ = [
     "SLOBreachRecord",
     "TenantQuota",
     "ZillizCloudPlatformOrchestrator",
+    "CacheControlPoint",
+    "CacheTelemetry",
+    "ClaudeModel",
+    "ClaudePromptCacheManager",
+    "EvaluationResult",
+    "EvaluationSample",
+    "MCPStartupToolGateway",
+    "MCPToolDefinition",
+    "PairwiseLLMJudgeEvaluator",
+    "StartupAgentDeploymentOrchestrator",
+    "ToolExecutionRisk",
 ]

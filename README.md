@@ -54,6 +54,7 @@ The gateway owns the model boundary. Product teams send a model alias, not a pro
 | **Observability** | Counters, latency observations, p50/p95, and Prometheus text output |
 | **Evaluations** | Versioned datasets, content hashes, four scorers, pass rate, p95 latency, cost |
 | **Experiment comparison** | Baseline vs candidate run with improved/regressed/tied case lists |
+| **Anthropic Applied AI Platform** | Claude prompt cache breakpoint orchestration (90% cost / 80% latency savings), zero-trust MCP tool gateway validation, and pairwise LLM-as-a-judge regression evaluation |
 | **Trace linkage** | Every eval result carries the gateway trace ID and audit head hash |
 
 ### Scorers included
