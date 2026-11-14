@@ -1,10 +1,11 @@
 """Unit tests for WorkSafe New Zealand AI Business Governance framework."""
 
 import pytest
+
 from llm_control_plane.worksafe_ai_governance import (
+    AIUseCaseProposal,
     AlgorithmCharterTier,
     GovernanceStatus,
-    AIUseCaseProposal,
     WorkSafeAIBusinessGovernanceEvaluator,
 )
 
