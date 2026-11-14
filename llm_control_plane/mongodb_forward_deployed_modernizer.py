@@ -22,7 +22,7 @@ import math
 import re
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 
 class DocumentModelingStrategy(str, enum.Enum):
@@ -139,7 +139,9 @@ class RelationalSchemaAnalyzer:
 
         for line in lines:
             line_clean = line.strip().rstrip(",")
-            if not line_clean or line_clean.upper().startswith("CONSTRAINT") or line_clean.upper().startswith("PRIMARY KEY"):
+            is_constraint = line_clean.upper().startswith("CONSTRAINT")
+            is_pk_clause = line_clean.upper().startswith("PRIMARY KEY")
+            if not line_clean or is_constraint or is_pk_clause:
                 continue
 
             # Foreign key constraint check
