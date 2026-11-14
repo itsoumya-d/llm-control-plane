@@ -1,6 +1,22 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
 from .audit import AuditEvent, AuditLog
+from .cerebras_mlir_compiler import (
+    CerebrasModelBringupHarness,
+    GQALoweringPass,
+    IRGraph,
+    IROp,
+    IRTensor,
+    KVCacheLayoutOptimizer,
+    MemoryHierarchy,
+    MLIRDialect,
+    NumericalCorrectnessVerifier,
+    QuantizationLoweringPass,
+    SwiGLUFusionPass,
+    TensorDType,
+    TensorLayout,
+    WaferClusterProfiler,
+)
 from .clickhouse_platform_auth import (
     AccessDecisionTelemetry,
     AuthorizationDecision,
@@ -426,4 +442,18 @@ __all__ = [
     "SyntheticFirecrackerSandboxHarness",
     "TriageActionDispatcher",
     "TriageEvaluatorSandbox",
+    "CerebrasModelBringupHarness",
+    "GQALoweringPass",
+    "IRGraph",
+    "IROp",
+    "IRTensor",
+    "KVCacheLayoutOptimizer",
+    "MLIRDialect",
+    "MemoryHierarchy",
+    "NumericalCorrectnessVerifier",
+    "QuantizationLoweringPass",
+    "SwiGLUFusionPass",
+    "TensorDType",
+    "TensorLayout",
+    "WaferClusterProfiler",
 ]
