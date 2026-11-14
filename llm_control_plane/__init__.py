@@ -255,6 +255,16 @@ from .types import (
 
 __version__ = "1.0.0"
 
+
+from .n26_data_storage_sre import (
+    AuroraPostgresConnectionPoolOrchestrator,
+    BaFinAuditSnapshotManager,
+    ConnectionRequest,
+    DatabaseNode,
+    DatabasePlatformSLOTracker,
+    ReplicationLagAndFailoverMonitor,
+)
+
 __all__ = [
     "AccessDecisionTelemetry",
     "AnomalyDetectionResult",
@@ -482,4 +492,16 @@ __all__ = [
     "StateSnapshot",
     "TraceMiningEvaluator",
     "TraceSpan",
+    "AuroraPostgresConnectionPoolOrchestrator",
+    "BaFinAuditSnapshotManager",
+    "ConnectionRequest",
+    "DatabaseNode",
+    "DatabasePlatformSLOTracker",
+    "ReplicationLagAndFailoverMonitor",
+    "AuroraPostgresConnectionPoolOrchestrator",
+    "BaFinAuditSnapshotManager",
+    "ConnectionRequest",
+    "DatabaseNode",
+    "DatabasePlatformSLOTracker",
+    "ReplicationLagAndFailoverMonitor",
 ]
