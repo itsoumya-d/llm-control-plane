@@ -14,11 +14,10 @@ from __future__ import annotations
 import enum
 import hashlib
 import hmac
-import json
 import re
 import time
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class AlertSeverity(str, enum.Enum):
@@ -320,7 +319,10 @@ class TriageActionDispatcher:
     def dispatch(self, evaluation: SanitizedFindingEvaluation) -> Dict[str, Any]:
         """Verify signature and dispatch action to destination team."""
         # Step 1: Verify HMAC signature
-        expected_payload = f"{evaluation.finding_id}:{evaluation.source}:{evaluation.is_true_positive}:{evaluation.confidence}:{evaluation.target_team}:{evaluation.sanitized_body}"
+        expected_payload = (
+            f"{evaluation.finding_id}:{evaluation.source}:{evaluation.is_true_positive}:"
+            f"{evaluation.confidence}:{evaluation.target_team}:{evaluation.sanitized_body}"
+        )
         expected_sig = hmac.new(self._secret, expected_payload.encode("utf-8"), hashlib.sha256).hexdigest()
 
         if not hmac.compare_digest(evaluation.evaluation_signature, expected_sig):
