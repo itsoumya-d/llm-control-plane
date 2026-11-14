@@ -1,13 +1,10 @@
 """Unit tests for Wellington City Council Process Automation & Decision Support Orchestrator."""
 from __future__ import annotations
 
-import pytest
-
 from llm_control_plane.wcc_automation_orchestrator import (
     CouncilDocumentClassifier,
     DecisionSupportGuardrail,
     MunicipalDocumentCategory,
-    ProcessExecutionRecord,
     WellingtonCouncilAutomationOrchestrator,
     WorkflowStatus,
     WorkflowStep,
