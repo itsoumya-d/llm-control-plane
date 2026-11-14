@@ -8,13 +8,14 @@ Engineered for high-leverage product engineering:
 """
 
 from __future__ import annotations
+
 import asyncio
+import hashlib
+import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-import hashlib
-import json
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 
 class NodeType(str, Enum):
@@ -157,14 +158,17 @@ class NixpacksBuildPlan:
     start_cmd: str
 
     def generate_plan_hash(self) -> str:
-        payload = json.dumps({
-            "name": self.name,
-            "providers": sorted(self.providers),
-            "pkgs": sorted(self.pkgs),
-            "apt_pkgs": sorted(self.apt_pkgs),
-            "build_cmd": self.build_cmd,
-            "start_cmd": self.start_cmd
-        }, sort_keys=True)
+        payload = json.dumps(
+            {
+                "name": self.name,
+                "providers": sorted(self.providers),
+                "pkgs": sorted(self.pkgs),
+                "apt_pkgs": sorted(self.apt_pkgs),
+                "build_cmd": self.build_cmd,
+                "start_cmd": self.start_cmd,
+            },
+            sort_keys=True,
+        )
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def validate(self) -> bool:
@@ -202,29 +206,46 @@ class TemporalVolumeMigrationWorkflow:
     async def execute(self, simulate_failure_step: Optional[WorkflowStatus] = None) -> bool:
         """Executes the migration saga. Automatically rolls back if any step fails."""
         try:
-            self._record(WorkflowStatus.PLANNING, f"Validating regions: {self.spec.source_region} -> {self.spec.target_region}")
+            self._record(
+                WorkflowStatus.PLANNING,
+                f"Validating regions: {self.spec.source_region} -> {self.spec.target_region}",
+            )
             if self.spec.source_region == self.spec.target_region:
                 raise ValueError("Source and target regions must differ for cross-region migration")
 
             # Step 1: Snapshot
-            self.snapshot_id = f"snap-{self.spec.volume_id}-{hashlib.md5(self.workflow_id.encode()).hexdigest()[:8]}"
-            self._record(WorkflowStatus.SNAPSHOT_TAKEN, f"Snapshot {self.snapshot_id} created in {self.spec.source_region}")
+            hash_prefix = hashlib.md5(self.workflow_id.encode()).hexdigest()[:8]
+            self.snapshot_id = f"snap-{self.spec.volume_id}-{hash_prefix}"
+            self._record(
+                WorkflowStatus.SNAPSHOT_TAKEN,
+                f"Snapshot {self.snapshot_id} created in {self.spec.source_region}",
+            )
             if simulate_failure_step == WorkflowStatus.SNAPSHOT_TAKEN:
                 raise RuntimeError("Simulated snapshot IO failure")
 
             # Step 2: Detach
-            self._record(WorkflowStatus.VOLUME_DETACHED, f"Volume {self.spec.volume_id} unmounted from {self.spec.service_id}")
+            self._record(
+                WorkflowStatus.VOLUME_DETACHED,
+                f"Volume {self.spec.volume_id} unmounted from {self.spec.service_id}",
+            )
             if simulate_failure_step == WorkflowStatus.VOLUME_DETACHED:
                 raise RuntimeError("Simulated volume unmount timeout")
 
             # Step 3: Replicate
-            self.replicated_volume_id = f"vol-tgt-{hashlib.md5(self.snapshot_id.encode()).hexdigest()[:8]}"
-            self._record(WorkflowStatus.DATA_REPLICATED, f"Replicated {self.spec.volume_size_gb}GB to {self.spec.target_region} as {self.replicated_volume_id}")
+            target_hash = hashlib.md5(self.snapshot_id.encode()).hexdigest()[:8]
+            self.replicated_volume_id = f"vol-tgt-{target_hash}"
+            self._record(
+                WorkflowStatus.DATA_REPLICATED,
+                f"Replicated {self.spec.volume_size_gb}GB to {self.spec.target_region} as {self.replicated_volume_id}",
+            )
             if simulate_failure_step == WorkflowStatus.DATA_REPLICATED:
                 raise RuntimeError("Simulated cross-region network partition")
 
             # Step 4: Attach
-            self._record(WorkflowStatus.VOLUME_ATTACHED, f"Attached {self.replicated_volume_id} to service {self.spec.service_id} in {self.spec.target_region}")
+            self._record(
+                WorkflowStatus.VOLUME_ATTACHED,
+                f"Attached {self.replicated_volume_id} to service {self.spec.service_id} in {self.spec.target_region}",
+            )
             if simulate_failure_step == WorkflowStatus.VOLUME_ATTACHED:
                 raise RuntimeError("Simulated target mount failure")
 
@@ -245,7 +266,10 @@ class TemporalVolumeMigrationWorkflow:
             self._record(WorkflowStatus.COMPENSATED, f"Cleaning up orphaned target volume {self.replicated_volume_id}")
             self.replicated_volume_id = None
         # Re-attach original source volume if detached
-        self._record(WorkflowStatus.COMPENSATED, f"Re-attaching source volume {self.spec.volume_id} in {self.spec.source_region}")
+        self._record(
+            WorkflowStatus.COMPENSATED,
+            f"Re-attaching source volume {self.spec.volume_id} in {self.spec.source_region}",
+        )
         self.status = WorkflowStatus.COMPENSATED
 
 

@@ -1,19 +1,21 @@
 """Tests for Railway Infrastructure Orchestrator & Durable Workflow Engine."""
 
-import pytest
 import asyncio
 import time
+
+import pytest
+
 from llm_control_plane.railway_infrastructure_orchestrator import (
-    NodeType,
-    WorkflowStatus,
     CanvasCoordinate,
+    ClickHouseLogBuffer,
+    ClickHouseLogEvent,
     InfrastructureNode,
     InfrastructureTopologyGraph,
     NixpacksBuildPlan,
-    VolumeMigrationSpec,
+    NodeType,
     TemporalVolumeMigrationWorkflow,
-    ClickHouseLogEvent,
-    ClickHouseLogBuffer,
+    VolumeMigrationSpec,
+    WorkflowStatus,
 )
 
 
@@ -157,25 +159,29 @@ def test_clickhouse_log_buffer_batching_and_query():
 
     async def run_scenario():
         for i in range(9):
-            flushed = await buffer.emit(ClickHouseLogEvent(
+            flushed = await buffer.emit(
+                ClickHouseLogEvent(
+                    timestamp_ns=time.time_ns(),
+                    project_id="proj-alpha",
+                    service_id="srv-web",
+                    deployment_id="dep-123",
+                    level="INFO" if i % 2 == 0 else "ERROR",
+                    message=f"Log event #{i}",
+                )
+            )
+            assert flushed is None
+
+        # 10th event triggers flush of 10 events
+        flushed = await buffer.emit(
+            ClickHouseLogEvent(
                 timestamp_ns=time.time_ns(),
                 project_id="proj-alpha",
                 service_id="srv-web",
                 deployment_id="dep-123",
-                level="INFO" if i % 2 == 0 else "ERROR",
-                message=f"Log event #{i}",
-            ))
-            assert flushed is None
-
-        # 10th event triggers flush of 10 events
-        flushed = await buffer.emit(ClickHouseLogEvent(
-            timestamp_ns=time.time_ns(),
-            project_id="proj-alpha",
-            service_id="srv-web",
-            deployment_id="dep-123",
-            level="INFO",
-            message="Log event #9",
-        ))
+                level="INFO",
+                message="Log event #9",
+            )
+        )
         assert flushed == 10
         assert len(buffer.flushed_batches) == 1
 
