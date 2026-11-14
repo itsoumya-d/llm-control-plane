@@ -3,7 +3,9 @@ Unit tests for Supabase AI Platform execution layer and governance engine.
 """
 
 import time
+
 import pytest
+
 from llm_control_plane.supabase_ai_platform import (
     AgentRegistration,
     AtomicRollbackEngine,
@@ -156,8 +158,14 @@ def test_golden_evaluation_harness():
 
     def dummy_runner(prompt: str):
         if "incident" in prompt:
-            return {"output": "Root cause identified and resolved cleanly.", "tier": RiskTier.TIER_1_READ_ONLY}
-        return {"output": "We sincerely offer our apology. System status restored.", "tier": RiskTier.TIER_2_INTERNAL_DRAFT}
+            return {
+                "output": "Root cause identified and resolved cleanly.",
+                "tier": RiskTier.TIER_1_READ_ONLY,
+            }
+        return {
+            "output": "We sincerely offer our apology. System status restored.",
+            "tier": RiskTier.TIER_2_INTERNAL_DRAFT,
+        }
 
     report = harness.evaluate_agent(dummy_runner)
     assert report.total_cases == 2
