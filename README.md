@@ -236,10 +236,12 @@ llm_control_plane/
   seo_rank_engine.py SEO rank engine & performance analytics: automated SERP harvesting, Core Web Vitals diagnostics, semantic intent clustering, and SHA-256 audit reports
   lakehouse_analytics_engine.py Lakehouse analytics & governance engine: Medallion architecture (Bronze/Silver/Gold), SCD Type 2 dimension tracking, and declarative semantic metric layer
   pinecone_experience_telemetry.py Pinecone Experience Platform telemetry & usage-based billing engine: sub-second RU/WU calculations, idempotent metering, spend alert management, and FinOps FOCUS v1.4 export
+  replit_cloud_orchestrator.py Replit Cloud infrastructure orchestrator: ephemeral container sandbox lifecycle, pre-warmed snapshot pool, dev/prod database branching with DDL safety gates, and custom domain ingress
+  decagon_agent_platform.py Decagon Agent Platform runtime: hierarchical multi-model orchestration (Router/Planner/Supervisor), deterministic tool execution with idempotency hashing, and sub-15ms barge-in event handling
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             278 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, and Replit Cloud infrastructure orchestrator
+tests/             289 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, Replit Cloud orchestrator, and Decagon Agent Platform runtime
 ```
 
 ---
