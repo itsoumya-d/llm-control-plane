@@ -239,7 +239,7 @@ llm_control_plane/
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             267 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, and Pinecone Experience telemetry
+tests/             278 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, and Replit Cloud infrastructure orchestrator
 ```
 
 ---
