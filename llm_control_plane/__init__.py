@@ -268,6 +268,17 @@ from .types import (
     RouteTarget,
     Usage,
 )
+from .zilliz_cloud_platform_orchestrator import (
+    BackupSnapshot,
+    CloudProvider,
+    ClusterRuntime,
+    ClusterState,
+    IndexType,
+    MilvusClusterSpec,
+    SLOBreachRecord,
+    TenantQuota,
+    ZillizCloudPlatformOrchestrator,
+)
 
 __version__ = "1.0.0"
 
@@ -518,4 +529,13 @@ __all__ = [
     "StreamPlatformTelemetryAndSLOTracker",
     "StreamMessage",
     "DeliveryState",
+    "BackupSnapshot",
+    "CloudProvider",
+    "ClusterRuntime",
+    "ClusterState",
+    "IndexType",
+    "MilvusClusterSpec",
+    "SLOBreachRecord",
+    "TenantQuota",
+    "ZillizCloudPlatformOrchestrator",
 ]
