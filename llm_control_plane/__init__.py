@@ -115,6 +115,20 @@ from .lakehouse_analytics_engine import (
     SemanticMetric,
     SemanticMetricCompiler,
 )
+from .langgraph_enterprise_mesh import (
+    AgentRole,
+    ChannelDefinition,
+    ChannelType,
+    CyclicGraphValidator,
+    DurableCheckpointBroker,
+    EnterpriseCompanyHarness,
+    EvalDrivenBenchmarkHarness,
+    HumanInTheLoopInterrupter,
+    RunSpanType,
+    StateSnapshot,
+    TraceMiningEvaluator,
+    TraceSpan,
+)
 from .metrics import MetricsRegistry
 from .modal_sandbox import (
     CgroupV2Limits,
@@ -456,4 +470,16 @@ __all__ = [
     "TensorDType",
     "TensorLayout",
     "WaferClusterProfiler",
+    "AgentRole",
+    "ChannelDefinition",
+    "ChannelType",
+    "CyclicGraphValidator",
+    "DurableCheckpointBroker",
+    "EnterpriseCompanyHarness",
+    "EvalDrivenBenchmarkHarness",
+    "HumanInTheLoopInterrupter",
+    "RunSpanType",
+    "StateSnapshot",
+    "TraceMiningEvaluator",
+    "TraceSpan",
 ]
