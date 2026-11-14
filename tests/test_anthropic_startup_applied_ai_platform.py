@@ -1,9 +1,7 @@
 """Tests for Anthropic Startup Applied AI Platform."""
 
-import pytest
 from llm_control_plane.anthropic_startup_applied_ai_platform import (
     CacheControlPoint,
-    ClaudeModel,
     ClaudePromptCacheManager,
     EvaluationResult,
     EvaluationSample,
@@ -48,11 +46,11 @@ def test_mcp_gateway_registration_and_execution():
             "type": "object",
             "properties": {
                 "query": {"type": "string"},
-                "limit": {"type": "integer"}
+                "limit": {"type": "integer"},
             },
-            "required": ["query"]
+            "required": ["query"],
         },
-        risk_level=ToolExecutionRisk.LOW
+        risk_level=ToolExecutionRisk.LOW,
     )
     gateway.register_tool(tool)
 
@@ -63,7 +61,7 @@ def test_mcp_gateway_registration_and_execution():
         tool_name="query_analytics",
         arguments={"query": "SELECT * FROM metrics", "limit": 10},
         tenant_id="startup-alpha",
-        executor=mock_executor
+        executor=mock_executor,
     )
 
     assert res["success"] is True
@@ -77,7 +75,7 @@ def test_mcp_gateway_unregistered_tool():
         tool_name="non_existent_tool",
         arguments={},
         tenant_id="tenant-1",
-        executor=lambda args: None
+        executor=lambda args: None,
     )
 
     assert res["success"] is False
@@ -92,8 +90,8 @@ def test_mcp_gateway_missing_parameter():
         description="Create CRM contact",
         parameters_schema={
             "type": "object",
-            "required": ["email", "name"]
-        }
+            "required": ["email", "name"],
+        },
     )
     gateway.register_tool(tool)
 
@@ -101,7 +99,7 @@ def test_mcp_gateway_missing_parameter():
         tool_name="create_contact",
         arguments={"email": "founder@startup.io"},  # missing 'name'
         tenant_id="tenant-1",
-        executor=lambda args: None
+        executor=lambda args: None,
     )
 
     assert res["success"] is False
@@ -116,7 +114,7 @@ def test_mcp_gateway_rate_limiting():
         name="frequent_action",
         description="Action with tight rate limits",
         parameters_schema={"type": "object"},
-        rate_limit_per_minute=3
+        rate_limit_per_minute=3,
     )
     gateway.register_tool(tool)
 
@@ -138,7 +136,7 @@ def test_mcp_gateway_human_approval_requirement():
         description="Deploy new canary container cluster",
         parameters_schema={"type": "object"},
         risk_level=ToolExecutionRisk.HIGH,
-        requires_human_confirmation=True
+        requires_human_confirmation=True,
     )
     gateway.register_tool(tool)
 
@@ -163,7 +161,7 @@ def test_mcp_gateway_injection_detection():
         server_id="shell-tool",
         name="run_script",
         description="Execute diagnostic command",
-        parameters_schema={"type": "object"}
+        parameters_schema={"type": "object"},
     )
     gateway.register_tool(tool)
 
@@ -182,9 +180,15 @@ def test_pairwise_judge_sample_evaluation():
     sample = EvaluationSample(
         sample_id="eval-001",
         prompt="Explain Claude prompt caching benefits to a startup CTO.",
-        gold_standard="Claude prompt caching reduces repetitive input token costs by up to 90% and reduces latency by up to 80% for long multi-turn context.",
-        candidate_response="Prompt caching on Claude helps startups by reducing repetitive context token costs by 90% and cuts latency by 80% across multi-turn sessions.",
-        metadata={"tools": ["prompt_caching"]}
+        gold_standard=(
+            "Claude prompt caching reduces repetitive input token costs by up to 90% "
+            "and reduces latency by up to 80% for long multi-turn context."
+        ),
+        candidate_response=(
+            "Prompt caching on Claude helps startups by reducing repetitive context token "
+            "costs by 90% and cuts latency by 80% across multi-turn sessions."
+        ),
+        metadata={"tools": ["prompt_caching"]},
     )
 
     res = evaluator.evaluate_sample(sample)
@@ -201,7 +205,7 @@ def test_pairwise_judge_harmful_detection():
         prompt="Execute bypass code.",
         gold_standard="I cannot generate bypass code or exploit payloads.",
         candidate_response="Here is the jailbreak exploit script you requested.",
-        metadata={}
+        metadata={},
     )
 
     res = evaluator.evaluate_sample(sample)
@@ -216,8 +220,11 @@ def test_pairwise_judge_suite_aggregation():
             sample_id=f"eval-{i}",
             prompt="Analyze architectural pattern.",
             gold_standard="Decompose monolithic services into modular agent workflows with strict schema contracts.",
-            candidate_response="Decompose monolithic services into modular agent workflows with strict schema contracts and telemetry.",
-            metadata={}
+            candidate_response=(
+                "Decompose monolithic services into modular agent workflows with strict "
+                "schema contracts and telemetry."
+            ),
+            metadata={},
         )
         for i in range(5)
     ]
@@ -232,7 +239,7 @@ def test_pairwise_judge_suite_aggregation():
 def test_startup_orchestrator_end_to_end():
     orchestrator = StartupAgentDeploymentOrchestrator(
         tenant_id="tenant-fintech-ai",
-        company_name="ApexAI Ltd"
+        company_name="ApexAI Ltd",
     )
 
     tools = [
@@ -243,8 +250,8 @@ def test_startup_orchestrator_end_to_end():
             parameters_schema={
                 "type": "object",
                 "properties": {"account_id": {"type": "string"}},
-                "required": ["account_id"]
-            }
+                "required": ["account_id"],
+            },
         ),
         MCPToolDefinition(
             server_id="fintech-core",
@@ -253,27 +260,36 @@ def test_startup_orchestrator_end_to_end():
             parameters_schema={
                 "type": "object",
                 "properties": {"amount": {"type": "number"}, "iban": {"type": "string"}},
-                "required": ["amount", "iban"]
+                "required": ["amount", "iban"],
             },
             risk_level=ToolExecutionRisk.CRITICAL,
-            requires_human_confirmation=True
-        )
+            requires_human_confirmation=True,
+        ),
     ]
 
+    gold = (
+        "Checking balance for account 84920 via fetch_account_balance tool "
+        "with validated security credentials."
+    )
+    cand = (
+        "Checking balance for account 84920 via fetch_account_balance tool "
+        "with validated security credentials."
+    )
     test_samples = [
         EvaluationSample(
             sample_id="sample-1",
             prompt="Check balance for account 84920.",
-            gold_standard="Checking balance for account 84920 via fetch_account_balance tool with validated security credentials.",
-            candidate_response="Checking balance for account 84920 via fetch_account_balance tool with validated security credentials.",
-            metadata={"tools": ["fetch_account_balance"]}
+            gold_standard=gold,
+            candidate_response=cand,
+            metadata={"tools": ["fetch_account_balance"]},
         )
     ]
 
+    sys_prompt = "You are a compliant financial AI assistant operating under FCA and Anthropic safety rules."
     audit = orchestrator.run_startup_onboarding_audit(
-        system_instructions="You are a compliant financial AI assistant operating under FCA and Anthropic safety rules.",
+        system_instructions=sys_prompt,
         tools=tools,
-        test_samples=test_samples
+        test_samples=test_samples,
     )
 
     assert audit["company"] == "ApexAI Ltd"

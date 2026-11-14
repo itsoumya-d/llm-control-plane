@@ -13,7 +13,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Set
 
 
 class ClaudeModel(str, Enum):
@@ -68,7 +68,7 @@ class ClaudePromptCacheManager:
             breakpoint_id=f"{block_name}:{content_hash[:12]}",
             token_count=tokens,
             content_hash=content_hash,
-            cache_type="ephemeral"
+            cache_type="ephemeral",
         )
         self.active_breakpoints[block_name] = pt
         return pt
@@ -77,7 +77,7 @@ class ClaudePromptCacheManager:
         self,
         base_tokens: int,
         cached_tokens: int,
-        turns: int
+        turns: int,
     ) -> CacheTelemetry:
         raw_cost = (base_tokens + cached_tokens) * turns * (self.BASE_INPUT_PER_M / 1_000_000)
         # First turn writes cache, subsequent turns read cache
@@ -90,7 +90,6 @@ class ClaudePromptCacheManager:
             else 0.0
         )
         discounted_cost = turn_1_cost + subsequent_turns_cost
-        savings_ratio = max(0.0, 1.0 - (discounted_cost / max(0.0001, raw_cost)))
         # Latency typically drops by 70-80% for large cached context reads
         latency_reduction = min(0.85, 0.80 * (cached_tokens / max(1, base_tokens + cached_tokens)))
 
@@ -100,7 +99,7 @@ class ClaudePromptCacheManager:
             cache_read_tokens=cached_tokens * max(0, turns - 1),
             raw_cost_usd=round(raw_cost, 6),
             discounted_cost_usd=round(discounted_cost, 6),
-            latency_reduction_ratio=round(latency_reduction, 3)
+            latency_reduction_ratio=round(latency_reduction, 3),
         )
 
 
@@ -128,7 +127,7 @@ class MCPStartupToolGateway:
             "eval(",
             "drop table",
             "process.exit",
-            "__import__"
+            "__import__",
         }
 
     def register_tool(self, tool: MCPToolDefinition) -> None:
@@ -141,13 +140,13 @@ class MCPStartupToolGateway:
         arguments: Dict[str, Any],
         tenant_id: str,
         executor: Callable[[Dict[str, Any]], Any],
-        is_human_confirmed: bool = False
+        is_human_confirmed: bool = False,
     ) -> Dict[str, Any]:
         if tool_name not in self.registered_tools:
             return {
                 "success": False,
                 "error": f"Tool '{tool_name}' not registered in MCP gateway.",
-                "status": "UNREGISTERED_TOOL"
+                "status": "UNREGISTERED_TOOL",
             }
 
         tool = self.registered_tools[tool_name]
@@ -160,15 +159,18 @@ class MCPStartupToolGateway:
             return {
                 "success": False,
                 "error": f"Rate limit of {tool.rate_limit_per_minute}/min exceeded for {tool_name}",
-                "status": "RATE_LIMITED"
+                "status": "RATE_LIMITED",
             }
 
         # Human in the loop confirmation check
         if tool.requires_human_confirmation and not is_human_confirmed:
             return {
                 "success": False,
-                "error": f"Tool {tool_name} with risk level '{tool.risk_level.value}' requires explicit human approval.",
-                "status": "APPROVAL_REQUIRED"
+                "error": (
+                    f"Tool {tool_name} with risk level '{tool.risk_level.value}' "
+                    f"requires explicit human approval."
+                ),
+                "status": "APPROVAL_REQUIRED",
             }
 
         # Security inspection: Prompt injection & SQL/command injection detection
@@ -178,18 +180,18 @@ class MCPStartupToolGateway:
                 return {
                     "success": False,
                     "error": f"Security alert: Malicious injection marker '{marker}' detected in tool arguments.",
-                    "status": "SECURITY_VIOLATION"
+                    "status": "SECURITY_VIOLATION",
                 }
 
         # Parameter schema validation (required fields)
         schema = tool.parameters_schema
         required_fields = schema.get("required", [])
-        for field in required_fields:
-            if field not in arguments:
+        for req_field in required_fields:
+            if req_field not in arguments:
                 return {
                     "success": False,
-                    "error": f"Missing required parameter '{field}' for tool '{tool_name}'",
-                    "status": "SCHEMA_VALIDATION_ERROR"
+                    "error": f"Missing required parameter '{req_field}' for tool '{tool_name}'",
+                    "status": "SCHEMA_VALIDATION_ERROR",
                 }
 
         # Execution
@@ -201,14 +203,14 @@ class MCPStartupToolGateway:
                 "tool": tool_name,
                 "tenant_id": tenant_id,
                 "result": result,
-                "status": "EXECUTED"
+                "status": "EXECUTED",
             }
         except Exception as exc:
             return {
                 "success": False,
                 "tool": tool_name,
                 "error": str(exc),
-                "status": "EXECUTION_EXCEPTION"
+                "status": "EXECUTION_EXCEPTION",
             }
 
 
@@ -276,7 +278,7 @@ class PairwiseLLMJudgeEvaluator:
             safety_score=round(safety, 3),
             composite_score=round(composite, 3),
             verdict=verdict,
-            feedback=feedback
+            feedback=feedback,
         )
 
     def evaluate_suite(self, samples: List[EvaluationSample]) -> Dict[str, Any]:
@@ -296,10 +298,10 @@ class PairwiseLLMJudgeEvaluator:
                     "sample_id": r.sample_id,
                     "composite": r.composite_score,
                     "verdict": r.verdict,
-                    "feedback": r.feedback
+                    "feedback": r.feedback,
                 }
                 for r in results
-            ]
+            ],
         }
 
 
@@ -317,7 +319,7 @@ class StartupAgentDeploymentOrchestrator:
         self,
         system_instructions: str,
         tools: List[MCPToolDefinition],
-        test_samples: List[EvaluationSample]
+        test_samples: List[EvaluationSample],
     ) -> Dict[str, Any]:
         # 1. Register tools
         for tool in tools:
@@ -330,7 +332,7 @@ class StartupAgentDeploymentOrchestrator:
         telemetry = self.cache_manager.calculate_cost_savings(
             base_tokens=150,
             cached_tokens=breakpoint_info.token_count,
-            turns=100
+            turns=100,
         )
 
         # 4. Run automated evaluation suite
@@ -343,8 +345,8 @@ class StartupAgentDeploymentOrchestrator:
             "cache_breakpoint": {
                 "id": breakpoint_info.breakpoint_id,
                 "tokens": breakpoint_info.token_count,
-                "cost_savings_ratio": f"{telemetry.discounted_cost_usd / max(0.001, telemetry.raw_cost_usd):.1%}"
+                "cost_savings_ratio": f"{telemetry.discounted_cost_usd / max(0.001, telemetry.raw_cost_usd):.1%}",
             },
             "eval_report": eval_report,
-            "verified_for_production": eval_report["deployment_ready"]
+            "verified_for_production": eval_report["deployment_ready"],
         }
