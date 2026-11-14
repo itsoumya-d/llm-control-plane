@@ -140,6 +140,14 @@ from .modal_sandbox import (
     SandboxSnapshotError,
     SandboxStatus,
 )
+from .n26_data_storage_sre import (
+    AuroraPostgresConnectionPoolOrchestrator,
+    BaFinAuditSnapshotManager,
+    ConnectionRequest,
+    DatabaseNode,
+    DatabasePlatformSLOTracker,
+    ReplicationLagAndFailoverMonitor,
+)
 from .openrouter import ModelLatencyStats, OpenRouterProvider, OpenRouterTelemetryTracker
 from .optimal_research_engine import (
     CardSortPlacement,
@@ -215,6 +223,14 @@ from .singlestore_connector import (
     SingleStoreQueryTimeoutError,
     SingleStoreSecurityError,
 )
+from .stream_realtime_messaging_orchestrator import (
+    DeliveryState,
+    PostgresEventPartitionManager,
+    RealTimeEventFanoutEngine,
+    RocksDBLSMCompactionCoordinator,
+    StreamMessage,
+    StreamPlatformTelemetryAndSLOTracker,
+)
 from .tavily_web_access_engine import (
     AdaptiveFetchScheduler,
     ChallengeType,
@@ -256,14 +272,6 @@ from .types import (
 __version__ = "1.0.0"
 
 
-from .n26_data_storage_sre import (
-    AuroraPostgresConnectionPoolOrchestrator,
-    BaFinAuditSnapshotManager,
-    ConnectionRequest,
-    DatabaseNode,
-    DatabasePlatformSLOTracker,
-    ReplicationLagAndFailoverMonitor,
-)
 
 __all__ = [
     "AccessDecisionTelemetry",
@@ -504,4 +512,10 @@ __all__ = [
     "DatabaseNode",
     "DatabasePlatformSLOTracker",
     "ReplicationLagAndFailoverMonitor",
+    "RealTimeEventFanoutEngine",
+    "PostgresEventPartitionManager",
+    "RocksDBLSMCompactionCoordinator",
+    "StreamPlatformTelemetryAndSLOTracker",
+    "StreamMessage",
+    "DeliveryState",
 ]
