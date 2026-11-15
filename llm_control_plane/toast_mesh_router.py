@@ -279,9 +279,7 @@ class ServiceCluster:
             return ejected_ids
 
         max_ejections = math.floor(total * (self.outlier_config.max_ejection_percent / 100.0))
-        currently_ejected = sum(
-            1 for ep in self.endpoints.values() if ep.health == EndpointHealth.EJECTED
-        )
+        currently_ejected = sum(1 for ep in self.endpoints.values() if ep.health == EndpointHealth.EJECTED)
 
         for ep in self.endpoints.values():
             if ep.health != EndpointHealth.EJECTED:

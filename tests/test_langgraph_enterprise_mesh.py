@@ -87,9 +87,7 @@ def test_time_travel_thread_forking() -> None:
     target_thread = "thread_fork_debug"
 
     snap1 = broker.save_checkpoint(source_thread, "node_plan", {"plan": "execute SQL"}, step_index=1)
-    broker.save_checkpoint(
-        source_thread, "node_exec", {"plan": "execute SQL", "sql_result": [1, 2, 3]}, step_index=2
-    )
+    broker.save_checkpoint(source_thread, "node_exec", {"plan": "execute SQL", "sql_result": [1, 2, 3]}, step_index=2)
 
     forked = broker.fork_thread(source_thread, snap1.checkpoint_id, target_thread)
     assert forked.thread_id == target_thread
@@ -159,9 +157,7 @@ def test_trace_mining_evaluator_metrics() -> None:
     evaluator = TraceMiningEvaluator()
     t0 = time.time()
 
-    evaluator.record_span(
-        "supervisor", RunSpanType.AGENT, {"q": "search"}, {"res": "ok"}, t0, t0 + 0.05
-    )
+    evaluator.record_span("supervisor", RunSpanType.AGENT, {"q": "search"}, {"res": "ok"}, t0, t0 + 0.05)
     evaluator.record_span(
         "retriever_tool", RunSpanType.TOOL, {"query": "vector"}, {"docs": [1]}, t0 + 0.05, t0 + 0.08, status="success"
     )

@@ -172,9 +172,7 @@ class DopplerSecretsBroker:
                     lease_id="none",
                     details={"reason": "secret_not_found", "environment": env},
                 )
-                raise DopplerSecretNotFoundError(
-                    f"Secret '{secret_name}' not found in environment '{env}'"
-                )
+                raise DopplerSecretNotFoundError(f"Secret '{secret_name}' not found in environment '{env}'")
 
             sec_meta = self._secrets[key]
             allowed_tenants = sec_meta.get("allowed_tenants")
@@ -353,9 +351,7 @@ class DopplerSecretsBroker:
             to_remove = [
                 lid
                 for lid, lease in self._leases.items()
-                if lease.revoked
-                or current_time >= lease.expires_at
-                or lease.access_count >= lease.max_access_count
+                if lease.revoked or current_time >= lease.expires_at or lease.access_count >= lease.max_access_count
             ]
             for lid in to_remove:
                 del self._leases[lid]

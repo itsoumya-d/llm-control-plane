@@ -14,9 +14,7 @@ from llm_control_plane.n26_data_storage_sre import (
 
 def test_aurora_connection_pool_routing():
     pool = AuroraPostgresConnectionPoolOrchestrator(cluster_id="n26-test-cluster")
-    writer = DatabaseNode(
-        node_id="aurora-writer-01", role="writer", host="writer.aurora.internal", max_connections=50
-    )
+    writer = DatabaseNode(node_id="aurora-writer-01", role="writer", host="writer.aurora.internal", max_connections=50)
     reader1 = DatabaseNode(
         node_id="aurora-reader-01", role="reader", host="reader1.aurora.internal", max_connections=50
     )

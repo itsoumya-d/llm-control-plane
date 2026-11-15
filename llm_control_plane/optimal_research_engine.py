@@ -104,9 +104,7 @@ class ResearchObservationClusterer:
         total_participants: int,
     ) -> Dict[str, Dict[str, float]]:
         """Calculates Jaccard / normalized co-occurrence agreement ratios (0.0 to 1.0)."""
-        sim_matrix: Dict[str, Dict[str, float]] = {
-            c: {c2: 0.0 for c2 in cards} for c in cards
-        }
+        sim_matrix: Dict[str, Dict[str, float]] = {c: {c2: 0.0 for c2 in cards} for c in cards}
         if total_participants <= 0:
             return sim_matrix
 
@@ -140,11 +138,7 @@ class ResearchObservationClusterer:
             for i in range(len(clusters)):
                 for j in range(i + 1, len(clusters)):
                     # Compute average linkage similarity between clusters
-                    sims = [
-                        similarity_matrix.get(c1, {}).get(c2, 0.0)
-                        for c1 in clusters[i]
-                        for c2 in clusters[j]
-                    ]
+                    sims = [similarity_matrix.get(c1, {}).get(c2, 0.0) for c1 in clusters[i] for c2 in clusters[j]]
                     avg_sim = sum(sims) / len(sims) if sims else 0.0
                     if avg_sim > best_sim:
                         best_sim = avg_sim
@@ -225,9 +219,7 @@ class TreejackNavigationScorer:
 
         # Efficiency: harmonic-like balance of success and directness normalized by duration
         dur_penalty = min(1.0, 30.0 / max(1.0, avg_dur))
-        efficiency_score = round(
-            (0.6 * success_rate + 0.4 * directness_rate) * dur_penalty, 4
-        )
+        efficiency_score = round((0.6 * success_rate + 0.4 * directness_rate) * dur_penalty, 4)
 
         return {
             "task_id": task_id,
@@ -390,15 +382,9 @@ class UserResearchStudyManager:
         """Computes cooccurrence, agreement matrix, and hierarchical clusters."""
         placements = self.card_sort_placements.get(study_id, [])
         participants = len({p.participant_id for p in placements})
-        cooc = ResearchObservationClusterer.calculate_cooccurrence_matrix(
-            cards, placements
-        )
-        sim = ResearchObservationClusterer.calculate_similarity_matrix(
-            cards, cooc, participants
-        )
-        clusters = ResearchObservationClusterer.build_hierarchical_clusters(
-            cards, sim, cluster_threshold
-        )
+        cooc = ResearchObservationClusterer.calculate_cooccurrence_matrix(cards, placements)
+        sim = ResearchObservationClusterer.calculate_similarity_matrix(cards, cooc, participants)
+        clusters = ResearchObservationClusterer.build_hierarchical_clusters(cards, sim, cluster_threshold)
         return {
             "study_id": study_id,
             "total_participants": participants,
@@ -415,9 +401,7 @@ class UserResearchStudyManager:
     ) -> Dict[str, Any]:
         """Evaluates tree test task success and directness metrics."""
         results = self.tree_test_results.get(study_id, [])
-        eval_metrics = TreejackNavigationScorer.evaluate_task(
-            task_id, target_node_id, results
-        )
+        eval_metrics = TreejackNavigationScorer.evaluate_task(task_id, target_node_id, results)
         first_clicks = TreejackNavigationScorer.identify_first_click_paths(results)
         return {
             "study_id": study_id,
@@ -432,9 +416,7 @@ class UserResearchStudyManager:
     ) -> Dict[str, Any]:
         """Synthesizes qualitative observation notes into prioritized themes."""
         obs = self.observations.get(study_id, [])
-        themes = ThematicSynthesisEngine.extract_thematic_clusters(
-            obs, min_theme_size=min_theme_size
-        )
+        themes = ThematicSynthesisEngine.extract_thematic_clusters(obs, min_theme_size=min_theme_size)
         return {
             "study_id": study_id,
             "total_observations": len(obs),

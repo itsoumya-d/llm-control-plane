@@ -162,9 +162,7 @@ def test_user_research_study_manager_lifecycle():
     assert study["status"] == StudyStatus.ACTIVE.value
 
     # Card sort flow
-    mgr.add_card_sort_placement(
-        "study_ia_v1", CardSortPlacement("p1", "card_cart", "Cart", "cat_checkout", "Checkout")
-    )
+    mgr.add_card_sort_placement("study_ia_v1", CardSortPlacement("p1", "card_cart", "Cart", "cat_checkout", "Checkout"))
     mgr.add_card_sort_placement(
         "study_ia_v1", CardSortPlacement("p1", "card_pay", "Payment", "cat_checkout", "Checkout")
     )

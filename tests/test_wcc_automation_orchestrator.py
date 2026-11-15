@@ -1,4 +1,5 @@
 """Unit tests for Wellington City Council Process Automation & Decision Support Orchestrator."""
+
 from __future__ import annotations
 
 from llm_control_plane.wcc_automation_orchestrator import (
@@ -58,9 +59,7 @@ def test_decision_guardrail_delegation_cap():
     guardrail = DecisionSupportGuardrail(min_confidence_threshold=0.80)
 
     # Over 250,000 capex -> must escalate
-    allowed, reason = guardrail.evaluate_decision(
-        "resource_consent", 0.95, {"estimated_capex_nzd": 450_000}
-    )
+    allowed, reason = guardrail.evaluate_decision("resource_consent", 0.95, {"estimated_capex_nzd": 450_000})
     assert allowed is False
     assert "exceeds automated delegation cap" in reason
 

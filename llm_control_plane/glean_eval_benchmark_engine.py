@@ -125,9 +125,7 @@ class AgenticLLMVerifier:
 
         available_doc_ids = {d.doc_id for d in test_case.context_documents}
         accessible_doc_ids = {
-            d.doc_id
-            for d in test_case.context_documents
-            if "all" in d.allowed_roles or caller_role in d.allowed_roles
+            d.doc_id for d in test_case.context_documents if "all" in d.allowed_roles or caller_role in d.allowed_roles
         }
 
         extracted_citations = self.extract_citations(generated_response)
@@ -173,9 +171,7 @@ class AgenticLLMVerifier:
         groundedness_score = grounded_count / max(1, len(sentences))
 
         # 4. Completeness score against gold reference
-        gold_keywords = [
-            t.lower() for t in re.findall(r"\b[A-Za-z0-9]{4,}\b", test_case.gold_reference)
-        ]
+        gold_keywords = [t.lower() for t in re.findall(r"\b[A-Za-z0-9]{4,}\b", test_case.gold_reference)]
         resp_lower = generated_response.lower()
         if gold_keywords:
             matched_gold = sum(1 for k in gold_keywords if k in resp_lower)
@@ -389,20 +385,24 @@ class EvalObservabilityMetrics:
             drop = base_score - cand_score
 
             if drop > tolerance_delta:
-                regressions.append({
-                    "slice": slice_key,
-                    "baseline_score": base_score,
-                    "candidate_score": cand_score,
-                    "score_drop": round(drop, 4),
-                    "reason": f"Composite score dropped by {drop:.4f} > {tolerance_delta}",
-                })
+                regressions.append(
+                    {
+                        "slice": slice_key,
+                        "baseline_score": base_score,
+                        "candidate_score": cand_score,
+                        "score_drop": round(drop, 4),
+                        "reason": f"Composite score dropped by {drop:.4f} > {tolerance_delta}",
+                    }
+                )
 
             if cand.get("acl_violations", 0) > base.get("acl_violations", 0):
-                regressions.append({
-                    "slice": slice_key,
-                    "baseline_acl_violations": base.get("acl_violations", 0),
-                    "candidate_acl_violations": cand.get("acl_violations", 0),
-                    "reason": "Candidate introduced new ACL safety violations",
-                })
+                regressions.append(
+                    {
+                        "slice": slice_key,
+                        "baseline_acl_violations": base.get("acl_violations", 0),
+                        "candidate_acl_violations": cand.get("acl_violations", 0),
+                        "reason": "Candidate introduced new ACL safety violations",
+                    }
+                )
 
         return regressions

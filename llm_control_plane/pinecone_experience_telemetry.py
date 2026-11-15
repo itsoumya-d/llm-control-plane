@@ -138,9 +138,7 @@ class VectorTelemetryEngine:
     ) -> Tuple[bool, VectorTelemetryEvent]:
         """Record a telemetry event with idempotency and cost calculation."""
         rus = self.calculate_read_units(operation, vector_dim, top_k, metadata_bytes)
-        wus = self.calculate_write_units(
-            operation, vector_dim, vector_count, metadata_bytes
-        )
+        wus = self.calculate_write_units(operation, vector_dim, vector_count, metadata_bytes)
         cost = (rus * self.RU_COST_USD) + (wus * self.WU_COST_USD)
 
         event = VectorTelemetryEvent(
@@ -166,9 +164,7 @@ class VectorTelemetryEngine:
         self._events.append(event)
         return True, event
 
-    def aggregate_by_namespace(
-        self, account_id: str, project_id: str
-    ) -> Dict[str, Dict[str, Any]]:
+    def aggregate_by_namespace(self, account_id: str, project_id: str) -> Dict[str, Dict[str, Any]]:
         """Aggregate usage telemetry grouped by namespace for billing transparency."""
         summary: Dict[str, Dict[str, Any]] = {}
         for ev in self._events:
@@ -188,9 +184,7 @@ class VectorTelemetryEngine:
             summary[ns]["write_units"] += ev.write_units
             summary[ns]["total_cost_usd"] += ev.cost_usd
             op_name = ev.operation.value
-            summary[ns]["operations"][op_name] = (
-                summary[ns]["operations"].get(op_name, 0) + 1
-            )
+            summary[ns]["operations"][op_name] = summary[ns]["operations"].get(op_name, 0) + 1
 
         for _ns, data in summary.items():
             data["read_units"] = round(data["read_units"], 4)
@@ -221,9 +215,7 @@ class SpendAlertManager:
     def register_rule(self, rule: SpendBudgetRule) -> None:
         self._rules[rule.rule_id] = rule
 
-    def evaluate_spend(
-        self, account_id: str, project_id: str, current_spend_usd: float
-    ) -> List[Dict[str, Any]]:
+    def evaluate_spend(self, account_id: str, project_id: str, current_spend_usd: float) -> List[Dict[str, Any]]:
         """Evaluate current spend against registered budget rules."""
         triggered_alerts: List[Dict[str, Any]] = []
         for rule in self._rules.values():
@@ -289,9 +281,7 @@ class BillingIntegrationGateway:
             return False, msg
 
         outbox_entry = {
-            "entry_id": hashlib.sha256(
-                json.dumps(payload, sort_keys=True).encode("utf-8")
-            ).hexdigest()[:16],
+            "entry_id": hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()[:16],
             "payload": payload,
             "status": "QUEUED",
             "enqueued_at": datetime.now(timezone.utc).isoformat(),
@@ -331,14 +321,10 @@ class FinOpsCostExporter:
                     "ResourceName": f"{ev.index_name}/{ev.namespace or 'default'}",
                     "OperationType": ev.operation.value,
                     "ConsumedQuantity": (
-                        ev.read_units
-                        if ev.operation in (OperationType.QUERY, OperationType.FETCH)
-                        else ev.write_units
+                        ev.read_units if ev.operation in (OperationType.QUERY, OperationType.FETCH) else ev.write_units
                     ),
                     "ConsumedUnit": (
-                        "ReadUnit"
-                        if ev.operation in (OperationType.QUERY, OperationType.FETCH)
-                        else "WriteUnit"
+                        "ReadUnit" if ev.operation in (OperationType.QUERY, OperationType.FETCH) else "WriteUnit"
                     ),
                     "BilledCost": ev.cost_usd,
                     "BillingCurrency": currency,

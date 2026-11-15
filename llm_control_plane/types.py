@@ -27,9 +27,7 @@ class RateLimitExceeded(Exception):
     """Raised when a tenant exhausts its token bucket."""
 
     def __init__(self, tenant_id: str, retry_after_seconds: float) -> None:
-        super().__init__(
-            f"tenant {tenant_id!r} is rate limited; retry in {retry_after_seconds:.3f}s"
-        )
+        super().__init__(f"tenant {tenant_id!r} is rate limited; retry in {retry_after_seconds:.3f}s")
         self.tenant_id = tenant_id
         self.retry_after_seconds = retry_after_seconds
 

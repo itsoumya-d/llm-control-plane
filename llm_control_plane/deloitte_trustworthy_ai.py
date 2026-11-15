@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional
 
 class TrustDimension(str, enum.Enum):
     """The 6 core dimensions of Deloitte's Trustworthy AI™ Framework."""
+
     FAIR_IMPARTIAL = "FAIR_IMPARTIAL"
     ROBUST_RELIABLE = "ROBUST_RELIABLE"
     TRANSPARENT_EXPLAINABLE = "TRANSPARENT_EXPLAINABLE"
@@ -30,6 +31,7 @@ class TrustDimension(str, enum.Enum):
 
 class RiskClassification(str, enum.Enum):
     """Enterprise risk tiering aligned with ISO 42001 and NIST AI RMF."""
+
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
@@ -38,6 +40,7 @@ class RiskClassification(str, enum.Enum):
 
 class AssuranceVerdict(str, enum.Enum):
     """Audit assurance verdict for executive risk committees."""
+
     PASSED = "PASSED"
     CONDITIONAL_PASS = "CONDITIONAL_PASS"
     REMEDIATION_REQUIRED = "REMEDIATION_REQUIRED"
@@ -47,6 +50,7 @@ class AssuranceVerdict(str, enum.Enum):
 @dataclass
 class DimensionScore:
     """Individual assessment score and audit findings for a single trust dimension."""
+
     dimension: TrustDimension
     score: float  # 0.0 to 100.0
     passed: bool
@@ -58,6 +62,7 @@ class DimensionScore:
 @dataclass
 class ModelEvaluationTarget:
     """Target AI system specification for Trustworthy AI assurance."""
+
     model_id: str
     model_name: str
     version: str
@@ -72,6 +77,7 @@ class ModelEvaluationTarget:
 @dataclass
 class TrustworthyAIReport:
     """Comprehensive Deloitte Trustworthy AI assurance audit report."""
+
     report_id: str
     target: ModelEvaluationTarget
     dimension_scores: Dict[TrustDimension, DimensionScore]
@@ -79,12 +85,14 @@ class TrustworthyAIReport:
     verdict: AssuranceVerdict
     evaluated_at: float
     audit_hash: str
-    standards_aligned: List[str] = field(default_factory=lambda: [
-        "Deloitte Trustworthy AI Framework",
-        "NIST AI RMF 1.0",
-        "ISO/IEC 42001:2023",
-        "NZ Algorithm Charter",
-    ])
+    standards_aligned: List[str] = field(
+        default_factory=lambda: [
+            "Deloitte Trustworthy AI Framework",
+            "NIST AI RMF 1.0",
+            "ISO/IEC 42001:2023",
+            "NZ Algorithm Charter",
+        ]
+    )
     executive_summary: str = ""
 
 
@@ -185,9 +193,7 @@ class DeloitteTrustworthyAIEngine:
         # Hallucination penalty: 0% is 100pts, 20% is 0pts
         h_score = max(0.0, (1.0 - (hallucination_rate / 0.20)) * 100.0)
         score = round(
-            (h_score * 0.4)
-            + (adversarial_stability * 100.0 * 0.3)
-            + (out_of_distribution_f1 * 100.0 * 0.3),
+            (h_score * 0.4) + (adversarial_stability * 100.0 * 0.3) + (out_of_distribution_f1 * 100.0 * 0.3),
             2,
         )
 
@@ -223,7 +229,7 @@ class DeloitteTrustworthyAIEngine:
         findings = []
         remediations = []
 
-        base = (feature_importance_coverage * 50.0)
+        base = feature_importance_coverage * 50.0
         if has_model_card:
             base += 25.0
         else:

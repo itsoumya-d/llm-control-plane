@@ -214,9 +214,7 @@ class DecagonAgentPlatform:
             return invocation
 
         # Idempotency cache key
-        idemp_hash = hashlib.sha256(
-            f"{tool_name}:{sorted(invocation.arguments.items())}".encode()
-        ).hexdigest()
+        idemp_hash = hashlib.sha256(f"{tool_name}:{sorted(invocation.arguments.items())}".encode()).hexdigest()
 
         if idemp_hash in self.tool_cache:
             invocation.status = "SUCCESS"

@@ -121,9 +121,7 @@ class MedallionLakehouseManager:
                             type_label = "/".join(t.__name__ for t in expected_type)
                         else:
                             type_label = getattr(expected_type, "__name__", str(expected_type))
-                        raise TypeError(
-                            f"Field '{field_name}' expected {type_label}, got {type(val).__name__}"
-                        )
+                        raise TypeError(f"Field '{field_name}' expected {type_label}, got {type(val).__name__}")
 
             sig = hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()
             s_rec_id = f"silver_{sig[:16]}"
@@ -148,9 +146,7 @@ class MedallionLakehouseManager:
         aggregations: Dict[str, Tuple[str, str]],  # output_alias -> (agg_func, input_col)
     ) -> List[Dict[str, Any]]:
         """Aggregate Silver data into aggregated business Gold marts."""
-        silver_rows = [
-            r.payload for r in self._silver_store.values() if r.metadata.get("dataset") == dataset_name
-        ]
+        silver_rows = [r.payload for r in self._silver_store.values() if r.metadata.get("dataset") == dataset_name]
         if not silver_rows:
             self._gold_marts[mart_name] = []
             return []

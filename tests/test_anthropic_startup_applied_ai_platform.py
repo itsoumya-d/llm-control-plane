@@ -166,9 +166,7 @@ def test_mcp_gateway_injection_detection():
     gateway.register_tool(tool)
 
     malicious_args = {"command": "echo test; sudo rm -rf /"}
-    res = gateway.validate_and_execute(
-        "run_script", malicious_args, "tenant-1", lambda args: None
-    )
+    res = gateway.validate_and_execute("run_script", malicious_args, "tenant-1", lambda args: None)
 
     assert res["success"] is False
     assert res["status"] == "SECURITY_VIOLATION"
@@ -221,8 +219,7 @@ def test_pairwise_judge_suite_aggregation():
             prompt="Analyze architectural pattern.",
             gold_standard="Decompose monolithic services into modular agent workflows with strict schema contracts.",
             candidate_response=(
-                "Decompose monolithic services into modular agent workflows with strict "
-                "schema contracts and telemetry."
+                "Decompose monolithic services into modular agent workflows with strict schema contracts and telemetry."
             ),
             metadata={},
         )
@@ -267,14 +264,8 @@ def test_startup_orchestrator_end_to_end():
         ),
     ]
 
-    gold = (
-        "Checking balance for account 84920 via fetch_account_balance tool "
-        "with validated security credentials."
-    )
-    cand = (
-        "Checking balance for account 84920 via fetch_account_balance tool "
-        "with validated security credentials."
-    )
+    gold = "Checking balance for account 84920 via fetch_account_balance tool with validated security credentials."
+    cand = "Checking balance for account 84920 via fetch_account_balance tool with validated security credentials."
     test_samples = [
         EvaluationSample(
             sample_id="sample-1",

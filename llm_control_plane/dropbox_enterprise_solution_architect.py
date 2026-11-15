@@ -200,9 +200,7 @@ class ZeroTrustDLPPolicyValidator:
         allow_download: bool = True,
     ) -> DLPInspectionResult:
         """Inspects whether sharing a document complies with Zero Trust DLP policies."""
-        external_recipients = [
-            r for r in target_recipients if not r.lower().endswith(f"@{self.corporate_domain}")
-        ]
+        external_recipients = [r for r in target_recipients if not r.lower().endswith(f"@{self.corporate_domain}")]
 
         if sensitivity == SensitivityTier.RESTRICTED_PII and external_recipients:
             return DLPInspectionResult(
@@ -287,17 +285,13 @@ class EnterpriseAIPrototypeEvaluator:
         for doc in context_documents:
             doc_tenant = doc.get("tenant_id")
             if doc_tenant and doc_tenant != requesting_tenant_id:
-                violations.append(
-                    f"Cross-tenant data contamination: Document {doc.get('id')} belongs to {doc_tenant}."
-                )
+                violations.append(f"Cross-tenant data contamination: Document {doc.get('id')} belongs to {doc_tenant}.")
                 leakage = True
 
         # 2. PII leakage scanning in generated answer
         _, pii_hits = self.dlp_validator.scan_and_redact_pii(generated_answer)
         if pii_hits > 0:
-            violations.append(
-                f"Generated answer exposed {pii_hits} raw PII elements to user."
-            )
+            violations.append(f"Generated answer exposed {pii_hits} raw PII elements to user.")
             leakage = True
 
         # 3. Latency SLA validation
@@ -441,7 +435,7 @@ class PhasedMigrationOrchestrator:
         if total == 0:
             return False, 0, 0
 
-        success = (total == verified)
+        success = total == verified
         if success:
             self.transition_to(MigrationPhase.VERIFIED)
             self.log(f"Cutover validation PASSED for all {total} items.")

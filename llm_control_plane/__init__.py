@@ -153,6 +153,17 @@ from .modal_sandbox import (
     SandboxSnapshotError,
     SandboxStatus,
 )
+from .mongodb_kubernetes_operator_platform import (
+    AtlasSearchSidecarOrchestrator,
+    ClusterPhase,
+    MongoDBClusterSpec,
+    MongoDBKubernetesController,
+    MongoDBOperatorTelemetryAndSLOTracker,
+    OperatorTelemetrySnapshot,
+    ReconciliationStatus,
+    RollingUpgradeAndFCVCoordinator,
+    SplitBrainException,
+)
 from .n26_data_storage_sre import (
     AuroraPostgresConnectionPoolOrchestrator,
     BaFinAuditSnapshotManager,
@@ -294,7 +305,6 @@ from .zilliz_cloud_platform_orchestrator import (
 )
 
 __version__ = "1.0.0"
-
 
 
 __all__ = [
@@ -562,4 +572,13 @@ __all__ = [
     "PairwiseLLMJudgeEvaluator",
     "StartupAgentDeploymentOrchestrator",
     "ToolExecutionRisk",
+    "AtlasSearchSidecarOrchestrator",
+    "ClusterPhase",
+    "MongoDBClusterSpec",
+    "MongoDBKubernetesController",
+    "MongoDBOperatorTelemetryAndSLOTracker",
+    "OperatorTelemetrySnapshot",
+    "ReconciliationStatus",
+    "RollingUpgradeAndFCVCoordinator",
+    "SplitBrainException",
 ]

@@ -107,9 +107,7 @@ def test_mongodb_json_schema_synthesizer():
 def test_stored_procedure_aggregation_transpilation():
     transpiler = StoredProcedureAggregationTranspiler()
 
-    joins = [
-        {"target_table": "order_items", "local_field": "order_id", "foreign_field": "order_id", "as": "items"}
-    ]
+    joins = [{"target_table": "order_items", "local_field": "order_id", "foreign_field": "order_id", "as": "items"}]
     where_filters = {"status": "PAID", "region": "EMEA"}
     group_by = ["items.category"]
     aggregates = {

@@ -209,11 +209,7 @@ class ClickHouseReBACEngine:
     ) -> Tuple[bool, str]:
         # 1. Direct role mapping on target resource
         for tup in self.tuples:
-            if (
-                tup.resource_type == res_type
-                and tup.resource_id == res_id
-                and tup.subject_id == principal_id
-            ):
+            if tup.resource_type == res_type and tup.resource_id == res_id and tup.subject_id == principal_id:
                 if tup.relation == "owner" or tup.relation == "admin":
                     return True, f"Direct {tup.relation} grant on {res_type.value}:{res_id}"
                 if permission in (Permission.READ, Permission.EXECUTE_QUERY) and tup.relation in (
@@ -229,9 +225,7 @@ class ClickHouseReBACEngine:
         parent_key = (res_type, res_id)
         if parent_key in self.resource_hierarchy:
             parent_type, parent_id = self.resource_hierarchy[parent_key]
-            parent_allowed, parent_reason = self._evaluate_permission(
-                principal_id, permission, parent_type, parent_id
-            )
+            parent_allowed, parent_reason = self._evaluate_permission(principal_id, permission, parent_type, parent_id)
             if parent_allowed:
                 return True, f"Inherited from parent {parent_type.value}:{parent_id} ({parent_reason})"
 
@@ -377,8 +371,7 @@ class AccessDecisionTelemetry:
         prev = "0" * 64
         for ev in self.events:
             payload = (
-                f"{prev}:{ev['principal_id']}:{ev['permission']}:{ev['resource']}:"
-                f"{ev['allowed']}:{ev['timestamp']}"
+                f"{prev}:{ev['principal_id']}:{ev['permission']}:{ev['resource']}:{ev['allowed']}:{ev['timestamp']}"
             )
             expected = hashlib.sha256(payload.encode()).hexdigest()
             if ev["hash"] != expected:

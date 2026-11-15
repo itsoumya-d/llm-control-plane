@@ -315,9 +315,7 @@ class SandboxLiveMigrator:
     def migrate(self, sandbox: MicroVMSandbox, target_node: ClusterNode) -> SandboxSnapshot:
         """Perform live state checkpointing and migration to target node."""
         if not target_node.can_host(sandbox):
-            raise CapacityExceededError(
-                f"Target node {target_node.node_id} cannot host sandbox {sandbox.sandbox_id}"
-            )
+            raise CapacityExceededError(f"Target node {target_node.node_id} cannot host sandbox {sandbox.sandbox_id}")
 
         old_node_id = sandbox.current_node_id
         sandbox.state = SandboxState.MIGRATING

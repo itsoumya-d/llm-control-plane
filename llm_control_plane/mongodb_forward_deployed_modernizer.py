@@ -505,9 +505,7 @@ class DualQueryConsistencyValidator:
                     r_val = float(rel_row.get(num_col, 0.0))
                     d_val = float(doc_row.get(num_col, 0.0))
                     if abs(r_val - d_val) > tolerance:
-                        discrepancies.append(
-                            f"Key {k} metric '{num_col}' mismatch: relational={r_val}, mongo={d_val}"
-                        )
+                        discrepancies.append(f"Key {k} metric '{num_col}' mismatch: relational={r_val}, mongo={d_val}")
 
         is_consistent = len(discrepancies) == 0
         total_items = max(len(all_keys), 1)

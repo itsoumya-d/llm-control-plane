@@ -131,9 +131,7 @@ class CANSignalReading:
 
     signal_name: str
     value: float
-    timestamp_epoch_ms: int = field(
-        default_factory=lambda: int(datetime.now(timezone.utc).timestamp() * 1000)
-    )
+    timestamp_epoch_ms: int = field(default_factory=lambda: int(datetime.now(timezone.utc).timestamp() * 1000))
 
 
 class CANBusSignalAnomalyDetector:
@@ -183,9 +181,7 @@ class CANBusSignalAnomalyDetector:
             "status": "ANOMALY" if is_anomaly else "NORMAL",
         }
 
-    def evaluate_multi_signal_correlation(
-        self, readings: list[CANSignalReading]
-    ) -> dict[str, Any]:
+    def evaluate_multi_signal_correlation(self, readings: list[CANSignalReading]) -> dict[str, Any]:
         """Correlates multiple signal channels to detect systemic hardware/firmware faults."""
         results = [self.ingest_reading(r) for r in readings]
         anomalies = [r for r in results if r["is_anomaly"]]
@@ -229,9 +225,7 @@ class KernelLogEntry:
 
     message: str
     subsystem: str = "kernel"
-    timestamp_epoch_ms: int = field(
-        default_factory=lambda: int(datetime.now(timezone.utc).timestamp() * 1000)
-    )
+    timestamp_epoch_ms: int = field(default_factory=lambda: int(datetime.now(timezone.utc).timestamp() * 1000))
 
 
 class KernelLogClusterEngine:
@@ -296,12 +290,14 @@ class KernelLogClusterEngine:
                     break
 
             if not matched:
-                clusters.append({
-                    "cluster_id": f"cluster_{len(clusters) + 1}",
-                    "templates": [tmpl],
-                    "total_occurrences": count,
-                    "tokens": tokens,
-                })
+                clusters.append(
+                    {
+                        "cluster_id": f"cluster_{len(clusters) + 1}",
+                        "templates": [tmpl],
+                        "total_occurrences": count,
+                        "tokens": tokens,
+                    }
+                )
 
         # Remove internal set before returning
         return [
@@ -347,10 +343,7 @@ class HybridEdgeCloudTelemetryTriager:
         for entry in log_entries:
             self.log_engine.ingest_log(entry)
         error_keywords = {"error", "warn", "fail", "fault", "panic", "drop", "abort", "critical", "trip"}
-        novel_error_logs = [
-            e for e in log_entries
-            if any(k in e.message.lower() for k in error_keywords)
-        ]
+        novel_error_logs = [e for e in log_entries if any(k in e.message.lower() for k in error_keywords)]
 
         # 4. Closed-loop decision
         is_critical = can_eval["severity"] == IncidentSeverity.CRITICAL.value

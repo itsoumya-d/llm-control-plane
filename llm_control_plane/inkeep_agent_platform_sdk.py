@@ -269,9 +269,7 @@ class InkeepAgentPlatformSDK:
                         EventType.HUMAN_APPROVAL_REQUIRED,
                         {"approval_id": approval_id, "tool_name": tool_name, "args": args},
                     )
-                    tool_results.append(
-                        {"name": tool_name, "status": "pending_approval", "approval_id": approval_id}
-                    )
+                    tool_results.append({"name": tool_name, "status": "pending_approval", "approval_id": approval_id})
                     continue
 
                 emit(EventType.TOOL_START, {"tool_name": tool_name, "args": args})

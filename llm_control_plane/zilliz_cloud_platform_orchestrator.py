@@ -155,8 +155,7 @@ class ZillizCloudPlatformOrchestrator:
     def _get_tenant_usage(self, tenant_id: str) -> Tuple[int, int, int]:
         """Calculate current cluster count, total CPU, and total memory used by a tenant."""
         clusters = [
-            c for c in self._clusters.values()
-            if c.spec.tenant_id == tenant_id and c.state != ClusterState.STOPPED
+            c for c in self._clusters.values() if c.spec.tenant_id == tenant_id and c.state != ClusterState.STOPPED
         ]
         total_cpu = sum(c.spec.total_cpu_cores for c in clusters)
         total_memory = sum(c.spec.total_memory_gb for c in clusters)

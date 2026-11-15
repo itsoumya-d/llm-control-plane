@@ -197,4 +197,3 @@ def test_connector_endpoints_schema_approval_and_dry_run():
     assert ok.status_code == 200
     assert ok.json()["status"] == "executed"
     assert ok.json()["output"] == {"posted": "V-99"}
-

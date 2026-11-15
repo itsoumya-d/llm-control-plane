@@ -85,15 +85,17 @@ class AuroraPostgresConnectionPoolOrchestrator:
         selected.active_connections += 1
 
         routing_decision = "writer_primary" if selected.role == "writer" else "reader_replica"
-        self.query_history.append({
-            "request_id": request.request_id,
-            "client_id": request.client_id,
-            "node_id": selected.node_id,
-            "role": selected.role,
-            "routing_decision": routing_decision,
-            "sql_snippet": request.sql_statement[:60],
-            "timestamp": time.time(),
-        })
+        self.query_history.append(
+            {
+                "request_id": request.request_id,
+                "client_id": request.client_id,
+                "node_id": selected.node_id,
+                "role": selected.role,
+                "routing_decision": routing_decision,
+                "sql_snippet": request.sql_statement[:60],
+                "timestamp": time.time(),
+            }
+        )
         return selected, routing_decision
 
     def release_connection(self, node_id: str) -> None:
@@ -157,8 +159,10 @@ class ReplicationLagAndFailoverMonitor:
         lsn_delta = max(0, primary["lsn"] - replica["lsn"])
         time_delta_ms = max(0.0, (primary["last_seen"] - replica["last_seen"]) * 1000.0)
 
-        status = "synchronized" if lsn_delta == 0 and time_delta_ms < 50.0 else (
-            "lagging" if time_delta_ms < 500.0 else "critical_lag"
+        status = (
+            "synchronized"
+            if lsn_delta == 0 and time_delta_ms < 50.0
+            else ("lagging" if time_delta_ms < 500.0 else "critical_lag")
         )
 
         return {
@@ -246,9 +250,7 @@ class BaFinAuditSnapshotManager:
         recalculated = hashlib.sha256(raw_manifest.encode("utf-8")).hexdigest()
         return recalculated == record["checksum_sha256"]
 
-    def export_audit_archive_to_s3(
-        self, snapshot_id: str, s3_bucket: str = "n26-bafin-audit-vault"
-    ) -> Dict[str, Any]:
+    def export_audit_archive_to_s3(self, snapshot_id: str, s3_bucket: str = "n26-bafin-audit-vault") -> Dict[str, Any]:
         """Exports verified audit snapshot metadata to immutable S3 Glacier Vault."""
         record = self.snapshots.get(snapshot_id)
         if not record or not self.verify_snapshot_integrity(snapshot_id):

@@ -101,11 +101,13 @@ class RegTechCustodyReconciler:
     def process_event(self, event: CustodyEvent) -> ReconciliationStatus:
         """Process an inbound financial transaction or custodial clearing event."""
         if event.idempotency_key in self._processed_keys:
-            self._reconciliation_log.append({
-                "event_id": event.event_id,
-                "status": ReconciliationStatus.DUPLICATE,
-                "reason": "Duplicate idempotency key detected",
-            })
+            self._reconciliation_log.append(
+                {
+                    "event_id": event.event_id,
+                    "status": ReconciliationStatus.DUPLICATE,
+                    "reason": "Duplicate idempotency key detected",
+                }
+            )
             return ReconciliationStatus.DUPLICATE
 
         self._processed_keys.add(event.idempotency_key)
@@ -140,11 +142,13 @@ class RegTechCustodyReconciler:
             else:
                 # Settlement arrived prior to internal authorization: park event
                 self._parked_settlements[event.event_id] = event
-                self._reconciliation_log.append({
-                    "event_id": event.event_id,
-                    "status": ReconciliationStatus.PARKED_AWAITING_AUTH,
-                    "reason": "Custodial clearing event arrived prior to internal authorization",
-                })
+                self._reconciliation_log.append(
+                    {
+                        "event_id": event.event_id,
+                        "status": ReconciliationStatus.PARKED_AWAITING_AUTH,
+                        "reason": "Custodial clearing event arrived prior to internal authorization",
+                    }
+                )
                 return ReconciliationStatus.PARKED_AWAITING_AUTH
 
         elif event.event_type in (EventType.DEPOSIT, EventType.WITHDRAWAL, EventType.DIVIDEND):
@@ -161,12 +165,14 @@ class RegTechCustodyReconciler:
 
     def _finalize_reconciliation(self, auth: CustodyEvent, settlement: CustodyEvent) -> ReconciliationStatus:
         if abs(auth.amount - settlement.amount) > 1e-4:
-            self._reconciliation_log.append({
-                "auth_id": auth.event_id,
-                "settlement_id": settlement.event_id,
-                "status": ReconciliationStatus.AMOUNT_MISMATCH,
-                "diff": abs(auth.amount - settlement.amount),
-            })
+            self._reconciliation_log.append(
+                {
+                    "auth_id": auth.event_id,
+                    "settlement_id": settlement.event_id,
+                    "status": ReconciliationStatus.AMOUNT_MISMATCH,
+                    "diff": abs(auth.amount - settlement.amount),
+                }
+            )
             return ReconciliationStatus.AMOUNT_MISMATCH
 
         self._settlements[settlement.event_id] = settlement
@@ -177,11 +183,13 @@ class RegTechCustodyReconciler:
             asset=settlement.symbol,
             ref=settlement.event_id,
         )
-        self._reconciliation_log.append({
-            "auth_id": auth.event_id,
-            "settlement_id": settlement.event_id,
-            "status": ReconciliationStatus.MATCHED,
-        })
+        self._reconciliation_log.append(
+            {
+                "auth_id": auth.event_id,
+                "settlement_id": settlement.event_id,
+                "status": ReconciliationStatus.MATCHED,
+            }
+        )
         return ReconciliationStatus.MATCHED
 
     def _post_ledger_entry(self, account_id: str, debit: float, credit: float, asset: str, ref: str) -> None:
@@ -245,62 +253,69 @@ class AMLTransactionMonitor:
 
         # Sanctions check
         if recipient_id and recipient_id in self._sanctions_watchlist:
-            alerts.append(ComplianceAlert(
-                alert_id=f"aml_{account_id}_{int(now)}_sanc",
-                account_id=account_id,
-                rule_name="SANCTIONS_LIST_MATCH",
-                severity=AlertSeverity.CRITICAL,
-                description=f"Transaction recipient {recipient_id} matches active sanctions database",
-                risk_score=1.0,
-                timestamp=now,
-                context={"recipient_id": recipient_id, "amount_nzd": amount_nzd},
-            ))
+            alerts.append(
+                ComplianceAlert(
+                    alert_id=f"aml_{account_id}_{int(now)}_sanc",
+                    account_id=account_id,
+                    rule_name="SANCTIONS_LIST_MATCH",
+                    severity=AlertSeverity.CRITICAL,
+                    description=f"Transaction recipient {recipient_id} matches active sanctions database",
+                    risk_score=1.0,
+                    timestamp=now,
+                    context={"recipient_id": recipient_id, "amount_nzd": amount_nzd},
+                )
+            )
 
         # Direct threshold check
         if amount_nzd >= self.reporting_threshold_nzd:
-            alerts.append(ComplianceAlert(
-                alert_id=f"aml_{account_id}_{int(now)}_thresh",
-                account_id=account_id,
-                rule_name="LARGE_TRANSACTION_THRESHOLD",
-                severity=AlertSeverity.HIGH if not is_international else AlertSeverity.CRITICAL,
-                description=f"Transaction amount NZD {amount_nzd:,.2f} meets or exceeds statutory threshold",
-                risk_score=0.85 if not is_international else 0.95,
-                timestamp=now,
-                context={"amount_nzd": amount_nzd, "threshold": self.reporting_threshold_nzd},
-            ))
+            alerts.append(
+                ComplianceAlert(
+                    alert_id=f"aml_{account_id}_{int(now)}_thresh",
+                    account_id=account_id,
+                    rule_name="LARGE_TRANSACTION_THRESHOLD",
+                    severity=AlertSeverity.HIGH if not is_international else AlertSeverity.CRITICAL,
+                    description=f"Transaction amount NZD {amount_nzd:,.2f} meets or exceeds statutory threshold",
+                    risk_score=0.85 if not is_international else 0.95,
+                    timestamp=now,
+                    context={"amount_nzd": amount_nzd, "threshold": self.reporting_threshold_nzd},
+                )
+            )
 
         # Structuring check (multiple transactions within rolling window just below threshold)
         recent_txs = [
-            tx for tx in self._user_history[account_id]
-            if now - tx["timestamp"] <= self.structuring_window_sec
+            tx for tx in self._user_history[account_id] if now - tx["timestamp"] <= self.structuring_window_sec
         ]
         window_total = sum(tx["amount_nzd"] for tx in recent_txs) + amount_nzd
         thresh_low = self.reporting_threshold_nzd * 0.70
-        near_threshold_txs = [
-            tx for tx in recent_txs if thresh_low <= tx["amount_nzd"] < self.reporting_threshold_nzd
-        ]
+        near_threshold_txs = [tx for tx in recent_txs if thresh_low <= tx["amount_nzd"] < self.reporting_threshold_nzd]
 
         is_near = thresh_low <= amount_nzd < self.reporting_threshold_nzd and len(near_threshold_txs) >= 1
         is_over_window = window_total > self.reporting_threshold_nzd * 1.5
 
         if is_near or is_over_window:
-            alerts.append(ComplianceAlert(
-                alert_id=f"aml_{account_id}_{int(now)}_struct",
-                account_id=account_id,
-                rule_name="POTENTIAL_STRUCTURING_DETECTED",
-                severity=AlertSeverity.HIGH,
-                description=f"Multiple rapid transactions totaling NZD {window_total:,.2f} within monitoring window",
-                risk_score=0.90,
-                timestamp=now,
-                context={"window_total_nzd": window_total, "count_recent": len(recent_txs) + 1},
-            ))
+            alerts.append(
+                ComplianceAlert(
+                    alert_id=f"aml_{account_id}_{int(now)}_struct",
+                    account_id=account_id,
+                    rule_name="POTENTIAL_STRUCTURING_DETECTED",
+                    severity=AlertSeverity.HIGH,
+                    description=(
+                        f"Multiple rapid transactions totaling NZD {window_total:,.2f} within monitoring window"
+                    ),
+                    risk_score=0.90,
+                    timestamp=now,
+                    context={"window_total_nzd": window_total, "count_recent": len(recent_txs) + 1},
+                )
+            )
 
-        self._user_history[account_id].append({
-            "amount_nzd": amount_nzd,
-            "timestamp": now,
-            "recipient_id": recipient_id,
-            "is_international": is_international,
-        })
+        self._user_history[account_id].append(
+            {
+                "amount_nzd": amount_nzd,
+                "timestamp": now,
+                "recipient_id": recipient_id,
+                "is_international": is_international,
+            }
+        )
         return alerts
 
 

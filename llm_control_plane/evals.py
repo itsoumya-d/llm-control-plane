@@ -87,8 +87,7 @@ class Score:
 class Scorer(Protocol):
     name: str
 
-    def score(self, case: EvalCase, output: str, latency_ms: float) -> Score:
-        ...
+    def score(self, case: EvalCase, output: str, latency_ms: float) -> Score: ...
 
 
 class ExactMatchScorer:
@@ -360,10 +359,7 @@ class EvalRunner:
             )
             try:
                 gateway_result = self.gateway.complete(request)
-                scores = [
-                    scorer.score(case, gateway_result.text, gateway_result.latency_ms)
-                    for scorer in self.scorers
-                ]
+                scores = [scorer.score(case, gateway_result.text, gateway_result.latency_ms) for scorer in self.scorers]
                 results.append(
                     EvalResult(
                         case_id=case.id,

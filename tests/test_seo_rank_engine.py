@@ -174,8 +174,7 @@ def test_search_intent_classification():
     assert SemanticKeywordClusterer.classify_intent("best seo companies auckland review") == SearchIntent.COMMERCIAL
     assert SemanticKeywordClusterer.classify_intent("justseo client portal login") == SearchIntent.NAVIGATIONAL
     assert (
-        SemanticKeywordClusterer.classify_intent("how to rank higher on google maps nz")
-        == SearchIntent.INFORMATIONAL
+        SemanticKeywordClusterer.classify_intent("how to rank higher on google maps nz") == SearchIntent.INFORMATIONAL
     )
     assert SemanticKeywordClusterer.classify_intent("what is cumulative layout shift") == SearchIntent.INFORMATIONAL
 
@@ -233,9 +232,9 @@ def test_rank_velocity_tracking():
         {"keyword": "kw3", "rank": 2},
     ]
     curr = [
-        {"keyword": "kw1", "rank": 6},   # improved +4
-        {"keyword": "kw2", "rank": 8},   # declined -3
-        {"keyword": "kw3", "rank": 2},   # unchanged 0
+        {"keyword": "kw1", "rank": 6},  # improved +4
+        {"keyword": "kw2", "rank": 8},  # declined -3
+        {"keyword": "kw3", "rank": 2},  # unchanged 0
     ]
     velocity = ClientSEOAnalyticsAggregator.calculate_rank_velocity(curr, prev)
     assert velocity["keywords_evaluated"] == 3

@@ -90,11 +90,7 @@ class AuditLog:
         return "\n".join(canonical_json(event.to_dict()) for event in self.events())
 
     def find(self, trace_id: str) -> List[AuditEvent]:
-        return [
-            event
-            for event in self.events()
-            if event.payload.get("trace_id") == trace_id
-        ]
+        return [event for event in self.events() if event.payload.get("trace_id") == trace_id]
 
     def head_hash(self) -> str:
         events = self.events()

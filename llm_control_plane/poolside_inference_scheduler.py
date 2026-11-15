@@ -38,6 +38,7 @@ class GPUNodeState(str, enum.Enum):
 @dataclass
 class GPUClusterNode:
     """Represents a physical or virtual GPU compute node in a Poolside training/inference cluster."""
+
     node_id: str
     gpu_model: str = "H100-SXM5-80GB"
     gpu_count: int = 8
@@ -82,6 +83,7 @@ class GPUClusterNode:
 @dataclass
 class InferenceWorkload:
     """Descriptor for an inference request or long-running evaluation job."""
+
     workload_id: str
     model_name: str
     workload_type: GPUWorkloadType
@@ -117,7 +119,7 @@ class ObservabilityMetric:
 
 class PoolsideInferenceScheduler:
     """Distributed GPU workload scheduler for Poolside frontier code models.
-    
+
     Provides:
     - Prefix-aware routing (maximizing KV-cache reuse across shared repo/AST context).
     - Priority-based scheduling with preemption of batch RL/eval jobs.
@@ -152,7 +154,7 @@ class PoolsideInferenceScheduler:
 
     def schedule_next(self) -> Optional[Tuple[str, str]]:
         """Schedules the highest priority workload to the optimal GPU node.
-        
+
         Returns:
             Tuple of (workload_id, node_id) if scheduled, None if blocked.
         """
@@ -202,7 +204,8 @@ class PoolsideInferenceScheduler:
     def _attempt_preemption(self, urgent_workload: InferenceWorkload) -> bool:
         """Preempts lowest priority batch EVALS or RL_ROLLOUT to free up VRAM."""
         preemptible_workloads = [
-            w for w in self.active_workloads.values()
+            w
+            for w in self.active_workloads.values()
             if w.workload_type in (GPUWorkloadType.EVALS, GPUWorkloadType.RL_ROLLOUT)
             and w.priority < urgent_workload.priority
         ]
@@ -277,7 +280,7 @@ class PoolsideInferenceScheduler:
 
 class PoolsideKubernetesController:
     """Kubernetes Operator & Custom Controller reconcile loop for Poolside inference clusters.
-    
+
     Automates:
     - Pod replica autoscaling based on queue depth and token demand.
     - Node health monitoring: cordoning and draining nodes upon ECC or Xid hardware errors.
@@ -309,8 +312,7 @@ class PoolsideKubernetesController:
 
         # Inspect degraded nodes
         degraded = [
-            n for n in self.scheduler.nodes.values()
-            if n.state in (GPUNodeState.DEGRADED_ECC, GPUNodeState.DRAINING)
+            n for n in self.scheduler.nodes.values() if n.state in (GPUNodeState.DEGRADED_ECC, GPUNodeState.DRAINING)
         ]
         drained_count = 0
         for node in degraded:

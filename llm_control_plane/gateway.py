@@ -71,10 +71,7 @@ class LLMGateway:
         if not self.config.redact_pii:
             return list(messages), {}
         redacted_texts, counts = self.redactor.redact_many([message.content for message in messages])
-        redacted = [
-            ChatMessage(role=message.role, content=text)
-            for message, text in zip(messages, redacted_texts)
-        ]
+        redacted = [ChatMessage(role=message.role, content=text) for message, text in zip(messages, redacted_texts)]
         return redacted, counts
 
     def _cached(self, tenant_id: str, trace_id: Optional[str]) -> Optional[GatewayResult]:
@@ -142,12 +139,7 @@ class LLMGateway:
         sanitized = replace(request, messages=redacted_messages, trace_id=trace_id)
         prompt_hash = sha256_hex(
             canonical_json(
-                {
-                    "messages": [
-                        {"role": message.role, "content": message.content}
-                        for message in redacted_messages
-                    ]
-                }
+                {"messages": [{"role": message.role, "content": message.content} for message in redacted_messages]}
             )
         )
 
@@ -243,7 +235,7 @@ class LLMGateway:
                     if attempt + 1 < self.config.max_attempts_per_target:
                         delay = min(
                             self.config.max_backoff_seconds,
-                            self.config.base_backoff_seconds * (2 ** attempt),
+                            self.config.base_backoff_seconds * (2**attempt),
                         )
                         self.sleeper(delay)
                     continue

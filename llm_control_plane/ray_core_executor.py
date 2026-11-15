@@ -109,9 +109,7 @@ class RayObjectStore:
         with self._lock:
             size = estimated_size or max(len(str(value).encode("utf-8")), 64)
             if size > self._capacity_bytes:
-                raise RayObjectStoreError(
-                    f"Object size {size}B exceeds total capacity {self._capacity_bytes}B"
-                )
+                raise RayObjectStoreError(f"Object size {size}B exceeds total capacity {self._capacity_bytes}B")
 
             self._evict_if_needed(size)
 
@@ -230,10 +228,7 @@ class RayClusterNode:
             self.allocated[res] = max(0.0, self.allocated.get(res, 0.0) - val)
 
     def get_available_resources(self) -> Dict[str, float]:
-        return {
-            res: max(0.0, total - self.allocated.get(res, 0.0))
-            for res, total in self.resources.items()
-        }
+        return {res: max(0.0, total - self.allocated.get(res, 0.0)) for res, total in self.resources.items()}
 
 
 @dataclass
