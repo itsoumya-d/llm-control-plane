@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from llm_control_plane.telnyx_fraud_abuse_engine import (
     AbuseArchetype,
     AdversarialTextNormalizer,
@@ -98,7 +96,10 @@ def test_inline_decision_engine_phishing_triggers() -> None:
     """Verify smishing call-to-action trigger detection."""
     engine = TelnyxFraudDecisionEngine()
 
-    msg = "Immediate action required: Your account suspended due to billing failure. Click here to verify your identity: http://bit.ly/fix-billing"
+    msg = (
+        "Immediate action required: Your account suspended due to billing failure. "
+        "Click here to verify your identity: http://bit.ly/fix-billing"
+    )
     decision = engine.evaluate_message(
         message=msg,
         sender_id="Alert",
@@ -116,7 +117,10 @@ def test_inline_decision_engine_legitimate_otp() -> None:
     """Verify standard legitimate transactional traffic passes cleanly."""
     engine = TelnyxFraudDecisionEngine()
 
-    msg = "Your Dublin City Library reservation for book 'Designing Data-Intensive Applications' is ready for collection at Ilac Centre."
+    msg = (
+        "Your Dublin City Library reservation for book 'Designing Data-Intensive Applications' "
+        "is ready for collection at Ilac Centre."
+    )
     decision = engine.evaluate_message(
         message=msg,
         sender_id="DubLibrary",

@@ -256,9 +256,18 @@ class AITTrafficWatchdog:
 
         entropy = profile.calculate_destination_entropy()
         # High volume + low entropy + single template = classical AIT toll fraud pattern
-        if profile.message_count > self.velocity_threshold and entropy < self.entropy_min and len(profile.template_hashes) <= 2:
+        if (
+            profile.message_count > self.velocity_threshold
+            and entropy < self.entropy_min
+            and len(profile.template_hashes) <= 2
+        ):
             ait_risk = min(1.0, 0.6 + (0.4 * (1.0 - min(entropy / self.entropy_min, 1.0))))
-            return True, round(ait_risk, 4), f"AIT detected: {profile.message_count} msgs, low entropy {entropy:.2f}, {len(profile.template_hashes)} template(s)"
+            return (
+                True,
+                round(ait_risk, 4),
+                f"AIT detected: {profile.message_count} msgs, low entropy {entropy:.2f}, "
+                f"{len(profile.template_hashes)} template(s)",
+            )
 
         return False, 0.0, f"Normal traffic pattern (entropy={entropy:.2f}, count={profile.message_count})"
 
@@ -357,7 +366,8 @@ class TelnyxFraudDecisionEngine:
                 )
 
         # Phishing / Smishing check
-        if len(matched_triggers) >= 2 or (matched_triggers and ("http" in normalized_text or "bit.ly" in normalized_text)):
+        has_shortener = "http" in normalized_text or "bit.ly" in normalized_text
+        if len(matched_triggers) >= 2 or (matched_triggers and has_shortener):
             return LLMJudgeVerdict(
                 archetype=AbuseArchetype.PHISHING_SMISHING,
                 confidence=0.91,
@@ -459,7 +469,9 @@ class TelnyxFraudDecisionEngine:
 
         except Exception as exc:
             elapsed = (time.perf_counter() - start_time) * 1000.0
-            fallback_action = DecisionAction.ALLOW if fail_mode == FailMode.FAIL_OPEN else DecisionAction.QUARANTINE_REVIEW
+            fallback_action = (
+                DecisionAction.ALLOW if fail_mode == FailMode.FAIL_OPEN else DecisionAction.QUARANTINE_REVIEW
+            )
             reasons.append(f"Inline decision engine exception: {str(exc)}. Fallback mode {fail_mode.value} applied.")
             result = FraudDecisionResult(
                 action=fallback_action,
@@ -532,7 +544,7 @@ class ShadowModeEvaluator:
         self,
         corpus: List[Dict[str, Any]],
     ) -> ShadowEvaluationMetrics:
-        """Run shadow evaluation over corpus of records with {message, sender_id, recipient, true_archetype, is_fraud}."""
+        """Run shadow evaluation over corpus of records with {message, sender_id, recipient, ...}."""
         tp = fp = tn = fn = 0
         brier_sum = 0.0
         archetype_stats: Dict[str, Dict[str, int]] = {}
