@@ -34,14 +34,11 @@ class HardwareDegradationType(str, enum.Enum):
     PAGE_RETIREMENT_FAILURE = "PAGE_RETIREMENT_FAILURE"
 
 
-class NodeLifecycleState(str, enum.Enum):
+class VLLMNodeLifecycleState(str, enum.Enum):
     READY = "READY"
     CORDONED = "CORDONED"
     DRAINING = "DRAINING"
     FENCED_ISOLATED = "FENCED_ISOLATED"
-
-
-VLLMNodeLifecycleState = NodeLifecycleState
 
 
 class DeploymentPhase(str, enum.Enum):
@@ -80,7 +77,7 @@ class ClusterNode:
     hostname: str
     rack_id: str
     gpus: Dict[int, GPUDeviceState] = field(default_factory=dict)
-    state: NodeLifecycleState = NodeLifecycleState.READY
+    state: VLLMNodeLifecycleState = VLLMNodeLifecycleState.READY
     labels: Dict[str, str] = field(default_factory=dict)
     taints: Set[str] = field(default_factory=set)
 
@@ -177,17 +174,17 @@ class GPUHealthWatchdog:
         for idx, gpu in node.gpus.items():
             if gpu.ecc_uncorrectable_count > 0:
                 self.fenced_nodes.add(node.node_id)
-                node.state = NodeLifecycleState.FENCED_ISOLATED
+                node.state = VLLMNodeLifecycleState.FENCED_ISOLATED
                 node.taints.add("nvidia.com/gpu-degraded:NoSchedule")
                 return False, f"GPU {idx} reported uncorrectable ECC error"
             if gpu.nvlink_degraded:
                 self.fenced_nodes.add(node.node_id)
-                node.state = NodeLifecycleState.FENCED_ISOLATED
+                node.state = VLLMNodeLifecycleState.FENCED_ISOLATED
                 node.taints.add("nvidia.com/nvlink-failed:NoSchedule")
                 return False, f"GPU {idx} NVLink bandwidth degraded below threshold"
             if gpu.temperature_c >= 90.0:
                 self.fenced_nodes.add(node.node_id)
-                node.state = NodeLifecycleState.FENCED_ISOLATED
+                node.state = VLLMNodeLifecycleState.FENCED_ISOLATED
                 node.taints.add("nvidia.com/thermal-critical:NoSchedule")
                 return False, f"GPU {idx} thermal critical limit exceeded ({gpu.temperature_c}C)"
         return True, None
@@ -221,7 +218,7 @@ class InferactVLLMCloudOrchestrator:
             candidate_nodes.insert(0, self.nodes[preferred_node_id])
 
         for node in candidate_nodes:
-            if node.state != NodeLifecycleState.READY:
+            if node.state != VLLMNodeLifecycleState.READY:
                 continue
             available_gpus = [g for g in node.gpus.values() if g.is_healthy and g.assigned_actor_id is None]
             if len(available_gpus) >= needed_gpus:
@@ -427,7 +424,10 @@ class InferactVLLMCloudOrchestrator:
             f'vllm_desired_replicas{{model="{self.spec.model_id}"}} {self.status.desired_replicas}',
             "# HELP vllm_kv_cache_utilization_ratio Current PagedAttention KV-cache utilization",
             "# TYPE vllm_kv_cache_utilization_ratio gauge",
-            f'vllm_kv_cache_utilization_ratio{{model="{self.spec.model_id}"}} {self.status.avg_kv_cache_utilization}',
+            (
+                f'vllm_kv_cache_utilization_ratio{{model="{self.spec.model_id}"}} '
+                f"{self.status.avg_kv_cache_utilization}"
+            ),
             "# HELP vllm_fenced_nodes_total Total number of nodes fenced due to hardware degradation",
             "# TYPE vllm_fenced_nodes_total counter",
             f"vllm_fenced_nodes_total {self.status.total_fenced_nodes}",

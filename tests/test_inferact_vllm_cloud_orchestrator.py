@@ -8,9 +8,9 @@ from llm_control_plane.inferact_vllm_cloud_orchestrator import (
     GPUHealthWatchdog,
     HardwareDegradationType,
     InferactVLLMCloudOrchestrator,
-    NodeLifecycleState,
     PagedKVCacheState,
     VLLMInferenceClusterSpec,
+    VLLMNodeLifecycleState,
 )
 
 
@@ -52,14 +52,14 @@ def test_gpu_watchdog_degradation_fencing() -> None:
     is_healthy, reason = watchdog.evaluate_node(node)
     assert is_healthy is True
     assert reason is None
-    assert node.state == NodeLifecycleState.READY
+    assert node.state == VLLMNodeLifecycleState.READY
 
     # Inject ECC error on GPU 2
     node.gpus[2].ecc_uncorrectable_count = 1
     is_healthy, reason = watchdog.evaluate_node(node)
     assert is_healthy is False
     assert "ECC error" in str(reason)
-    assert node.state == NodeLifecycleState.FENCED_ISOLATED
+    assert node.state == VLLMNodeLifecycleState.FENCED_ISOLATED
     assert "nvidia.com/gpu-degraded:NoSchedule" in node.taints
     assert "sg-node-01" in watchdog.fenced_nodes
 
