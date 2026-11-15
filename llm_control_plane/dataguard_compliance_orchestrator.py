@@ -72,7 +72,7 @@ class ComplianceEvidence(BaseModel):
         return self
 
 
-class EvaluationResult(BaseModel):
+class ComplianceEvaluationResult(BaseModel):
     control_id: str
     framework: ComplianceFramework
     status: ControlStatus
@@ -119,7 +119,7 @@ class DataGuardComplianceOrchestrator:
         self._evidence_store[sealed.evidence_id] = sealed
         return sealed.checksum or ""
 
-    def evaluate_gdpr_policy(self, evidence_id: str) -> EvaluationResult:
+    def evaluate_gdpr_policy(self, evidence_id: str) -> ComplianceEvaluationResult:
         """Evaluates GDPR Article 32 & 33 compliance (security of processing & breach notification)."""
         evidence = self._evidence_store.get(evidence_id)
         if not evidence or evidence.framework != ComplianceFramework.GDPR:
@@ -166,7 +166,7 @@ class DataGuardComplianceOrchestrator:
             status = ControlStatus.NON_COMPLIANT
             summary = "Critical GDPR non-compliance detected with direct regulatory liability"
 
-        return EvaluationResult(
+        return ComplianceEvaluationResult(
             control_id=f"GDPR-ART-32-{evidence.evidence_id}",
             framework=ComplianceFramework.GDPR,
             status=status,
@@ -176,7 +176,7 @@ class DataGuardComplianceOrchestrator:
             remediation_steps=remediation,
         )
 
-    def evaluate_iso27001_policy(self, evidence_id: str) -> EvaluationResult:
+    def evaluate_iso27001_policy(self, evidence_id: str) -> ComplianceEvaluationResult:
         """Evaluates ISO/IEC 27001:2022 Annex A controls (A.5, A.8)."""
         evidence = self._evidence_store.get(evidence_id)
         if not evidence or evidence.framework != ComplianceFramework.ISO_27001:
@@ -222,7 +222,7 @@ class DataGuardComplianceOrchestrator:
             status = ControlStatus.NON_COMPLIANT
             summary = "ISO 27001:2022 audit failure: critical security controls missing"
 
-        return EvaluationResult(
+        return ComplianceEvaluationResult(
             control_id=f"ISO27001-A8-{evidence.evidence_id}",
             framework=ComplianceFramework.ISO_27001,
             status=status,

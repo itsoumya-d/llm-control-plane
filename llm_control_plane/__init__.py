@@ -367,6 +367,16 @@ from .complyadvantage_gtm_pipeline_orchestrator import (
     SignalType,
     TargetAccount,
 )
+from .dataguard_compliance_orchestrator import (
+    AIAuditAssessment,
+    AuditChainBlock,
+    ComplianceEvaluationResult,
+    ComplianceEvidence,
+    ComplianceFramework,
+    ControlStatus,
+    DataGuardComplianceOrchestrator,
+    EvidenceType,
+)
 from .fiskaly_fiscal_audit_engine import (
     CloudTSECryptographicSigner,
     FiscalAnomalyType,
@@ -413,16 +423,6 @@ from .starburst_ai_platform_bridge_sdk import (
     TokenBucketQuotaManager,
     ToolExecutionContract,
     ToolValidationResult,
-)
-from .dataguard_compliance_orchestrator import (
-    AIAuditAssessment,
-    AuditChainBlock,
-    ComplianceEvidence,
-    ComplianceFramework,
-    ControlStatus,
-    DataGuardComplianceOrchestrator,
-    EvaluationResult,
-    EvidenceType,
 )
 from .superchat_data_platform_orchestrator import (
     ChannelSource,
@@ -844,10 +844,10 @@ __all__ = [
     "ToolValidationResult",
     "AIAuditAssessment",
     "AuditChainBlock",
+    "ComplianceEvaluationResult",
     "ComplianceEvidence",
     "ComplianceFramework",
     "ControlStatus",
     "DataGuardComplianceOrchestrator",
-    "EvaluationResult",
     "EvidenceType",
 ]
