@@ -394,6 +394,21 @@ from .superchat_data_platform_orchestrator import (
     SCD2SnapshotEngine,
     SubscriptionSnapshot,
 )
+from .telnyx_fraud_abuse_engine import (
+    AbuseArchetype,
+    AdversarialTextNormalizer,
+    AITTrafficWatchdog,
+    DecisionAction,
+    DecisionAuditEntry,
+    FailMode,
+    FraudDecisionResult,
+    HumanInTheLoopReplayHarness,
+    LLMJudgeVerdict,
+    NormalizationResult,
+    ShadowEvaluationMetrics,
+    ShadowModeEvaluator,
+    TelnyxFraudDecisionEngine,
+)
 
 __all__ = [
     "AccessDecisionTelemetry",
@@ -742,4 +757,17 @@ __all__ = [
     "TelemetryEvent",
     "TelemetryIngestionStream",
     "TelemetryType",
+    "AbuseArchetype",
+    "AdversarialTextNormalizer",
+    "AITTrafficWatchdog",
+    "DecisionAction",
+    "DecisionAuditEntry",
+    "FailMode",
+    "FraudDecisionResult",
+    "HumanInTheLoopReplayHarness",
+    "LLMJudgeVerdict",
+    "NormalizationResult",
+    "ShadowEvaluationMetrics",
+    "ShadowModeEvaluator",
+    "TelnyxFraudDecisionEngine",
 ]
