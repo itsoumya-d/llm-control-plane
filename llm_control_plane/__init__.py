@@ -367,6 +367,16 @@ from .complyadvantage_gtm_pipeline_orchestrator import (
     SignalType,
     TargetAccount,
 )
+from .dataguard_compliance_orchestrator import (
+    AIAuditAssessment,
+    AuditChainBlock,
+    ComplianceEvaluationResult,
+    ComplianceEvidence,
+    ComplianceFramework,
+    ControlStatus,
+    DataGuardComplianceOrchestrator,
+    EvidenceType,
+)
 from .fiskaly_fiscal_audit_engine import (
     CloudTSECryptographicSigner,
     FiscalAnomalyType,
@@ -832,4 +842,12 @@ __all__ = [
     "TokenBucketQuotaManager",
     "ToolExecutionContract",
     "ToolValidationResult",
+    "AIAuditAssessment",
+    "AuditChainBlock",
+    "ComplianceEvaluationResult",
+    "ComplianceEvidence",
+    "ComplianceFramework",
+    "ControlStatus",
+    "DataGuardComplianceOrchestrator",
+    "EvidenceType",
 ]
