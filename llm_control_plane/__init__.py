@@ -345,6 +345,16 @@ from .zilliz_cloud_platform_orchestrator import (
 __version__ = "1.0.0"
 
 
+from .binance_conversational_agent_orchestrator import (
+    BinanceFinancialToolGateway,
+    ConversationalSafetyAndEvalWatchdog,
+    MarketContextStreamSynchronizer,
+    MultiTurnAgentMemoryManager,
+    OrderBookDepthQuery,
+    TokenInsightQuery,
+    TradeStrategyProposal,
+    TurnMessage,
+)
 from .complyadvantage_gtm_pipeline_orchestrator import (
     AccountTier,
     CrmWebhookSyncDispatcher,
@@ -792,4 +802,12 @@ __all__ = [
     "ReceiptItem",
     "ReceiptTransaction",
     "SignedFiscalReceipt",
+    "BinanceFinancialToolGateway",
+    "ConversationalSafetyAndEvalWatchdog",
+    "MarketContextStreamSynchronizer",
+    "MultiTurnAgentMemoryManager",
+    "OrderBookDepthQuery",
+    "TokenInsightQuery",
+    "TradeStrategyProposal",
+    "TurnMessage",
 ]
