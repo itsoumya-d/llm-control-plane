@@ -414,6 +414,16 @@ from .starburst_ai_platform_bridge_sdk import (
     ToolExecutionContract,
     ToolValidationResult,
 )
+from .dataguard_compliance_orchestrator import (
+    AIAuditAssessment,
+    AuditChainBlock,
+    ComplianceEvidence,
+    ComplianceFramework,
+    ControlStatus,
+    DataGuardComplianceOrchestrator,
+    EvaluationResult,
+    EvidenceType,
+)
 from .superchat_data_platform_orchestrator import (
     ChannelSource,
     DagsterAssetNode,
@@ -832,4 +842,12 @@ __all__ = [
     "TokenBucketQuotaManager",
     "ToolExecutionContract",
     "ToolValidationResult",
+    "AIAuditAssessment",
+    "AuditChainBlock",
+    "ComplianceEvidence",
+    "ComplianceFramework",
+    "ControlStatus",
+    "DataGuardComplianceOrchestrator",
+    "EvaluationResult",
+    "EvidenceType",
 ]
