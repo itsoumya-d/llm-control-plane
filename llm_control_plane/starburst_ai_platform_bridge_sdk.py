@@ -18,7 +18,7 @@ import zlib
 from enum import Enum
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 
 class JVMDataType(str, Enum):
@@ -203,7 +203,7 @@ class DeterministicToolExecutionGateway:
             return ToolValidationResult(
                 valid=False,
                 error_message=f"Catalog '{contract.catalog}' unauthorized. Allowed: {sorted(self.ALLOWED_CATALOGS)}",
-                suggested_repair=f"Set catalog to 'lakehouse' or 'iceberg'",
+                suggested_repair="Set catalog to 'lakehouse' or 'iceberg'",
             )
 
         if contract.tool_name == "trino_query_catalog":
@@ -235,7 +235,8 @@ class DeterministicToolExecutionGateway:
                     error_message="Missing 'table_name' argument",
                     suggested_repair="Supply table_name: 'orders'",
                 )
-            return ToolValidationResult(valid=True, sanitized_sql=f"DESCRIBE {contract.catalog}.{contract.schema_name}.{table}")
+            describe_target = f"{contract.catalog}.{contract.schema_name}.{table}"
+            return ToolValidationResult(valid=True, sanitized_sql=f"DESCRIBE {describe_target}")
 
         return ToolValidationResult(
             valid=False,

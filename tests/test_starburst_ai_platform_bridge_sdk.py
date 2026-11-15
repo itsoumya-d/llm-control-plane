@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 import pytest
 
 from llm_control_plane.starburst_ai_platform_bridge_sdk import (
@@ -15,7 +14,6 @@ from llm_control_plane.starburst_ai_platform_bridge_sdk import (
     StreamTokenChunk,
     TokenBucketQuotaManager,
     ToolExecutionContract,
-    ToolValidationResult,
 )
 
 
