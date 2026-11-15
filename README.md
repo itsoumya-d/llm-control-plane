@@ -5,7 +5,7 @@
 [![CI](https://github.com/itsoumya-d/llm-control-plane/actions/workflows/ci.yml/badge.svg)](https://github.com/itsoumya-d/llm-control-plane/actions/workflows/ci.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Tests: 50](https://img.shields.io/badge/tests-50%20passing-brightgreen.svg)](#testing)
+[![Tests: 50](https://img.shields.io/badge/tests-539%20passing-brightgreen.svg)](#testing)
 
 Most teams add a second model provider and discover, too late, that nobody owns routing, retries, cost attribution, evaluation, or the audit trail. This project is a compact reference implementation of that missing layer: one Python package that routes model calls, fails over deterministically, enforces per-tenant rate limits, attributes cost, redacts PII, records a tamper-evident audit chain, and runs versioned evaluations with trace-level linkage.
 
@@ -257,10 +257,11 @@ llm_control_plane/
   superchat_data_platform_orchestrator.py Superchat Data Platform Orchestrator: omnichannel messaging ELT ingestion, AWS Redshift warehouse management, dbt layered models (staging/intermediate/gold), SCD Type 2 subscription/MRR history tracking, Dagster asset graph freshness alerting, and Hightouch reverse-ETL sync audit
   flowtraders_infra_platform_orchestrator.py Flow Traders Infrastructure Platform Orchestrator: reusable Terraform module verification, OPA/policy-as-code evaluation, state drift detection, GitHub Actions CI/CD guardrails and rollback triggers, hybrid Kubernetes cluster supervision (cloud GKE and on-prem k3s), Kafka broker health and partition skew watchdogs, and Linux fleet host lifecycle supervisor
   complyadvantage_gtm_pipeline_orchestrator.py ComplyAdvantage Founding GTM Systems & Applied AI Pipeline Orchestrator: multi-source resilient market scrapers with exponential backoff & domain deduplication, Clay-style cascading enrichment waterfalls with cost-logic optimization, algorithmic defendable account scoring with regulatory enforcement weighting, event-driven signal outbound play runners, LLM account intelligence agents with PII redaction and token budgets, and idempotent CRM webhook synchronization with dead-letter queue (DLQ) support
+  qualtrics_observability_engine.py Qualtrics Observability Infrastructure & Customer Experience Correlation Engine: high-throughput telemetry stream ingestion with deduplication and adaptive backpressure, Pearson/Spearman customer impact correlation (p99 latency, SLA breach tracking), automated MTTR reduction root cause analyzers with runbook dispatch, and declarative Amazon EKS Prometheus ServiceMonitor/OpenTelemetry agent automation with drift reconciliation
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
-tests/             323 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, Replit Cloud orchestrator, Decagon Agent Platform runtime, Airbyte Agent Infrastructure, Supabase AI Platform, and Braintrust SDK observability engine
+tests/             539 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, Replit Cloud orchestrator, Decagon Agent Platform runtime, Airbyte Agent Infrastructure, Supabase AI Platform, and Braintrust SDK observability engine
 ```
 
 ---
