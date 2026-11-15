@@ -87,27 +87,35 @@ python -m llm_control_plane.bench
 
 ```python
 from llm_control_plane import (
-    ChatMessage, CompletionRequest, FakeProvider, LLMGateway,
-    RoutingTable, provider_map,
+    ChatMessage,
+    CompletionRequest,
+    FakeProvider,
+    LLMGateway,
+    RoutingTable,
+    provider_map,
 )
 
 primary = FakeProvider("fake-primary", responses=["approved"])
 fallback = FakeProvider("fake-fallback", responses=["approved (fallback)"])
-routing = RoutingTable.from_dict({
-    "smart": [
-        {"provider": "fake-primary", "model": "fake-large"},
-        {"provider": "fake-fallback", "model": "fake-small"},
-    ]
-})
+routing = RoutingTable.from_dict(
+    {
+        "smart": [
+            {"provider": "fake-primary", "model": "fake-large"},
+            {"provider": "fake-fallback", "model": "fake-small"},
+        ]
+    }
+)
 gateway = LLMGateway(provider_map(primary, fallback), routing)
 
-result = gateway.complete(CompletionRequest(
-    tenant_id="team-audit",
-    model="smart",
-    use_case="evidence-summary",
-    trace_id="req-2026-10-30-001",
-    messages=[ChatMessage(role="user", content="Summarize this evidence.")],
-))
+result = gateway.complete(
+    CompletionRequest(
+        tenant_id="team-audit",
+        model="smart",
+        use_case="evidence-summary",
+        trace_id="req-2026-10-30-001",
+        messages=[ChatMessage(role="user", content="Summarize this evidence.")],
+    )
+)
 print(result.text, result.cost_usd, result.trace_id)
 print(gateway.audit.verify())
 ```
@@ -242,6 +250,7 @@ llm_control_plane/
   airbyte_agent_infrastructure.py Airbyte Agent Infrastructure & MCP connector runtime: token-bucket connector rate limiting, semantic data modeling, stateful SaaS sandbox simulation, and cryptographic audit chaining
   supabase_ai_platform.py Supabase AI Platform execution layer: model-agnostic runtime, durable WAL state checkpointing, structural risk tiers, async human review gate, atomic rollback engine, and golden evaluation suite
   braintrust_sdk_observability.py Braintrust SDK observability & evaluation runtime: zero-overhead span tracing, context-manager/decorator APIs, async telemetry buffer with offline spooling, and pluggable evaluation scorers
+  mongodb_kubernetes_operator_platform.py MongoDB Kubernetes Operator & Core Platforms: declarative CRD specification, quorum-verified controller reconciliation, split-brain fencing, Atlas Search & Vector Search sidecar orchestration, zero-downtime rolling upgrades with FCV transitions, and Prometheus SLO metrics telemetry
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks

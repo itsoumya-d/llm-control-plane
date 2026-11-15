@@ -306,8 +306,7 @@ class GPUAnomalyDetector:
                     highest_severity = GPUFailureSeverity.CRITICAL
                     recommended_action = xid_def.recommended_action
                 elif (
-                    xid_def.severity == GPUFailureSeverity.WARNING
-                    and highest_severity == GPUFailureSeverity.TRANSIENT
+                    xid_def.severity == GPUFailureSeverity.WARNING and highest_severity == GPUFailureSeverity.TRANSIENT
                 ):
                     highest_severity = GPUFailureSeverity.WARNING
                     recommended_action = xid_def.recommended_action

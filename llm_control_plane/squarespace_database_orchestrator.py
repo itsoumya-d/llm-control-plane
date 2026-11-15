@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class DatabaseEngineType(str, enum.Enum):
     """Supported database engines across Squarespace infrastructure."""
+
     COCKROACHDB = "cockroachdb"
     MONGODB = "mongodb"
     POSTGRESQL = "postgresql"
@@ -27,6 +28,7 @@ class DatabaseEngineType(str, enum.Enum):
 
 class TenantTier(str, enum.Enum):
     """Tenant priority tiers for database connection multiplexing."""
+
     ENTERPRISE = "enterprise"
     GROWTH = "growth"
     STANDARD = "standard"
@@ -34,6 +36,7 @@ class TenantTier(str, enum.Enum):
 
 class CircuitState(str, enum.Enum):
     """Circuit breaker states for database engine resilience."""
+
     CLOSED = "closed"
     OPEN = "open"
     HALF_OPEN = "half_open"
@@ -41,6 +44,7 @@ class CircuitState(str, enum.Enum):
 
 class MigrationState(str, enum.Enum):
     """Zero-downtime online schema migration lifecycle states."""
+
     IDLE = "idle"
     PRE_SYNC = "pre_sync"
     DUAL_WRITE = "dual_write"
@@ -54,6 +58,7 @@ class MigrationState(str, enum.Enum):
 @dataclass
 class CDCEvent:
     """Change Data Capture (CDC) event captured from database write-ahead log."""
+
     event_id: str
     tenant_id: str
     engine: DatabaseEngineType
@@ -84,6 +89,7 @@ class CDCEvent:
 @dataclass
 class ConnectionPool:
     """Manages active connection pools and acquisition leases for a database engine."""
+
     engine: DatabaseEngineType
     max_connections: int = 100
     active_connections: int = 0
@@ -143,9 +149,7 @@ class KafkaEventPublisher:
 
     def __init__(self, num_partitions: int = 16) -> None:
         self.num_partitions = num_partitions
-        self.partition_queues: Dict[int, List[Dict[str, Any]]] = {
-            i: [] for i in range(num_partitions)
-        }
+        self.partition_queues: Dict[int, List[Dict[str, Any]]] = {i: [] for i in range(num_partitions)}
         self.published_count: int = 0
 
     def get_partition(self, tenant_id: str) -> int:
@@ -155,7 +159,7 @@ class KafkaEventPublisher:
 
     def publish_cdc(self, event: CDCEvent) -> Tuple[int, int]:
         """Publishes CDC event to its assigned partition queue ensuring total order.
-        
+
         Returns:
             Tuple of (partition_id, offset)
         """
@@ -280,7 +284,7 @@ class SquarespaceDatabaseOrchestrator:
 
         # Emit CDC event to Kafka
         cdc_event = CDCEvent(
-            event_id=f"evt-{int(time.time()*1000)}",
+            event_id=f"evt-{int(time.time() * 1000)}",
             tenant_id=tenant_id,
             engine=DatabaseEngineType.COCKROACHDB,
             table_name=table_name,

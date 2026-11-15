@@ -105,6 +105,7 @@ class OpenRouterTelemetryTracker:
 
     def rank_models(self, candidate_models: List[str]) -> List[str]:
         """Rank candidate fallback models by health and p95 latency."""
+
         def sort_key(m: str) -> tuple[int, float]:
             stats = self._stats.get(m)
             if stats is None or stats.total_requests == 0:
@@ -154,10 +155,7 @@ class OpenRouterProvider:
         primary_model = request.model or self.default_model
         payload: Dict[str, Any] = {
             "model": primary_model,
-            "messages": [
-                {"role": m.role, "content": m.content}
-                for m in request.messages
-            ],
+            "messages": [{"role": m.role, "content": m.content} for m in request.messages],
             "temperature": request.temperature,
             "max_tokens": request.max_tokens,
         }

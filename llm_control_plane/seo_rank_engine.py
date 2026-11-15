@@ -149,7 +149,7 @@ class SERPRankTracker:
         card_pattern = re.compile(
             r'<div class="(?:g|tF2Cxc|serp-card)"[^>]*>.*?'
             r'<a href="(?P<url>https?://[^"]+)"[^>]*>.*?'
-            r'<h3[^>]*>(?P<title>[^<]+)</h3>.*?'
+            r"<h3[^>]*>(?P<title>[^<]+)</h3>.*?"
             r'(?:<div class="(?:VwiC3b|snippet)"[^>]*>(?P<snippet>[^<]+)</div>)?',
             re.DOTALL,
         )
@@ -249,8 +249,8 @@ class CoreWebVitalsAuditor:
     # Official thresholds (Google Web Vitals 2024 standards)
     THRESHOLDS = {
         "lcp_ms": {"good": 2500.0, "poor": 4000.0},  # Largest Contentful Paint
-        "cls": {"good": 0.10, "poor": 0.25},         # Cumulative Layout Shift
-        "inp_ms": {"good": 200.0, "poor": 500.0},    # Interaction to Next Paint
+        "cls": {"good": 0.10, "poor": 0.25},  # Cumulative Layout Shift
+        "inp_ms": {"good": 200.0, "poor": 500.0},  # Interaction to Next Paint
         "fcp_ms": {"good": 1800.0, "poor": 3000.0},  # First Contentful Paint
         "ttfb_ms": {"good": 800.0, "poor": 1800.0},  # Time to First Byte
     }
@@ -352,20 +352,63 @@ class SemanticKeywordClusterer:
     # High-signal intent triggers
     INTENT_TRIGGERS = {
         SearchIntent.TRANSACTIONAL: [
-            "buy", "order", "purchase", "cheap", "price", "discount", "coupon",
-            "deal", "quote", "hire", "service", "pricing", "cost", "near me",
+            "buy",
+            "order",
+            "purchase",
+            "cheap",
+            "price",
+            "discount",
+            "coupon",
+            "deal",
+            "quote",
+            "hire",
+            "service",
+            "pricing",
+            "cost",
+            "near me",
         ],
         SearchIntent.COMMERCIAL: [
-            "best", "top", "review", "vs", "versus", "comparison", "alternative",
-            "features", "software", "tool", "agency", "firm", "audit", "platform",
+            "best",
+            "top",
+            "review",
+            "vs",
+            "versus",
+            "comparison",
+            "alternative",
+            "features",
+            "software",
+            "tool",
+            "agency",
+            "firm",
+            "audit",
+            "platform",
         ],
         SearchIntent.NAVIGATIONAL: [
-            "login", "signin", "portal", "dashboard", "account", "website",
-            "official", "app", "download", "contact",
+            "login",
+            "signin",
+            "portal",
+            "dashboard",
+            "account",
+            "website",
+            "official",
+            "app",
+            "download",
+            "contact",
         ],
         SearchIntent.INFORMATIONAL: [
-            "how", "what", "why", "where", "guide", "tutorial", "tips",
-            "learn", "definition", "meaning", "examples", "steps", "strategy",
+            "how",
+            "what",
+            "why",
+            "where",
+            "guide",
+            "tutorial",
+            "tips",
+            "learn",
+            "definition",
+            "meaning",
+            "examples",
+            "steps",
+            "strategy",
         ],
     }
 
@@ -402,8 +445,8 @@ class SemanticKeywordClusterer:
         """Compute cosine similarity between two bag-of-words character n-gram profiles."""
         intersection = set(vec1.keys()) & set(vec2.keys())
         numerator = sum(vec1[x] * vec2[x] for x in intersection)
-        sum1 = sum(v ** 2 for v in vec1.values())
-        sum2 = sum(v ** 2 for v in vec2.values())
+        sum1 = sum(v**2 for v in vec1.values())
+        sum2 = sum(v**2 for v in vec2.values())
         denominator = math.sqrt(sum1) * math.sqrt(sum2)
         if not denominator:
             return 0.0
@@ -455,12 +498,14 @@ class SemanticKeywordClusterer:
         for kw, entries in by_keyword.items():
             distinct_urls = {e.get("url") for e in entries if e.get("url")}
             if len(distinct_urls) > 1:
-                cannibalized.append({
-                    "keyword": kw,
-                    "competing_url_count": len(distinct_urls),
-                    "urls": sorted(list(distinct_urls)),
-                    "severity": "HIGH" if any(e.get("rank", 99) <= 10 for e in entries) else "MODERATE",
-                })
+                cannibalized.append(
+                    {
+                        "keyword": kw,
+                        "competing_url_count": len(distinct_urls),
+                        "urls": sorted(list(distinct_urls)),
+                        "severity": "HIGH" if any(e.get("rank", 99) <= 10 for e in entries) else "MODERATE",
+                    }
+                )
 
         return cannibalized
 

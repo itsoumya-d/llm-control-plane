@@ -202,14 +202,10 @@ def test_performance_benchmark_empty_validation(
     valid_spec: ModelArtifactSpec,
 ):
     with pytest.raises(ValueError, match="latency_samples_ms cannot be empty"):
-        orchestrator.run_performance_benchmark(
-            valid_spec, [], [10.0], 50.0, 100.0
-        )
+        orchestrator.run_performance_benchmark(valid_spec, [], [10.0], 50.0, 100.0)
 
     with pytest.raises(ValueError, match="vram_samples_gb cannot be empty"):
-        orchestrator.run_performance_benchmark(
-            valid_spec, [50.0], [], 50.0, 100.0
-        )
+        orchestrator.run_performance_benchmark(valid_spec, [50.0], [], 50.0, 100.0)
 
 
 def test_pricing_tier_effective_margin():
@@ -260,9 +256,7 @@ def test_verify_pricing_and_deployment(
         passed_slo=True,
     )
 
-    ok, msg = orchestrator.verify_pricing_and_deployment(
-        valid_spec, good_benchmark, pricing, avg_duration_sec=0.5
-    )
+    ok, msg = orchestrator.verify_pricing_and_deployment(valid_spec, good_benchmark, pricing, avg_duration_sec=0.5)
     assert ok is True
     assert "Pre-flight approved" in msg
 
@@ -278,9 +272,7 @@ def test_verify_pricing_and_deployment(
         latency_regression_pct=45.0,
         passed_slo=False,
     )
-    ok_bad, msg_bad = orchestrator.verify_pricing_and_deployment(
-        valid_spec, bad_benchmark, pricing
-    )
+    ok_bad, msg_bad = orchestrator.verify_pricing_and_deployment(valid_spec, bad_benchmark, pricing)
     assert ok_bad is False
     assert "benchmark failed SLO" in msg_bad
 
@@ -300,15 +292,11 @@ def test_diagnose_ci_pipeline_failure(orchestrator: FalMLInfraOrchestrator):
     assert diag_oom.auto_fixable is True
     assert "enable_activation_checkpointing" in diag_oom.remediation_patch
 
-    diag_hash = orchestrator.diagnose_ci_pipeline_failure(
-        "Fatal: WeightsHashError detected in pipeline"
-    )
+    diag_hash = orchestrator.diagnose_ci_pipeline_failure("Fatal: WeightsHashError detected in pipeline")
     assert diag_hash.failure_type == "WEIGHT_HASH_MISMATCH"
     assert diag_hash.auto_fixable is True
 
-    diag_lat = orchestrator.diagnose_ci_pipeline_failure(
-        "Failed: P90 latency exceeded threshold during load test"
-    )
+    diag_lat = orchestrator.diagnose_ci_pipeline_failure("Failed: P90 latency exceeded threshold during load test")
     assert diag_lat.failure_type == "LATENCY_REGRESSION"
     assert diag_lat.auto_fixable is True
 

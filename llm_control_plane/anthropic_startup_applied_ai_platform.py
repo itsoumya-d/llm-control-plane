@@ -83,9 +83,7 @@ class ClaudePromptCacheManager:
         # First turn writes cache, subsequent turns read cache
         turn_1_cost = (base_tokens * self.BASE_INPUT_PER_M + cached_tokens * self.CACHE_WRITE_PER_M) / 1_000_000
         subsequent_turns_cost = (
-            (turns - 1)
-            * (base_tokens * self.BASE_INPUT_PER_M + cached_tokens * self.CACHE_READ_PER_M)
-            / 1_000_000
+            (turns - 1) * (base_tokens * self.BASE_INPUT_PER_M + cached_tokens * self.CACHE_READ_PER_M) / 1_000_000
             if turns > 1
             else 0.0
         )
@@ -167,8 +165,7 @@ class MCPStartupToolGateway:
             return {
                 "success": False,
                 "error": (
-                    f"Tool {tool_name} with risk level '{tool.risk_level.value}' "
-                    f"requires explicit human approval."
+                    f"Tool {tool_name} with risk level '{tool.risk_level.value}' requires explicit human approval."
                 ),
                 "status": "APPROVAL_REQUIRED",
             }

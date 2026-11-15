@@ -264,9 +264,7 @@ def test_full_audit_conditional_and_failure(target_financial):
 
 
 def test_custom_thresholds_override(target_low_risk):
-    engine = DeloitteTrustworthyAIEngine(
-        custom_thresholds={TrustDimension.SAFE_SECURE: 99.0}
-    )
+    engine = DeloitteTrustworthyAIEngine(custom_thresholds={TrustDimension.SAFE_SECURE: 99.0})
     score = engine.evaluate_safety_security(
         target=target_low_risk,
         jailbreak_defense_rate=95.0,

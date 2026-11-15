@@ -267,9 +267,7 @@ class GoldenEvaluationHarness:
     def add_case(self, case: GoldenTestCase) -> None:
         self._suite.append(case)
 
-    def evaluate_agent(
-        self, agent_runner: Callable[[str], Dict[str, Any]]
-    ) -> EvaluationReport:
+    def evaluate_agent(self, agent_runner: Callable[[str], Dict[str, Any]]) -> EvaluationReport:
         passed = 0
         failures = []
 
@@ -348,9 +346,7 @@ class SupabaseAIPlatform:
         # 3. Check risk tier
         if agent.risk_tier == RiskTier.TIER_3_EXTERNAL_ACTION:
             # Requires human approval gate
-            ticket = self.review_gate.create_ticket(
-                agent_id=agent_id, action_type=tool_name, action_payload=parameters
-            )
+            ticket = self.review_gate.create_ticket(agent_id=agent_id, action_type=tool_name, action_payload=parameters)
             self._log_audit(agent_id, tool_name, "GATED_PENDING_APPROVAL", {"ticket_id": ticket.ticket_id})
             return {
                 "status": "AWAITING_HUMAN_APPROVAL",

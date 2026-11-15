@@ -192,7 +192,7 @@ class RocksDBLSMCompactionCoordinator:
     def schedule_compaction(self, cf_name: str, level_from: int, level_to: int) -> CompactionJob:
         current_bytes = self._cf_buffers.get(cf_name, 0)
         job = CompactionJob(
-            job_id=f"comp_{cf_name}_{level_from}_{level_to}_{len(self._scheduled_jobs)+1}",
+            job_id=f"comp_{cf_name}_{level_from}_{level_to}_{len(self._scheduled_jobs) + 1}",
             cf_name=cf_name,
             level_from=level_from,
             level_to=level_to,

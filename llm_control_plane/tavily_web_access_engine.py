@@ -227,9 +227,14 @@ class TavilyWebAccessEngine:
             browser_profile="chrome_desktop_128",
             tls_version="TLS 1.3",
             ciphers=[
-                0x1301, 0x1302, 0x1303,  # TLS_AES_128_GCM, TLS_AES_256_GCM, TLS_CHACHA20
-                0xC02B, 0xC02F, 0xC02C,  # ECDHE-ECDSA/RSA-AES128-GCM
-                0xCCA9, 0xCCA8,          # ECDHE-ECDSA/RSA-CHACHA20
+                0x1301,
+                0x1302,
+                0x1303,  # TLS_AES_128_GCM, TLS_AES_256_GCM, TLS_CHACHA20
+                0xC02B,
+                0xC02F,
+                0xC02C,  # ECDHE-ECDSA/RSA-AES128-GCM
+                0xCCA9,
+                0xCCA8,  # ECDHE-ECDSA/RSA-CHACHA20
             ],
             extensions=[0x0000, 0x0017, 0xFF01, 0x000A, 0x000B, 0x0023, 0x0010, 0x0005, 0x000D],
             supported_groups=[0x001D, 0x0017, 0x0018],  # X25519, secp256r1, secp384r1
@@ -279,8 +284,7 @@ class TavilyWebAccessEngine:
             raw_status = 200
             raw_headers = {"content-type": "text/html; charset=utf-8", "server": "cloudflare"}
             raw_body = (
-                f"<html><body><h1>Tavily Search Ingestion: {target_url}</h1>"
-                "<p>Clean extracted text.</p></body></html>"
+                f"<html><body><h1>Tavily Search Ingestion: {target_url}</h1><p>Clean extracted text.</p></body></html>"
             )
 
         diagnosis = self.classifier.diagnose(raw_status, raw_headers, raw_body)

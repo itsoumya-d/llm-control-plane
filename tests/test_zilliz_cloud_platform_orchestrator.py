@@ -94,9 +94,7 @@ def test_cluster_provisioning_exceeds_quota(orchestrator: ZillizCloudPlatformOrc
         orchestrator.provision_cluster(spec2)
 
 
-def test_manual_cluster_scaling(
-    orchestrator: ZillizCloudPlatformOrchestrator, default_spec: MilvusClusterSpec
-) -> None:
+def test_manual_cluster_scaling(orchestrator: ZillizCloudPlatformOrchestrator, default_spec: MilvusClusterSpec) -> None:
     orchestrator.provision_cluster(default_spec)
     scaled = orchestrator.scale_cluster(default_spec.cluster_id, target_query_nodes=4, target_index_nodes=2)
     assert scaled.active_query_nodes == 4
@@ -163,9 +161,7 @@ def test_canary_rolling_upgrade_rollback_on_error(
     assert orchestrator._clusters[default_spec.cluster_id].state == ClusterState.RUNNING
 
 
-def test_backup_and_restore(
-    orchestrator: ZillizCloudPlatformOrchestrator, default_spec: MilvusClusterSpec
-) -> None:
+def test_backup_and_restore(orchestrator: ZillizCloudPlatformOrchestrator, default_spec: MilvusClusterSpec) -> None:
     orchestrator.provision_cluster(default_spec)
     orchestrator.record_telemetry(
         default_spec.cluster_id,

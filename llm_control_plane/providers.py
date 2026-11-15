@@ -16,11 +16,9 @@ from .types import (
 class LLMProvider(Protocol):
     name: str
 
-    def complete(self, request: CompletionRequest) -> ProviderResponse:
-        ...
+    def complete(self, request: CompletionRequest) -> ProviderResponse: ...
 
-    def health(self) -> bool:
-        ...
+    def health(self) -> bool: ...
 
 
 class FakeProvider:
@@ -157,10 +155,7 @@ class OpenAICompatibleProvider:
         model = request.model or self.default_model
         payload = {
             "model": model,
-            "messages": [
-                {"role": message.role, "content": message.content}
-                for message in request.messages
-            ],
+            "messages": [{"role": message.role, "content": message.content} for message in request.messages],
             "temperature": request.temperature,
             "max_tokens": request.max_tokens,
         }

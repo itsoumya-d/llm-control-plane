@@ -30,8 +30,7 @@ class ModelArtifactSpec:
         valid_formats = {"safetensors", "gguf", "onnx", "torchscript", "diffusers"}
         if self.artifact_format.lower() not in valid_formats:
             raise ValueError(
-                f"Unsupported artifact format '{self.artifact_format}'. "
-                f"Supported: {sorted(valid_formats)}"
+                f"Unsupported artifact format '{self.artifact_format}'. Supported: {sorted(valid_formats)}"
             )
         if not re.match(r"^[a-fA-F0-9]{64}$", self.weights_sha256):
             raise ValueError(f"Invalid SHA256 checksum format: '{self.weights_sha256}'")
@@ -83,8 +82,7 @@ class PricingTierSpec:
         total_compute_cost = self.compute_cost_per_second_usd * avg_duration_sec
         return max(
             0.0,
-            (self.price_per_request_usd - total_compute_cost)
-            / self.price_per_request_usd,
+            (self.price_per_request_usd - total_compute_cost) / self.price_per_request_usd,
         )
 
 
@@ -121,9 +119,7 @@ class FalMLInfraOrchestrator:
         computed_sha256 = hashlib.sha256(weights_bytes).hexdigest()
         checksum_verified = computed_sha256.lower() == spec.weights_sha256.lower()
         if not checksum_verified:
-            rejection_reasons.append(
-                f"Checksum mismatch: expected {spec.weights_sha256}, got {computed_sha256}"
-            )
+            rejection_reasons.append(f"Checksum mismatch: expected {spec.weights_sha256}, got {computed_sha256}")
 
         # 2. Verify input schema compliance
         schema_compatibility = True
@@ -133,16 +129,10 @@ class FalMLInfraOrchestrator:
                 rejection_reasons.append(f"Missing required input parameter: '{key}'")
             elif expected_type == "string" and not isinstance(sample_inputs[key], str):
                 schema_compatibility = False
-                rejection_reasons.append(
-                    f"Parameter '{key}' must be string, got {type(sample_inputs[key]).__name__}"
-                )
-            elif expected_type == "integer" and not isinstance(
-                sample_inputs[key], int
-            ):
+                rejection_reasons.append(f"Parameter '{key}' must be string, got {type(sample_inputs[key]).__name__}")
+            elif expected_type == "integer" and not isinstance(sample_inputs[key], int):
                 schema_compatibility = False
-                rejection_reasons.append(
-                    f"Parameter '{key}' must be integer, got {type(sample_inputs[key]).__name__}"
-                )
+                rejection_reasons.append(f"Parameter '{key}' must be integer, got {type(sample_inputs[key]).__name__}")
 
         # 3. Verify output schema compliance
         for key in spec.output_schema:
@@ -151,13 +141,9 @@ class FalMLInfraOrchestrator:
                 rejection_reasons.append(f"Missing expected output field: '{key}'")
 
         # 4. Compute output quality score against reference
-        quality_score = self._compute_quality_score(
-            sample_outputs, reference_outputs
-        )
+        quality_score = self._compute_quality_score(sample_outputs, reference_outputs)
         if quality_score < 0.90:
-            rejection_reasons.append(
-                f"Quality score {quality_score:.3f} below acceptable floor (0.900)"
-            )
+            rejection_reasons.append(f"Quality score {quality_score:.3f} below acceptable floor (0.900)")
 
         valid = checksum_verified and schema_compatibility and (quality_score >= 0.90)
         return ModelValidationResult(
@@ -191,24 +177,16 @@ class FalMLInfraOrchestrator:
 
         peak_vram = max(vram_samples_gb)
         avg_latency_sec = (sum(sorted_latencies) / n) / 1000.0
-        throughput_rps = (
-            (concurrency_level / avg_latency_sec) if avg_latency_sec > 0 else 0.0
-        )
+        throughput_rps = (concurrency_level / avg_latency_sec) if avg_latency_sec > 0 else 0.0
 
         # Calculate latency regression vs baseline
         if baseline_p90_ms > 0:
-            regression_pct = (
-                (p90 - baseline_p90_ms) / baseline_p90_ms
-            ) * 100.0
+            regression_pct = ((p90 - baseline_p90_ms) / baseline_p90_ms) * 100.0
         else:
             regression_pct = 0.0
 
         # Out-of-memory risk score (base requirement vs available GPU memory e.g. 80GB)
-        gpu_cap_gb = (
-            80.0
-            if any("80GB" in arch for arch in spec.target_gpu_architectures)
-            else 48.0
-        )
+        gpu_cap_gb = 80.0 if any("80GB" in arch for arch in spec.target_gpu_architectures) else 48.0
         vram_headroom = gpu_cap_gb - spec.base_vram_requirement_gb
         oom_risk = min(
             1.0,
@@ -216,9 +194,7 @@ class FalMLInfraOrchestrator:
         )
 
         passed_slo = (
-            p90 <= max_allowed_p90_ms
-            and regression_pct <= self.max_allowed_regression_pct
-            and peak_vram < gpu_cap_gb
+            p90 <= max_allowed_p90_ms and regression_pct <= self.max_allowed_regression_pct and peak_vram < gpu_cap_gb
         )
 
         return PerformanceBenchmarkResult(
@@ -324,9 +300,7 @@ class FalMLInfraOrchestrator:
             updated_config["_remediation_applied"] = diagnosis.failure_type
         return updated_config
 
-    def _compute_quality_score(
-        self, sample_outputs: dict[str, Any], reference_outputs: dict[str, Any]
-    ) -> float:
+    def _compute_quality_score(self, sample_outputs: dict[str, Any], reference_outputs: dict[str, Any]) -> float:
         """Compute structural and semantic consistency score between outputs."""
         if not reference_outputs:
             return 1.0

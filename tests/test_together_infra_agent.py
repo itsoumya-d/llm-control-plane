@@ -113,7 +113,7 @@ def test_anomaly_detector_pcie_degradation_and_thermal() -> None:
         temperature_celsius=89.5,
         power_watts=550.0,
         pcie_generation=4,  # Degraded from Gen5
-        pcie_link_width=8,   # Degraded from x16
+        pcie_link_width=8,  # Degraded from x16
         active_xid_codes=[45],
     )
     result = detector.evaluate_telemetry(telemetry)

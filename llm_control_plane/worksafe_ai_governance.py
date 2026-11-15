@@ -16,13 +16,15 @@ from typing import Any, Dict, List
 
 class AlgorithmCharterTier(str, enum.Enum):
     """NZ Government Algorithm Charter risk tiers."""
-    TIER_1_LOW = "TIER_1_LOW"          # Internal productivity, summary drafting, non-decision support
+
+    TIER_1_LOW = "TIER_1_LOW"  # Internal productivity, summary drafting, non-decision support
     TIER_2_MODERATE = "TIER_2_MODERATE"  # Advisory decision support, requires mandatory human validation
-    TIER_3_HIGH = "TIER_3_HIGH"          # Automated compliance triage, statutory penalty advice, high public impact
+    TIER_3_HIGH = "TIER_3_HIGH"  # Automated compliance triage, statutory penalty advice, high public impact
 
 
 class GovernanceStatus(str, enum.Enum):
     """Governance lifecycle stages for AI use cases."""
+
     SUBMITTED = "SUBMITTED"
     UNDER_ASSESSMENT = "UNDER_ASSESSMENT"
     APPROVED = "APPROVED"
@@ -32,6 +34,7 @@ class GovernanceStatus(str, enum.Enum):
 
 class RiskCategory(str, enum.Enum):
     """Statutory and operational risk vectors."""
+
     PRIVACY = "PRIVACY"
     MAORI_DATA_SOVEREIGNTY = "MAORI_DATA_SOVEREIGNTY"
     STATUTORY_COMPLIANCE = "STATUTORY_COMPLIANCE"
@@ -43,9 +46,10 @@ class RiskCategory(str, enum.Enum):
 @dataclass
 class TeTiritiSafeguardReport:
     """Māori Data Sovereignty evaluation (Te Mana Raraunga principles)."""
+
     mana_whakahaere_passed: bool  # Governance & community oversight
-    mana_motuhake_passed: bool    # Purpose aligns with collective well-being
-    mana_tiaki_passed: bool        # Cultural safety and protection against biased harm categorization
+    mana_motuhake_passed: bool  # Purpose aligns with collective well-being
+    mana_tiaki_passed: bool  # Cultural safety and protection against biased harm categorization
     overall_compliant: bool
     notes: List[str] = field(default_factory=list)
 
@@ -53,6 +57,7 @@ class TeTiritiSafeguardReport:
 @dataclass
 class AIUseCaseProposal:
     """Formal intake specification for an AI/LLM use case at WorkSafe NZ."""
+
     use_case_id: str
     title: str
     business_unit: str
@@ -71,6 +76,7 @@ class AIUseCaseProposal:
 @dataclass
 class GovernanceDecision:
     """Audit log entry for a formal governance board decision."""
+
     decision_id: str
     use_case_id: str
     status: GovernanceStatus
@@ -197,7 +203,7 @@ class WorkSafeAIBusinessGovernanceEvaluator:
         sig = hashlib.sha256(content.encode()).hexdigest()
 
         dec = GovernanceDecision(
-            decision_id=f"dec_{int(t*1000)}",
+            decision_id=f"dec_{int(t * 1000)}",
             use_case_id=use_case_id,
             status=status,
             tier=tier,

@@ -316,15 +316,9 @@ def create_app(
             for p in body.placements
         ]
         participants = len({p.participant_id for p in placements})
-        cooc = ResearchObservationClusterer.calculate_cooccurrence_matrix(
-            body.cards, placements
-        )
-        sim = ResearchObservationClusterer.calculate_similarity_matrix(
-            body.cards, cooc, participants
-        )
-        clusters = ResearchObservationClusterer.build_hierarchical_clusters(
-            body.cards, sim, body.cluster_threshold
-        )
+        cooc = ResearchObservationClusterer.calculate_cooccurrence_matrix(body.cards, placements)
+        sim = ResearchObservationClusterer.calculate_similarity_matrix(body.cards, cooc, participants)
+        clusters = ResearchObservationClusterer.build_hierarchical_clusters(body.cards, sim, body.cluster_threshold)
         return {
             "study_id": body.study_id,
             "total_participants": participants,
@@ -347,9 +341,7 @@ def create_app(
             )
             for r in body.results
         ]
-        metrics = TreejackNavigationScorer.evaluate_task(
-            body.task_id, body.target_node_id, results
-        )
+        metrics = TreejackNavigationScorer.evaluate_task(body.task_id, body.target_node_id, results)
         first_clicks = TreejackNavigationScorer.identify_first_click_paths(results)
         return {
             "study_id": body.study_id,
@@ -371,9 +363,7 @@ def create_app(
             )
             for o in body.observations
         ]
-        themes = ThematicSynthesisEngine.extract_thematic_clusters(
-            observations, min_theme_size=body.min_theme_size
-        )
+        themes = ThematicSynthesisEngine.extract_thematic_clusters(observations, min_theme_size=body.min_theme_size)
         return {
             "study_id": body.study_id,
             "total_observations": len(observations),

@@ -143,12 +143,30 @@ def test_compare_runs_detects_improvement_and_regression():
         )
 
     baseline = EvalRun(
-        "b", "d", "v1", "hash", "smart", "t", "eval", 0.0, 1.0,
-        [result("a", 0.0), result("b", 1.0), result("c", 1.0)], "head",
+        "b",
+        "d",
+        "v1",
+        "hash",
+        "smart",
+        "t",
+        "eval",
+        0.0,
+        1.0,
+        [result("a", 0.0), result("b", 1.0), result("c", 1.0)],
+        "head",
     )
     candidate = EvalRun(
-        "c", "d", "v1", "hash", "smart", "t", "eval", 0.0, 1.0,
-        [result("a", 1.0), result("b", 0.0), result("c", 1.0)], "head",
+        "c",
+        "d",
+        "v1",
+        "hash",
+        "smart",
+        "t",
+        "eval",
+        0.0,
+        1.0,
+        [result("a", 1.0), result("b", 0.0), result("c", 1.0)],
+        "head",
     )
     comparison = compare_runs(baseline, candidate)
     assert comparison.improved == ["a"]

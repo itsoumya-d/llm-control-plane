@@ -242,11 +242,7 @@ class ConnectorRegistry:
             raise
 
         redactions: Dict[str, int] = {}
-        safe_args = (
-            self._redact_value(request.arguments, redactions)
-            if self.redact_pii
-            else dict(request.arguments)
-        )
+        safe_args = self._redact_value(request.arguments, redactions) if self.redact_pii else dict(request.arguments)
 
         needs_approval = spec.requires_human_approval or spec.risk_level == "privileged"
         if needs_approval and not request.dry_run:

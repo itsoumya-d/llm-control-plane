@@ -253,4 +253,3 @@ def test_edge_cases_types_nested_redaction_and_fail_closed_secret():
     )
     assert dry.redactions == {"email": 2}
     assert dry.output["arguments"]["meta"]["contact"] == "[REDACTED_EMAIL]"
-

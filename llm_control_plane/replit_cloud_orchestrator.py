@@ -409,9 +409,7 @@ class ReplitCloudOrchestrator:
         project_routes = [r for r in self.domain_routes.values() if r.project_id == project_id]
 
         avg_boot = (
-            sum(s.boot_latency_ms for s in project_sandboxes) / len(project_sandboxes)
-            if project_sandboxes
-            else 0.0
+            sum(s.boot_latency_ms for s in project_sandboxes) / len(project_sandboxes) if project_sandboxes else 0.0
         )
 
         return {

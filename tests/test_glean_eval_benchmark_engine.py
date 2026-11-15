@@ -80,9 +80,7 @@ def test_verifier_grounded_response_with_citations(sample_test_case: EvalTestCas
 def test_verifier_detects_unauthorized_acl_access(sample_test_case: EvalTestCase) -> None:
     """Verify ACL violation triggers immediate failure and safety alert."""
     verifier = AgenticLLMVerifier()
-    leaked_response = (
-        "Here are the confidential executive compensation numbers [doc-secret] from Google Drive."
-    )
+    leaked_response = "Here are the confidential executive compensation numbers [doc-secret] from Google Drive."
     result = verifier.verify_response(sample_test_case, leaked_response, caller_role="engineer")
 
     assert result.passed is False
