@@ -87,6 +87,7 @@ class GTMOutboundPlay:
     suggested_call_to_action: str
     confidence_rating: float
     guardrail_passed: bool
+    prompt_cache_digest: str = ""
     synthesized_at: float = field(default_factory=time.time)
 
 
@@ -323,6 +324,7 @@ class ClaudeGTMPlaySynthesizer:
             suggested_call_to_action=cta,
             confidence_rating=round(min(0.99, score_report.total_score / 100.0 * 0.95 + 0.05), 3),
             guardrail_passed=guardrail_passed,
+            prompt_cache_digest=cache_digest,
         )
 
 
