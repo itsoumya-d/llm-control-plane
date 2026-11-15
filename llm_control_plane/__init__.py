@@ -1,5 +1,19 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
+from llm_control_plane.bitpanda_elastic_secops_platform import (
+    CloudThreatHunter,
+    DORAClassification,
+    ElasticDetectionEngine,
+    ElasticDetectionRule,
+    IncidentRecord,
+    IncidentStatus,
+    QueryLanguage,
+    SecurityAlert,
+    SecurityPostureHardeningAuditor,
+    SeverityLevel,
+    SOARIncidentWorkflowManager,
+)
+
 from .anthropic_startup_applied_ai_platform import (
     CacheControlPoint,
     CacheTelemetry,
@@ -581,4 +595,15 @@ __all__ = [
     "ReconciliationStatus",
     "RollingUpgradeAndFCVCoordinator",
     "SplitBrainException",
+    "CloudThreatHunter",
+    "DORAClassification",
+    "ElasticDetectionEngine",
+    "ElasticDetectionRule",
+    "IncidentRecord",
+    "IncidentStatus",
+    "QueryLanguage",
+    "SecurityAlert",
+    "SecurityPostureHardeningAuditor",
+    "SeverityLevel",
+    "SOARIncidentWorkflowManager",
 ]
