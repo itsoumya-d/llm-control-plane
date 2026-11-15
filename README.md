@@ -56,6 +56,7 @@ The gateway owns the model boundary. Product teams send a model alias, not a pro
 | **Experiment comparison** | Baseline vs candidate run with improved/regressed/tied case lists |
 | **Anthropic Applied AI Platform** | Claude prompt cache breakpoint orchestration (90% cost / 80% latency savings), zero-trust MCP tool gateway validation, and pairwise LLM-as-a-judge regression evaluation |
 | **Bitpanda Elastic SecOps Platform** | Detection engineering with ES\|QL and KQL query validation, AWS CloudTrail & KMS threat hunting, automated SOAR incident response, and DORA & ISO 27001 posture tracking |
+| **Inferact vLLM Cloud Orchestrator** | Distributed GPU node hardware degradation detection (XID/ECC/NVLink), automated node fencing, elastic PagedAttention KV-cache autoscaling, Ray actor placement group coordination, and zero-downtime blue/green rollouts |
 | **Trace linkage** | Every eval result carries the gateway trace ID and audit head hash |
 
 ### Scorers included

@@ -13,6 +13,21 @@ from llm_control_plane.bitpanda_elastic_secops_platform import (
     SeverityLevel,
     SOARIncidentWorkflowManager,
 )
+from llm_control_plane.inferact_vllm_cloud_orchestrator import (
+    ClusterNode,
+    DeploymentPhase,
+    GPUDeviceState,
+    GPUHardwareEvent,
+    GPUHealthWatchdog,
+    HardwareDegradationType,
+    InferactVLLMCloudOrchestrator,
+    PagedKVCacheState,
+    RayActorPlacementGroup,
+    RayWorkerActor,
+    VLLMInferenceClusterSpec,
+    VLLMInferenceClusterStatus,
+    VLLMNodeLifecycleState,
+)
 
 from .anthropic_startup_applied_ai_platform import (
     CacheControlPoint,
@@ -606,4 +621,18 @@ __all__ = [
     "SecurityPostureHardeningAuditor",
     "SeverityLevel",
     "SOARIncidentWorkflowManager",
+    "ClusterNode",
+    "DeploymentPhase",
+    "GPUDeviceState",
+    "GPUHardwareEvent",
+    "GPUHealthWatchdog",
+    "HardwareDegradationType",
+    "InferactVLLMCloudOrchestrator",
+    "NodeLifecycleState",
+    "PagedKVCacheState",
+    "RayActorPlacementGroup",
+    "RayWorkerActor",
+    "VLLMInferenceClusterSpec",
+    "VLLMInferenceClusterStatus",
+    "VLLMNodeLifecycleState",
 ]
