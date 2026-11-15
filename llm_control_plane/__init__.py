@@ -28,6 +28,15 @@ from llm_control_plane.inferact_vllm_cloud_orchestrator import (
     VLLMInferenceClusterStatus,
     VLLMNodeLifecycleState,
 )
+from llm_control_plane.onehouse_k8s_lakehouse_operator import (
+    LakehouseReconciliationStatus,
+    LakehouseResourceLimits,
+    LakehouseServiceSpec,
+    OnehouseK8sLakehouseReconciler,
+    ReconciliationState,
+    TableServiceType,
+    WorkerPodInstance,
+)
 
 from .anthropic_startup_applied_ai_platform import (
     CacheControlPoint,
@@ -635,4 +644,11 @@ __all__ = [
     "VLLMInferenceClusterSpec",
     "VLLMInferenceClusterStatus",
     "VLLMNodeLifecycleState",
+    "LakehouseReconciliationStatus",
+    "LakehouseResourceLimits",
+    "LakehouseServiceSpec",
+    "OnehouseK8sLakehouseReconciler",
+    "ReconciliationState",
+    "TableServiceType",
+    "WorkerPodInstance",
 ]

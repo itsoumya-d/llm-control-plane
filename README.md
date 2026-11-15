@@ -253,6 +253,7 @@ llm_control_plane/
   supabase_ai_platform.py Supabase AI Platform execution layer: model-agnostic runtime, durable WAL state checkpointing, structural risk tiers, async human review gate, atomic rollback engine, and golden evaluation suite
   braintrust_sdk_observability.py Braintrust SDK observability & evaluation runtime: zero-overhead span tracing, context-manager/decorator APIs, async telemetry buffer with offline spooling, and pluggable evaluation scorers
   mongodb_kubernetes_operator_platform.py MongoDB Kubernetes Operator & Core Platforms: declarative CRD specification, quorum-verified controller reconciliation, split-brain fencing, Atlas Search & Vector Search sidecar orchestration, zero-downtime rolling upgrades with FCV transitions, and Prometheus SLO metrics telemetry
+  onehouse_k8s_lakehouse_operator.py Onehouse Kubernetes Lakehouse Operator: declarative custom controllers, Hudi table service reconciliation loops (compaction, clustering, cleaning), dynamic worker autoscaling, spot node preemption checkpointing, and zero-downtime failover
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
