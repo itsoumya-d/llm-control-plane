@@ -371,6 +371,15 @@ from .flowtraders_infra_platform_orchestrator import (
     TerraformModuleReconciler,
     TerraformModuleSpec,
 )
+from .qualtrics_observability_engine import (
+    CustomerExperienceCorrelator,
+    EksObservabilityAutomator,
+    IncidentBrief,
+    MTTRReductionRootCauseAnalyzer,
+    TelemetryEvent,
+    TelemetryIngestionStream,
+    TelemetryType,
+)
 from .superchat_data_platform_orchestrator import (
     ChannelSource,
     DagsterAssetNode,
@@ -726,4 +735,11 @@ __all__ = [
     "SignalOutboundPlayRunner",
     "SignalType",
     "TargetAccount",
+    "CustomerExperienceCorrelator",
+    "EksObservabilityAutomator",
+    "IncidentBrief",
+    "MTTRReductionRootCauseAnalyzer",
+    "TelemetryEvent",
+    "TelemetryIngestionStream",
+    "TelemetryType",
 ]
