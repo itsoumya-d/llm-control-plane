@@ -345,6 +345,21 @@ from .zilliz_cloud_platform_orchestrator import (
 __version__ = "1.0.0"
 
 
+from .superchat_data_platform_orchestrator import (
+    ChannelSource,
+    DagsterAssetNode,
+    DagsterOrchestrationEngine,
+    DbtLayer,
+    DbtModelReconciler,
+    DbtModelSpec,
+    OmnichannelIngestionPipeline,
+    RawEventRecord,
+    RedshiftWarehouseManager,
+    ReverseEtlSyncAuditor,
+    SCD2SnapshotEngine,
+    SubscriptionSnapshot,
+)
+
 __all__ = [
     "AccessDecisionTelemetry",
     "AnomalyDetectionResult",
@@ -651,4 +666,16 @@ __all__ = [
     "ReconciliationState",
     "TableServiceType",
     "WorkerPodInstance",
+    "ChannelSource",
+    "DagsterAssetNode",
+    "DagsterOrchestrationEngine",
+    "DbtLayer",
+    "DbtModelReconciler",
+    "DbtModelSpec",
+    "OmnichannelIngestionPipeline",
+    "RawEventRecord",
+    "RedshiftWarehouseManager",
+    "ReverseEtlSyncAuditor",
+    "SCD2SnapshotEngine",
+    "SubscriptionSnapshot",
 ]
