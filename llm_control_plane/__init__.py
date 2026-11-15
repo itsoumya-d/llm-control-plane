@@ -355,6 +355,18 @@ from .binance_conversational_agent_orchestrator import (
     TradeStrategyProposal,
     TurnMessage,
 )
+from .starburst_ai_platform_bridge_sdk import (
+    CrossLanguageExceptionTranslator,
+    DeterministicToolExecutionGateway,
+    InteropMessageEnvelope,
+    JVMDataType,
+    ResilientStreamingMultiplexer,
+    StarburstAIPlatformSDK,
+    StreamTokenChunk,
+    TokenBucketQuotaManager,
+    ToolExecutionContract,
+    ToolValidationResult,
+)
 from .complyadvantage_gtm_pipeline_orchestrator import (
     AccountTier,
     CrmWebhookSyncDispatcher,
@@ -810,4 +822,14 @@ __all__ = [
     "TokenInsightQuery",
     "TradeStrategyProposal",
     "TurnMessage",
+    "CrossLanguageExceptionTranslator",
+    "DeterministicToolExecutionGateway",
+    "InteropMessageEnvelope",
+    "JVMDataType",
+    "ResilientStreamingMultiplexer",
+    "StarburstAIPlatformSDK",
+    "StreamTokenChunk",
+    "TokenBucketQuotaManager",
+    "ToolExecutionContract",
+    "ToolValidationResult",
 ]
