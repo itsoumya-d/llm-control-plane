@@ -41,6 +41,9 @@ class NodeLifecycleState(str, enum.Enum):
     FENCED_ISOLATED = "FENCED_ISOLATED"
 
 
+VLLMNodeLifecycleState = NodeLifecycleState
+
+
 class DeploymentPhase(str, enum.Enum):
     STABLE = "STABLE"
     CANARY_PROGRESSING = "CANARY_PROGRESSING"
@@ -236,7 +239,9 @@ class InferactVLLMCloudOrchestrator:
             pipeline_parallel_size=self.spec.pipeline_parallel_size,
         )
 
-        assigned_gpus = [g for g in target_node.gpus.values() if g.is_healthy and g.assigned_actor_id is None][:needed_gpus]
+        assigned_gpus = [
+            g for g in target_node.gpus.values() if g.is_healthy and g.assigned_actor_id is None
+        ][:needed_gpus]
         for rank, gpu in enumerate(assigned_gpus):
             actor_id = f"{group_id}-actor-{rank}"
             gpu.assigned_actor_id = actor_id
@@ -256,7 +261,11 @@ class InferactVLLMCloudOrchestrator:
     def compute_autoscaling_demand(self, kv_state: PagedKVCacheState) -> int:
         """Calculates desired replica count based on KV-cache pressure and queue latency."""
         current_replicas = max(self.spec.min_replicas, len(self.replica_groups))
-        if kv_state.utilization_ratio >= self.spec.target_kv_cache_utilization or kv_state.pending_token_queue_depth > 50:
+        high_pressure = (
+            kv_state.utilization_ratio >= self.spec.target_kv_cache_utilization
+            or kv_state.pending_token_queue_depth > 50
+        )
+        if high_pressure:
             scale_factor = 1.5 if kv_state.pending_token_queue_depth > 100 else 1.2
             desired = int(current_replicas * scale_factor) + 1
         elif kv_state.utilization_ratio < 0.40 and kv_state.pending_token_queue_depth == 0:
@@ -377,7 +386,7 @@ class InferactVLLMCloudOrchestrator:
         self.status.current_phase = DeploymentPhase.DRAINING_PREVIOUS
 
         # Release old replica groups
-        for gid, group in list(self.replica_groups.items()):
+        for _gid, group in list(self.replica_groups.items()):
             self.status.drained_streaming_requests += group.in_flight_requests
             for w in group.workers:
                 if w.node_id in self.nodes and w.gpu_index in self.nodes[w.node_id].gpus:

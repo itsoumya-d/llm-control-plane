@@ -1,20 +1,5 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
-from llm_control_plane.inferact_vllm_cloud_orchestrator import (
-    ClusterNode,
-    DeploymentPhase,
-    GPUDeviceState,
-    GPUHardwareEvent,
-    GPUHealthWatchdog,
-    HardwareDegradationType,
-    InferactVLLMCloudOrchestrator,
-    NodeLifecycleState,
-    PagedKVCacheState,
-    RayActorPlacementGroup,
-    RayWorkerActor,
-    VLLMInferenceClusterSpec,
-    VLLMInferenceClusterStatus,
-)
 from llm_control_plane.bitpanda_elastic_secops_platform import (
     CloudThreatHunter,
     DORAClassification,
@@ -27,6 +12,21 @@ from llm_control_plane.bitpanda_elastic_secops_platform import (
     SecurityPostureHardeningAuditor,
     SeverityLevel,
     SOARIncidentWorkflowManager,
+)
+from llm_control_plane.inferact_vllm_cloud_orchestrator import (
+    ClusterNode,
+    DeploymentPhase,
+    GPUDeviceState,
+    GPUHardwareEvent,
+    GPUHealthWatchdog,
+    HardwareDegradationType,
+    InferactVLLMCloudOrchestrator,
+    PagedKVCacheState,
+    RayActorPlacementGroup,
+    RayWorkerActor,
+    VLLMInferenceClusterSpec,
+    VLLMInferenceClusterStatus,
+    VLLMNodeLifecycleState,
 )
 
 from .anthropic_startup_applied_ai_platform import (
@@ -634,4 +634,5 @@ __all__ = [
     "RayWorkerActor",
     "VLLMInferenceClusterSpec",
     "VLLMInferenceClusterStatus",
+    "VLLMNodeLifecycleState",
 ]

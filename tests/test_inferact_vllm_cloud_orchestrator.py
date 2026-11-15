@@ -1,7 +1,5 @@
 """Tests for Inferact vLLM Cloud Orchestrator & Distributed GPU Cluster Operator."""
 
-import pytest
-
 from llm_control_plane.inferact_vllm_cloud_orchestrator import (
     ClusterNode,
     DeploymentPhase,
@@ -103,12 +101,16 @@ def test_autoscaling_demand_computation() -> None:
     orchestrator = InferactVLLMCloudOrchestrator(spec)
 
     # Moderate state -> stays at min_replicas
-    moderate_kv = PagedKVCacheState.create(total_blocks=10000, used_blocks=5000, prefix_cache_hit_rate=0.5, queue_depth=10)
+    moderate_kv = PagedKVCacheState.create(
+        total_blocks=10000, used_blocks=5000, prefix_cache_hit_rate=0.5, queue_depth=10
+    )
     desired = orchestrator.compute_autoscaling_demand(moderate_kv)
     assert desired == 2
 
     # High pressure state -> scales up
-    burst_kv = PagedKVCacheState.create(total_blocks=10000, used_blocks=8800, prefix_cache_hit_rate=0.3, queue_depth=120)
+    burst_kv = PagedKVCacheState.create(
+        total_blocks=10000, used_blocks=8800, prefix_cache_hit_rate=0.3, queue_depth=120
+    )
     desired = orchestrator.compute_autoscaling_demand(burst_kv)
     assert desired > 2
     assert desired <= 8
