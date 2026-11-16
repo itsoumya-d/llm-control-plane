@@ -403,6 +403,16 @@ from .flowtraders_infra_platform_orchestrator import (
     TerraformModuleReconciler,
     TerraformModuleSpec,
 )
+from .plumerai_edge_vision_orchestrator import (
+    BoundingBox,
+    EdgeDeviceProfile,
+    PlumeraiEdgeVisionOrchestrator,
+    QuantizationCalibrationResult,
+    QuantizationPrecision,
+    VisionEventTrigger,
+    VLMSceneQuery,
+    VLMSceneResponse,
+)
 from .qualtrics_observability_engine import (
     CustomerExperienceCorrelator,
     EksObservabilityAutomator,
@@ -850,4 +860,12 @@ __all__ = [
     "ControlStatus",
     "DataGuardComplianceOrchestrator",
     "EvidenceType",
+    "BoundingBox",
+    "EdgeDeviceProfile",
+    "PlumeraiEdgeVisionOrchestrator",
+    "QuantizationCalibrationResult",
+    "QuantizationPrecision",
+    "VisionEventTrigger",
+    "VLMSceneQuery",
+    "VLMSceneResponse",
 ]
