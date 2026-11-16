@@ -2,12 +2,11 @@
 Tests for CrateDB Ecosystem Driver Adapter & Telemetry Store.
 """
 
-import pytest
 from llm_control_plane.cratedb_ecosystem_driver_adapter import (
+    CrateDBConnectionPool,
     CrateDBDriverConfig,
     CrateDBNode,
     CrateDBSQLDialect,
-    CrateDBConnectionPool,
     CrateDBTelemetryStore,
 )
 

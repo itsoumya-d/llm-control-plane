@@ -9,10 +9,8 @@ for LLM control plane event streams.
 from __future__ import annotations
 
 import dataclasses
-import hashlib
 import json
 import logging
-import re
 import time
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -222,7 +220,8 @@ class CrateDBConnectionPool:
                                node.host, ex, attempts, self.config.max_retries)
                 time.sleep(self.config.retry_backoff_sec * attempts)
 
-        raise RuntimeError(f"CrateDB query execution failed across all nodes after {attempts} attempts: {last_exception}")
+        err_msg = f"CrateDB query failed across nodes after {attempts} attempts: {last_exception}"
+        raise RuntimeError(err_msg)
 
 
 class CrateDBTelemetryStore:
