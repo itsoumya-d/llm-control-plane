@@ -119,6 +119,15 @@ from .duckdb_engine import (
     QueryExecutionError,
     UnsafeQueryError,
 )
+from .elevenlabs_streaming_inference_engine import (
+    AudioChunk,
+    ElevenLabsStreamingInferenceEngine,
+    InferenceMetrics,
+    InferencePriority,
+    KVCachePool,
+    QuantizationFormat,
+    StreamingInferenceConfig,
+)
 from .evals import (
     ContainsScorer,
     Dataset,
@@ -412,15 +421,6 @@ from .plumerai_edge_vision_orchestrator import (
     VisionEventTrigger,
     VLMSceneQuery,
     VLMSceneResponse,
-)
-from .elevenlabs_streaming_inference_engine import (
-    AudioChunk,
-    ElevenLabsStreamingInferenceEngine,
-    InferenceMetrics,
-    InferencePriority,
-    KVCachePool,
-    QuantizationFormat,
-    StreamingInferenceConfig,
 )
 from .qualtrics_observability_engine import (
     CustomerExperienceCorrelator,

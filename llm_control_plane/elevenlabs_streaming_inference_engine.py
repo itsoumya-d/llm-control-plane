@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import enum
 import hashlib
-import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
@@ -165,7 +164,6 @@ class ElevenLabsStreamingInferenceEngine:
         simulated_token_count: int = 12,
     ) -> Iterator[AudioChunk]:
         """Streams audio chunks with real-time latency and chunk tracking."""
-        start_time = time.perf_counter()
         self._request_counter += 1
         req_id = f"el_req_{self._request_counter:05d}"
 
