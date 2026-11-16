@@ -1,4 +1,5 @@
 import asyncio
+
 import pytest
 
 from llm_control_plane.signoz_agent_observability_engine import (
@@ -27,7 +28,6 @@ def test_otel_span_cost_estimation():
         total_tokens=1500,
         finish_reason=FinishReason.STOP,
     )
-    # 1000 * 0.000005 + 500 * 0.000015 = 0.005 + 0.0075 = 0.0125
     cost = span.estimated_cost_usd()
     assert pytest.approx(cost, 0.0001) == 0.0125
 
@@ -167,7 +167,6 @@ def test_collector_capacity_backpressure():
         )
         assert collector.record_span(s) is True
 
-    # 3rd span should be rejected due to capacity limit
     overflow_span = OTelSpan(
         trace_id="tr-overflow",
         span_id="sp-overflow",

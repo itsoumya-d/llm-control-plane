@@ -11,12 +11,10 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import enum
-import hashlib
 import json
 import re
-import uuid
-from dataclasses import asdict, dataclass, field
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Set, Tuple
+from dataclasses import dataclass, field
+from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Set
 
 
 class FinishReason(str, enum.Enum):
@@ -211,7 +209,7 @@ class SigNozMCPServer:
         tid = args.get("trace_id", "")
         return {
             "trace_id": tid,
-            "span_count": 14,
+            "span_count": 4,
             "root_service": "api-gateway",
             "p99_duration_ms": 142.5,
             "has_errors": False,
@@ -245,8 +243,18 @@ class SigNozMCPServer:
             "query": q,
             "matches": limit,
             "logs": [
-                {"timestamp": "2026-11-16T17:14:22Z", "severity": "WARN", "message": "Rate limit threshold approached (85%)", "service": "llm-proxy"},
-                {"timestamp": "2026-11-16T17:14:25Z", "severity": "INFO", "message": "ClickHouse batch flush: 2500 spans written", "service": "telemetry-collector"},
+                {
+                    "timestamp": "2026-11-16T17:14:22Z",
+                    "severity": "WARN",
+                    "message": "Rate limit threshold approached (85%)",
+                    "service": "llm-proxy",
+                },
+                {
+                    "timestamp": "2026-11-16T17:14:25Z",
+                    "severity": "INFO",
+                    "message": "ClickHouse batch flush: 2500 spans written",
+                    "service": "telemetry-collector",
+                },
             ],
         }
 
@@ -255,10 +263,20 @@ class SigNozMCPServer:
         return {
             "service": svc,
             "correlated_causes": [
-                {"factor": "ClickHouse table lock contention on signoz_traces", "confidence": 0.88, "type": "db_storage"},
-                {"factor": "OpenAI 429 upstream rate limit throttle", "confidence": 0.94, "type": "external_api"},
+                {
+                    "factor": "ClickHouse table lock contention on signoz_traces",
+                    "confidence": 0.88,
+                    "type": "db_storage",
+                },
+                {
+                    "factor": "OpenAI 429 upstream rate limit throttle",
+                    "confidence": 0.94,
+                    "type": "external_api",
+                },
             ],
-            "recommended_action": "Tune ClickHouse parts merge concurrency and activate local token-bucket backpressure.",
+            "recommended_action": (
+                "Tune ClickHouse parts merge concurrency and activate local token-bucket backpressure."
+            ),
         }
 
 
@@ -299,23 +317,22 @@ class NozSessionCoordinator:
     def _compact_context_if_needed(self) -> None:
         """Sliding-window compaction preserving system prompt and recent turns."""
         if len(self.messages) > self.max_history_turns:
-            # Preserve the initial system context and condense older turns
             overflow = len(self.messages) - self.max_history_turns
-            condensed_summary = f"[System Context: Archived {overflow} earlier turns for session {self.session_id}]"
+            condensed = f"[System Context: Archived {overflow} earlier turns for session {self.session_id}]"
+            now_iso = dt.datetime.now(dt.timezone.utc).isoformat()
             self.messages = [
-                NozMessage(role="system", content=condensed_summary, timestamp=dt.datetime.now(dt.timezone.utc).isoformat())
+                NozMessage(role="system", content=condensed, timestamp=now_iso)
             ] + self.messages[overflow:]
 
     async def stream_response(self, prompt: str) -> AsyncIterator[str]:
         """Stream response tokens formatted as Server-Sent Events (SSE)."""
         self.add_user_message(prompt)
 
-        # Simulate agent reasoning and tool invocation
         synthetic_tokens = [
             "Analyzing ", "telemetry ", "waterfall ", "for ", "SigNoz ", "services... \n",
             "Detected ", "elevated ", "P99 ", "latency ", "on ", "api-gateway ", "(142.5ms). \n",
             "Root-cause: ", "Upstream ", "OpenAI ", "model ", "inference ", "delay. \n",
-            "Mitigation: ", "Enable ", "semantic ", "cache ", "and ", "fall ", "back ", "to ", "local ", "INT8 ", "model.",
+            "Mitigation: ", "Enable ", "semantic ", "cache ", "and ", "fall ", "back ", "to ", "local ", "INT8.",
         ]
 
         for token in synthetic_tokens:
@@ -353,7 +370,7 @@ class OpenTelemetryGenAISpanCollector:
     def record_span(self, span: OTelSpan) -> bool:
         """Enqueue span into the high-throughput telemetry buffer."""
         if len(self._buffer) >= self.max_queue_capacity:
-            return False  # Drop / backpressure signal
+            return False
         self._buffer.append(span)
         self._total_collected += 1
         return True
