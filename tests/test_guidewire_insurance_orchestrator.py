@@ -12,9 +12,9 @@ Tests:
 import pytest
 
 from llm_control_plane.guidewire_insurance_orchestrator import (
+    ClaimsSagaCoordinator,
     ClaimStatus,
     ClaimSubmission,
-    ClaimsSagaCoordinator,
     EventDrivenKafkaBridge,
     GuidewireUnderwritingEngine,
     PolicyEndorsement,
@@ -96,7 +96,9 @@ def test_underwriting_critical_fraud_detection(underwriting_engine):
         claim_id="CLM-FRAUD-1",
         policy_id="POL-FRAUD-1",
         loss_date="2026-11-15",
-        description="Unwitnessed total loss of high-value inventory, unattended premises, cash only immediate payout requested.",
+        description=(
+            "Unwitnessed total loss of high-value inventory, unattended premises, cash only payout requested."
+        ),
         claimed_amount_cents=4_500_000,  # 90% of coverage
         claimant_name="Suspicious Actor",
     )

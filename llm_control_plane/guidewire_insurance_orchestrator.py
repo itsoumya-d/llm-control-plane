@@ -11,11 +11,10 @@ from __future__ import annotations
 
 import enum
 import hashlib
-import json
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class PolicyType(str, enum.Enum):
@@ -238,8 +237,9 @@ class ClaimsSagaCoordinator:
 
         if policy.available_coverage_cents() < claim.claimed_amount_cents:
             claim.status = ClaimStatus.REJECTED
+            avail = policy.available_coverage_cents()
             claim.audit_trail.append(
-                f"T1_FAIL: Claim {claim.claimed_amount_cents} exceeds available coverage {policy.available_coverage_cents()}"
+                f"T1_FAIL: Claim {claim.claimed_amount_cents} exceeds available coverage {avail}"
             )
             return False, "Claim amount exceeds available policy coverage limit"
 
@@ -260,7 +260,9 @@ class ClaimsSagaCoordinator:
         assessment = self.underwriting_engine.evaluate_claim(policy, claim)
         claim.risk_tier = assessment.risk_tier
         claim.risk_score = assessment.risk_score
-        claim.audit_trail.append(f"T3: Underwriting assessment: {assessment.risk_tier.value} ({assessment.risk_score:.2f})")
+        claim.audit_trail.append(
+            f"T3: Underwriting assessment: {assessment.risk_tier.value} ({assessment.risk_score:.2f})"
+        )
 
         # Check for Critical Fraud failure
         if assessment.risk_tier == RiskTier.CRITICAL_FRAUD:
