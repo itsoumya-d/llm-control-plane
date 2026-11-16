@@ -1,7 +1,7 @@
 """Moneybox Forward Deployed AI Orchestration Platform.
 
 Engineered for load-bearing wealth management workflows at 20M+ request scale:
-- Deterministic UK Financial PII Sanitization (NI numbers, sort codes, account numbers, amounts).
+- Deterministic UK Financial PII Sanitization (NI numbers, sort codes, account numbers).
 - Strict separation of audited deterministic financial calculation from probabilistic LLM synthesis.
 - Production-grade evaluation harness measuring accuracy, precision, recall, and hallucination rates.
 - Multi-tier model routing, semantic caching, token economics, and FCA-compliant audit trails.
@@ -14,8 +14,8 @@ import hashlib
 import hmac
 import re
 import time
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class AccountType(str, enum.Enum):
@@ -50,7 +50,7 @@ class PIIMaskResult:
 class UKFinancialPIISanitizer:
     """Detects and pseudonyms sensitive UK financial identifiers before LLM ingestion."""
 
-    # UK National Insurance Number regex
+    # UK National Insurance Number regex (must not start with D, F, I, Q, U or V)
     NINO_REGEX = re.compile(r"\b[A-CEGHJ-PR-TW-Z]{2}\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\b", re.IGNORECASE)
     # UK Sort Code (6 digits)
     SORT_CODE_REGEX = re.compile(r"\b\d{2}[-\s]?\d{2}[-\s]?\d{2}\b")
@@ -72,7 +72,7 @@ class UKFinancialPIISanitizer:
         redacted = []
         cur = text
 
-        # 1. Mask NINOs
+        # 1. Mask NINOs first
         for match in self.NINO_REGEX.finditer(text):
             raw = match.group(0)
             token = self._pseudonym(raw, "UK_NINO")
@@ -82,9 +82,10 @@ class UKFinancialPIISanitizer:
         # 2. Mask Sort Codes
         for match in self.SORT_CODE_REGEX.finditer(text):
             raw = match.group(0)
-            token = self._pseudonym(raw, "UK_SORT_CODE")
-            cur = cur.replace(raw, token)
-            redacted.append({"type": "SORT_CODE", "token": token})
+            if raw in cur:
+                token = self._pseudonym(raw, "UK_SORT_CODE")
+                cur = cur.replace(raw, token)
+                redacted.append({"type": "SORT_CODE", "token": token})
 
         # 3. Mask Emails
         for match in self.EMAIL_REGEX.finditer(text):
@@ -106,9 +107,17 @@ class UKFinancialPIISanitizer:
         if any(p in lower for p in ["ignore all previous instructions", "system prompt override", "drop table users"]):
             blocked = True
 
-        status = GuardrailStatus.BLOCKED if blocked else (GuardrailStatus.REDACTED if redacted else GuardrailStatus.CLEAN)
+        status = GuardrailStatus.BLOCKED if blocked else (
+            GuardrailStatus.REDACTED if redacted else GuardrailStatus.CLEAN
+        )
         cksum = hashlib.sha256(cur.encode("utf-8")).hexdigest()[:16]
-        return PIIMaskResult(original_text=text, sanitized_text=cur, redacted_entities=redacted, status=status, checksum=cksum)
+        return PIIMaskResult(
+            original_text=text,
+            sanitized_text=cur,
+            redacted_entities=redacted,
+            status=status,
+            checksum=cksum,
+        )
 
 
 class DeterministicWealthCalculator:
@@ -175,7 +184,7 @@ class DeterministicWealthCalculator:
 
 
 @dataclass
-class EvalCase:
+class MoneyboxWealthEvalCase:
     case_id: str
     input_prompt: str
     expected_topic: str
@@ -208,7 +217,7 @@ class ProductionEvalHarness:
         self.tolerance = tolerance
 
     def evaluate_output(
-        self, case: EvalCase, generated_text: str, latency_ms: float
+        self, case: MoneyboxWealthEvalCase, generated_text: str, latency_ms: float
     ) -> Tuple[bool, bool, bool]:
         """Evaluates output for numerical consistency, hallucination, and regulatory compliance."""
         lower = generated_text.lower()
@@ -224,12 +233,10 @@ class ProductionEvalHarness:
         hallucination = False
 
         if numbers:
-            # check if expected anchor is present within tolerance
             for num in numbers:
                 if abs(num - case.expected_numeric_anchor) <= (case.expected_numeric_anchor * self.tolerance + 0.01):
                     numeric_match = True
                     break
-            # if numbers deviate wildly and anchor missing
             if not numeric_match:
                 hallucination = True
         else:
@@ -238,7 +245,7 @@ class ProductionEvalHarness:
         case_passed = numeric_match and has_disclaimer and not hallucination
         return case_passed, hallucination, has_disclaimer
 
-    def run_suite(self, cases: List[Tuple[EvalCase, str, float]]) -> EvalReport:
+    def run_suite(self, cases: List[Tuple[MoneyboxWealthEvalCase, str, float]]) -> EvalReport:
         passed_count = 0
         hallucinations = 0
         disclaimer_ok = 0
@@ -271,9 +278,9 @@ class ProductionEvalHarness:
 
 
 class ModelTier(str, enum.Enum):
-    FAST_CLASSIFICATION = "FAST_CLASSIFICATION"  # Small/low latency model
-    STRUCTURED_EXTRACTOR = "STRUCTURED_EXTRACTOR"  # Medium model
-    FRONTIER_REASONER = "FRONTIER_REASONER"  # Deep multi-step model
+    FAST_CLASSIFICATION = "FAST_CLASSIFICATION"
+    STRUCTURED_EXTRACTOR = "STRUCTURED_EXTRACTOR"
+    FRONTIER_REASONER = "FRONTIER_REASONER"
 
 
 class ForwardDeployedAIOrchestrator:
@@ -323,15 +330,20 @@ class ForwardDeployedAIOrchestrator:
 
         # Step 4: Tiered Model Routing
         tier = self.route_model(task_type)
-        cost_tokens = 150 if tier == ModelTier.FAST_CLASSIFICATION else (400 if tier == ModelTier.STRUCTURED_EXTRACTOR else 1200)
+        cost_tokens = (
+            150 if tier == ModelTier.FAST_CLASSIFICATION
+            else (400 if tier == ModelTier.STRUCTURED_EXTRACTOR else 1200)
+        )
 
         if self.tokens_consumed + cost_tokens > self.max_token_budget:
             return {"error": "Token budget exceeded", "status": "BUDGET_EXHAUSTED"}
 
         self.tokens_consumed += cost_tokens
 
-        # Synthesize production response safely incorporating math
-        res_text = f"Explanation: {sanitized.sanitized_text}. Deterministic result: {det_data}. Capital at risk; not financial advice."
+        res_text = (
+            f"Explanation: {sanitized.sanitized_text}. "
+            f"Deterministic result: {det_data}. Capital at risk; not financial advice."
+        )
         lat = round((time.perf_counter() - t0) * 1000, 2)
 
         # Step 5: Cache & Audit Logging

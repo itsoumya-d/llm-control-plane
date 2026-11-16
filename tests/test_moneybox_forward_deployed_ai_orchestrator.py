@@ -1,18 +1,20 @@
-import pytest
 from llm_control_plane.moneybox_forward_deployed_ai_orchestrator import (
-    UKFinancialPIISanitizer,
-    GuardrailStatus,
     DeterministicWealthCalculator,
-    EvalCase,
-    ProductionEvalHarness,
     ForwardDeployedAIOrchestrator,
+    GuardrailStatus,
     ModelTier,
+    MoneyboxWealthEvalCase,
+    ProductionEvalHarness,
+    UKFinancialPIISanitizer,
 )
 
 
 def test_pii_sanitization_masks_nino_and_bank_details():
     sanitizer = UKFinancialPIISanitizer()
-    prompt = "My NINO is JH 12 34 56 A and my bank account is 12345678 with sort code 20-40-60. Email me at test@example.com."
+    prompt = (
+        "My NINO is JH 12 34 56 A and my bank account is 12345678 with sort code 20-40-60. "
+        "Email me at test@example.com."
+    )
     res = sanitizer.sanitize(prompt)
 
     assert res.status == GuardrailStatus.REDACTED
@@ -62,7 +64,7 @@ def test_pension_compound_growth():
 
 def test_eval_harness_catches_hallucinations_and_missing_disclaimer():
     harness = ProductionEvalHarness()
-    case = EvalCase(
+    case = MoneyboxWealthEvalCase(
         case_id="lisa_01",
         input_prompt="If I deposit £4,000 into my Lifetime ISA, what bonus do I get?",
         expected_topic="LISA",
@@ -71,7 +73,10 @@ def test_eval_harness_catches_hallucinations_and_missing_disclaimer():
     )
 
     # 1. Compliant output with anchor and disclaimer
-    text_ok = "You will receive a government bonus of £1,000.00. Note that capital at risk and this is not financial advice."
+    text_ok = (
+        "You will receive a government bonus of £1,000.00. "
+        "Note that capital at risk and this is not financial advice."
+    )
     passed, hal, disc = harness.evaluate_output(case, text_ok, latency_ms=45.0)
     assert passed is True
     assert hal is False
@@ -92,7 +97,7 @@ def test_eval_harness_catches_hallucinations_and_missing_disclaimer():
 
 def test_eval_suite_report():
     harness = ProductionEvalHarness()
-    case = EvalCase(
+    case = MoneyboxWealthEvalCase(
         case_id="case_1",
         input_prompt="Test",
         expected_topic="test",
@@ -115,12 +120,11 @@ def test_forward_deployed_orchestrator_pipeline_and_cache():
     sanitizer = UKFinancialPIISanitizer()
     orch = ForwardDeployedAIOrchestrator(sanitizer, max_token_budget=10000)
 
-    # Execute workflow with deterministic math
     def calc():
         return DeterministicWealthCalculator.calculate_lisa_bonus(2000.0)
 
     res1 = orch.execute_workflow(
-        user_query="My NINO is AB123456C. How much bonus on £2,000 LISA deposit?",
+        user_query="My NINO is JH123456C. How much bonus on £2,000 LISA deposit?",
         customer_id="cust_987",
         task_type="faq",
         math_func=calc,
@@ -131,9 +135,8 @@ def test_forward_deployed_orchestrator_pipeline_and_cache():
     assert res1["deterministic_data"]["government_bonus"] == 500.0
     assert len(orch.audit_log) == 1
 
-    # Second call should hit cache
     res2 = orch.execute_workflow(
-        user_query="My NINO is AB123456C. How much bonus on £2,000 LISA deposit?",
+        user_query="My NINO is JH123456C. How much bonus on £2,000 LISA deposit?",
         customer_id="cust_987",
         task_type="faq",
         math_func=calc,
