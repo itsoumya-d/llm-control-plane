@@ -271,6 +271,17 @@ from .resend_mta_transport import (
     MultiTierLeakyBucketThrottle,
     ResendMTATransportEngine,
 )
+from .riplo_agentic_workflow_engine import (
+    AgenticWorkflowDAG,
+    CitationType,
+    ClaimNode,
+    EvidenceChunk,
+    EvidenceProvenanceGraph,
+    PartnerReadinessScore,
+    PartnerReadyEvaluationHarness,
+    WorkflowStep,
+    WorkflowStepStatus,
+)
 from .routing import Route, RoutingTable
 from .seo_rank_engine import (
     ClientSEOAnalyticsAggregator,
@@ -884,4 +895,13 @@ __all__ = [
     "KVCachePool",
     "QuantizationFormat",
     "StreamingInferenceConfig",
+    "AgenticWorkflowDAG",
+    "CitationType",
+    "ClaimNode",
+    "EvidenceChunk",
+    "EvidenceProvenanceGraph",
+    "PartnerReadyEvaluationHarness",
+    "PartnerReadinessScore",
+    "WorkflowStep",
+    "WorkflowStepStatus",
 ]
