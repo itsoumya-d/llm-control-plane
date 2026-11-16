@@ -1,7 +1,7 @@
 """Tests for Helsing Resilient Telemetry Stream Orchestrator."""
 
 import hashlib
-import pytest
+
 from llm_control_plane.helsing_telemetry_stream_orchestrator import (
     AirGappedCryptographicLedger,
     HelsingTelemetryStreamOrchestrator,

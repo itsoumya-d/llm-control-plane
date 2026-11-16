@@ -232,7 +232,11 @@ class AirGappedCryptographicLedger:
         for block in self._blocks:
             if block["previous_hash"] != prev:
                 return False
-            expected_content = f"{block['height']}:{prev}:{block['batch_id']}:{block['merkle_root']}:{block['timestamp_ns']}"
+            b_h = block['height']
+            b_id = block['batch_id']
+            b_m = block['merkle_root']
+            b_ts = block['timestamp_ns']
+            expected_content = f"{b_h}:{prev}:{b_id}:{b_m}:{b_ts}"
             if hashlib.sha256(expected_content.encode("utf-8")).hexdigest() != block["block_hash"]:
                 return False
             prev = block["block_hash"]
