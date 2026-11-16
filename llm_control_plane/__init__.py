@@ -464,6 +464,16 @@ from .qualtrics_observability_engine import (
     TelemetryIngestionStream,
     TelemetryType,
 )
+from .solidroad_simulation_evaluation_orchestrator import (
+    CRMIngestionPipeline,
+    DialogueTurn,
+    MultiTurnEvalHarness,
+    PersonaArchetype,
+    SessionEvaluationReport,
+    SimulationConfig,
+    SolidroadSimulationEngine,
+    TurnEvaluation,
+)
 from .starburst_ai_platform_bridge_sdk import (
     CrossLanguageExceptionTranslator,
     DeterministicToolExecutionGateway,
@@ -945,4 +955,12 @@ __all__ = [
     "ProductionEvalHarness",
     "RiskCategory",
     "UKFinancialPIISanitizer",
+    "CRMIngestionPipeline",
+    "DialogueTurn",
+    "MultiTurnEvalHarness",
+    "PersonaArchetype",
+    "SessionEvaluationReport",
+    "SimulationConfig",
+    "SolidroadSimulationEngine",
+    "TurnEvaluation",
 ]
