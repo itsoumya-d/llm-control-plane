@@ -413,6 +413,15 @@ from .plumerai_edge_vision_orchestrator import (
     VLMSceneQuery,
     VLMSceneResponse,
 )
+from .elevenlabs_streaming_inference_engine import (
+    AudioChunk,
+    ElevenLabsStreamingInferenceEngine,
+    InferenceMetrics,
+    InferencePriority,
+    KVCachePool,
+    QuantizationFormat,
+    StreamingInferenceConfig,
+)
 from .qualtrics_observability_engine import (
     CustomerExperienceCorrelator,
     EksObservabilityAutomator,
@@ -868,4 +877,11 @@ __all__ = [
     "VisionEventTrigger",
     "VLMSceneQuery",
     "VLMSceneResponse",
+    "AudioChunk",
+    "ElevenLabsStreamingInferenceEngine",
+    "InferenceMetrics",
+    "InferencePriority",
+    "KVCachePool",
+    "QuantizationFormat",
+    "StreamingInferenceConfig",
 ]
