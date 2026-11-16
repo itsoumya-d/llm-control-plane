@@ -179,9 +179,9 @@ def test_ai_query_privacy_guardrail_prompt_audit():
     assert ok is True
     assert err is None
 
-    bad_ok, bad_err = LLMAnalyticalQueryGuardrail.audit_llm_prompt("Retrieve exact_lat and exact_lon for traveler")
+    bad_ok, bad_err = LLMAnalyticalQueryGuardrail.audit_llm_prompt("Retrieve exact_lat for traveler")
     assert bad_ok is False
-    assert any(t in bad_err for t in ("exact_lat", "exact_lon"))
+    assert "exact_lat" in bad_err
 
 
 def test_ai_query_privacy_guardrail_sanitize_context():

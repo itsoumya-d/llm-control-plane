@@ -272,10 +272,10 @@ class LLMAnalyticalQueryGuardrail:
     raw PII or exact geographic coordinates.
     """
 
-    PROHIBITED_TERMS = {
+    PROHIBITED_TERMS = (
         "exact_lat", "exact_lon", "home_address", "ip_address", "mac_address",
         "ssn", "passport_number", "full_name", "phone_number"
-    }
+    )
 
     @classmethod
     def sanitize_llm_query_context(cls, raw_context: Dict[str, Any]) -> Dict[str, Any]:
