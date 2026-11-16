@@ -1,6 +1,5 @@
 """Unit tests for finmid Embedded Financial Platform Orchestrator."""
 
-import pytest
 from llm_control_plane.finmid_platform_orchestrator import (
     ComplianceStandard,
     EnvironmentState,
