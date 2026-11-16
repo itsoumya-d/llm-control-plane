@@ -119,6 +119,15 @@ from .duckdb_engine import (
     QueryExecutionError,
     UnsafeQueryError,
 )
+from .elevenlabs_streaming_inference_engine import (
+    AudioChunk,
+    ElevenLabsStreamingInferenceEngine,
+    InferenceMetrics,
+    InferencePriority,
+    KVCachePool,
+    QuantizationFormat,
+    StreamingInferenceConfig,
+)
 from .evals import (
     ContainsScorer,
     Dataset,
@@ -868,4 +877,11 @@ __all__ = [
     "VisionEventTrigger",
     "VLMSceneQuery",
     "VLMSceneResponse",
+    "AudioChunk",
+    "ElevenLabsStreamingInferenceEngine",
+    "InferenceMetrics",
+    "InferencePriority",
+    "KVCachePool",
+    "QuantizationFormat",
+    "StreamingInferenceConfig",
 ]
