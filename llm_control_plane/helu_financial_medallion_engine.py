@@ -7,14 +7,11 @@ dimensional modeling (Kimball star schema), and financial statement generation.
 
 from __future__ import annotations
 
-import csv
 import dataclasses
 import datetime as dt
-import decimal
-from decimal import Decimal
 import enum
 import hashlib
-import json
+from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -94,11 +91,21 @@ class BronzeIngestionWorker:
         self.dead_letter_queue: List[Dict[str, Any]] = []
 
     def ingest_record(self, raw_data: Dict[str, Any]) -> Tuple[bool, Optional[RawVoucherRecord], Optional[str]]:
-        required = ["voucher_id", "entity_id", "source_erp", "posting_date", "account_code", "debit_amount", "credit_amount", "currency"]
+        required = [
+            "voucher_id",
+            "entity_id",
+            "source_erp",
+            "posting_date",
+            "account_code",
+            "debit_amount",
+            "credit_amount",
+            "currency",
+        ]
         missing = [f for f in required if f not in raw_data]
         if missing:
             err = f"Missing required fields: {missing}"
-            self.dead_letter_queue.append({"raw": raw_data, "error": err, "timestamp": dt.datetime.now(dt.timezone.utc).isoformat()})
+            now_iso = dt.datetime.now(dt.timezone.utc).isoformat()
+            self.dead_letter_queue.append({"raw": raw_data, "error": err, "timestamp": now_iso})
             return False, None, err
 
         try:
@@ -106,7 +113,8 @@ class BronzeIngestionWorker:
             credit = Decimal(str(raw_data["credit_amount"]))
         except Exception as e:
             err = f"Invalid numeric amount: {e}"
-            self.dead_letter_queue.append({"raw": raw_data, "error": err, "timestamp": dt.datetime.now(dt.timezone.utc).isoformat()})
+            now_iso = dt.datetime.now(dt.timezone.utc).isoformat()
+            self.dead_letter_queue.append({"raw": raw_data, "error": err, "timestamp": now_iso})
             return False, None, err
 
         rec = RawVoucherRecord(

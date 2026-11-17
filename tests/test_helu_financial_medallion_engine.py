@@ -1,7 +1,6 @@
 """Tests for Helu.io GmbH Financial Data Platform — Medallion Architecture Engine."""
 
 from decimal import Decimal
-import pytest
 
 from llm_control_plane.helu_financial_medallion_engine import (
     AccountType,
