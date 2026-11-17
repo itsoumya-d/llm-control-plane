@@ -1,6 +1,7 @@
 """Unit and integration tests for Codat Commercial Banking Advisory Intelligence Platform."""
 
 import pytest
+
 from llm_control_plane.codat_advisory_intelligence import (
     AdvisoryEvalHarness,
     CodatAdvisoryIntelligenceEngine,
@@ -21,24 +22,24 @@ def sample_client_books():
             "ledger_ref": "LEDG-PL-001",
             "net_operating_income": 450000.0,
             "debt_service": 250000.0,
-            "gross_sales": 1800000.0
+            "gross_sales": 1800000.0,
         },
         "balance_sheet": {
             "ledger_ref": "LEDG-BS-001",
             "ar_ledger_ref": "LEDG-AR-001",
             "current_assets": 1200000.0,
             "current_liabilities": 750000.0,
-            "accounts_receivable": 360000.0
+            "accounts_receivable": 360000.0,
         },
         "metrics": {
             "current_dso": 48.0,
-            "prior_quarter_dso": 32.0
+            "prior_quarter_dso": 32.0,
         },
         "debtors": [
             {"name": "Client Acme UK", "balance": 180000.0},
             {"name": "Beta Retail", "balance": 90000.0},
-            {"name": "Gamma Logistics", "balance": 90000.0}
-        ]
+            {"name": "Gamma Logistics", "balance": 90000.0},
+        ],
     }
 
 
@@ -96,7 +97,7 @@ def test_mcp_server_tools_and_execution(sample_client_books):
     res = server.call_tool(
         "get_client_metrics",
         {"client_id": "BARBICAN-TECH-LTD", "metric_names": ["dscr", "current_ratio", "dso"]},
-        sample_client_books
+        sample_client_books,
     )
     assert res["status"] == "SUCCESS"
     assert res["metrics"]["dscr"]["value"] == 1.80
@@ -110,7 +111,7 @@ def test_working_capital_anomaly_signals(sample_client_books):
     res = server.call_tool(
         "detect_working_capital_signals",
         {"client_id": "BARBICAN-TECH-LTD"},
-        sample_client_books
+        sample_client_books,
     )
     assert res["status"] == "SUCCESS"
     assert res["signals_detected"] >= 2
@@ -159,7 +160,7 @@ def test_eval_harness_and_banker_correction_ingestion(sample_client_books):
         client_books=sample_client_books,
         expected_metric="dscr",
         expected_min_val=1.79,
-        expected_max_val=1.81
+        expected_max_val=1.81,
     )
 
     # Ingest banker correction: relationship manager noted a custom accounting adjustment
@@ -168,7 +169,7 @@ def test_eval_harness_and_banker_correction_ingestion(sample_client_books):
         client_books=sample_client_books,
         corrected_metric="current_ratio",
         exact_value=1.60,
-        reason="Banker verified current assets includes audited prepaid expenses"
+        reason="Banker verified current assets includes audited prepaid expenses",
     )
     assert case_id.startswith("REG-BANKER-")
 

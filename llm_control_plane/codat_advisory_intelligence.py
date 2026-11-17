@@ -10,10 +10,9 @@ from __future__ import annotations
 import dataclasses
 import enum
 import hashlib
-import json
 import math
 import time
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class ModelTier(str, enum.Enum):
@@ -39,7 +38,7 @@ class WorkingCapitalSignal:
     """Anomalies and material financial changes detected in client books."""
     signal_id: str
     client_id: str
-    signal_type: str  # e.g., 'dso_deterioration', 'customer_concentration', 'liquidity_compression'
+    signal_type: str  # e.g., 'dso_deterioration', 'customer_concentration'
     severity: str  # 'INFO', 'WARNING', 'CRITICAL'
     description: str
     metric_drift: float
@@ -128,7 +127,6 @@ class ModelChoiceCostRouter:
             return None
         if cache_key in self._cache:
             resp, cached_time = self._cache[cache_key]
-            # Record virtual savings against balanced analyst default
             self.dollars_saved_by_caching += 0.003
             return resp
         return None
@@ -154,7 +152,7 @@ class CodatBankingMCPServer:
         return [
             {
                 "name": "get_client_metrics",
-                "description": "Fetch certified accounting metrics (DSCR, Quick Ratio, DSO, Revenue) with data lineage.",
+                "description": "Fetch certified accounting metrics (DSCR, Quick Ratio, DSO) with data lineage.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -275,12 +273,16 @@ class CodatBankingMCPServer:
         dso_prior = books.get("metrics", {}).get("prior_quarter_dso", 28.0)
         drift = dso_current - dso_prior
         if drift >= 10.0:
+            desc = (
+                f"Days Sales Outstanding drifted by +{drift:.1f} days "
+                f"(from {dso_prior:.1f} to {dso_current:.1f} days). Cash conversion slowing."
+            )
             signals.append(WorkingCapitalSignal(
                 signal_id=f"SIG-DSO-{int(time.time())}",
                 client_id=client_id,
                 signal_type="dso_deterioration",
                 severity="WARNING" if drift < 20 else "CRITICAL",
-                description=f"Days Sales Outstanding drifted by +{drift:.1f} days (from {dso_prior:.1f} to {dso_current:.1f} days). Cash conversion slowing.",
+                description=desc,
                 metric_drift=drift,
                 detected_at=time.time()
             ))
@@ -292,12 +294,16 @@ class CodatBankingMCPServer:
             for d in debtors:
                 pct = (d.get("balance", 0.0) / total_ar) * 100.0
                 if pct >= 30.0:
+                    desc = (
+                        f"High credit concentration: Debtor '{d.get('name')}' "
+                        f"represents {pct:.1f}% of outstanding receivables."
+                    )
                     signals.append(WorkingCapitalSignal(
                         signal_id=f"SIG-CONC-{int(time.time())}",
                         client_id=client_id,
                         signal_type="debtor_concentration",
                         severity="WARNING",
-                        description=f"High credit concentration: Debtor '{d.get('name')}' represents {pct:.1f}% of outstanding receivables.",
+                        description=desc,
                         metric_drift=pct,
                         detected_at=time.time()
                     ))
@@ -364,7 +370,6 @@ class CodatAdvisoryIntelligenceEngine:
         selected_tier = self.router.select_tier(banker_query)
 
         # 3. Grounding & Certified Metrics Retrieval
-        # Parse query intent
         requested_metrics = []
         q_lower = banker_query.lower()
         if "covenant" in q_lower or "dscr" in q_lower:
@@ -375,10 +380,13 @@ class CodatAdvisoryIntelligenceEngine:
             requested_metrics.append("dso")
 
         if not requested_metrics and "working capital" not in q_lower and "signal" not in q_lower:
-            # Deterministic Refusal on Ungrounded Question
+            refusal_text = (
+                "Refusal: Insufficient certified ledger data to answer without hallucination. "
+                "Please specify financial metrics (e.g., DSCR, DSO, Working Capital) available in client books."
+            )
             return {
                 "status": "REFUSAL_UNGROUNDED",
-                "answer": "Refusal: Insufficient certified ledger data to answer without hallucination. Please specify financial metrics (e.g., DSCR, DSO, Working Capital) available in client books.",
+                "answer": refusal_text,
                 "provenance": [],
                 "signals": [],
                 "model_metrics": dataclasses.asdict(ModelCostMetrics(
@@ -410,13 +418,21 @@ class CodatAdvisoryIntelligenceEngine:
         if "dscr" in metrics:
             d_info = metrics["dscr"]
             d_val = d_info.get("value")
-            d_comp = "compliant with covenant >= 1.20x" if d_info.get("covenant_compliant") else "BREACH of covenant (below 1.20x)"
+            d_comp = (
+                "compliant with covenant >= 1.20x"
+                if d_info.get("covenant_compliant")
+                else "BREACH of covenant (below 1.20x)"
+            )
             answer_parts.append(f"- Debt Service Coverage Ratio (DSCR): {d_val:.2f}x ({d_comp}).")
 
         if "current_ratio" in metrics:
             cr_info = metrics["current_ratio"]
             cr_val = cr_info.get("value")
-            cr_status = "healthy balance sheet liquidity" if cr_info.get("healthy") else "compressed liquidity buffer"
+            cr_status = (
+                "healthy balance sheet liquidity"
+                if cr_info.get("healthy")
+                else "compressed liquidity buffer"
+            )
             answer_parts.append(f"- Current Ratio: {cr_val:.2f}x ({cr_status}).")
 
         if "dso" in metrics:
@@ -457,7 +473,6 @@ class CodatAdvisoryIntelligenceEngine:
             "model_metrics": dataclasses.asdict(cost_metrics)
         }
 
-        # Store in cache
         self.router.store_cache(cache_key, result)
         return result
 
