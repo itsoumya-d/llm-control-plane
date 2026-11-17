@@ -1,10 +1,7 @@
 """Tests for Nuitée Travel Infrastructure Engine & Asynchronous Settlement Primitives."""
 
-import time
-import pytest
 
 from llm_control_plane.nuitee_travel_infrastructure_engine import (
-    BookingRecord,
     BookingRequest,
     BookingStatus,
     CircuitState,

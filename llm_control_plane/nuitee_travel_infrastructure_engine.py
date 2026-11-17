@@ -13,7 +13,7 @@ from __future__ import annotations
 import enum
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional
 
 
 class VerticalType(str, enum.Enum):
@@ -288,7 +288,8 @@ class IdempotentBookingSettlementWorker:
 
         # Transition to HELD then CONFIRMED
         record.status = BookingStatus.CONFIRMED
-        record.supplier_confirmation_code = supplier_ref or f"CONF-{req.vertical.value[:3].upper()}-{req.booking_id[:8]}"
+        prefix = req.vertical.value[:3].upper()
+        record.supplier_confirmation_code = supplier_ref or f"CONF-{prefix}-{req.booking_id[:8]}"
         record.updated_at = time.time()
         record.audit_trail.append(f"confirmed_with_{record.supplier_confirmation_code}")
 
