@@ -1,4 +1,5 @@
 import pytest
+
 from llm_control_plane.roboflow_edge_cv_active_learning_gateway import (
     ActiveLearningFilter,
     BoundingBox,
