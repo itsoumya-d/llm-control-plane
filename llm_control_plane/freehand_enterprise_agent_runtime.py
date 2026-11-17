@@ -13,9 +13,9 @@ import inspect
 import json
 import time
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
 
 class ActionRiskTier(str, Enum):
@@ -62,7 +62,12 @@ class WriteAheadLogStateCheckpoint:
     def head_hash(self) -> str:
         return self._last_hash
 
-    async def append_event(self, event_type: str, payload: Dict[str, Any], idempotency_key: Optional[str] = None) -> WALEvent:
+    async def append_event(
+        self,
+        event_type: str,
+        payload: Dict[str, Any],
+        idempotency_key: Optional[str] = None
+    ) -> WALEvent:
         async with self._lock:
             if idempotency_key and idempotency_key in self._idempotency_keys:
                 return self._idempotency_keys[idempotency_key]

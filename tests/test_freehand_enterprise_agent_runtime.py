@@ -1,5 +1,4 @@
 import asyncio
-import pytest
 
 from llm_control_plane.freehand_enterprise_agent_runtime import (
     ActionRiskTier,
@@ -13,9 +12,9 @@ from llm_control_plane.freehand_enterprise_agent_runtime import (
 def test_wal_integrity_and_cryptographic_chain():
     async def _run():
         wal = WriteAheadLogStateCheckpoint("sess-procure-101")
-        ev1 = await wal.append_event("set_variable", {"key": "vendor_id", "value": "VEND-8842"})
-        ev2 = await wal.append_event("execute_action", {"action": "draft_po", "amount": 12500})
-        ev3 = await wal.append_event("set_variable", {"key": "status", "value": "AWAITING_MATCH"})
+        await wal.append_event("set_variable", {"key": "vendor_id", "value": "VEND-8842"})
+        await wal.append_event("execute_action", {"action": "draft_po", "amount": 12500})
+        await wal.append_event("set_variable", {"key": "status", "value": "AWAITING_MATCH"})
 
         assert wal.event_count == 3
         assert wal.verify_integrity() is True
