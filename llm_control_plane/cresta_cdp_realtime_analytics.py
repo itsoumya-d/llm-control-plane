@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 class TurnRole(str, enum.Enum):
     """Role of the participant in a conversational turn."""
+
     AGENT = "agent"
     CUSTOMER = "customer"
     SYSTEM = "system"
@@ -26,6 +27,7 @@ class TurnRole(str, enum.Enum):
 
 class CoachingActionType(str, enum.Enum):
     """Categorization of real-time AI coaching actions."""
+
     SUGGESTION = "suggestion"
     ESCALATION = "escalation"
     COMPLIANCE_WARNING = "compliance_warning"
@@ -35,6 +37,7 @@ class CoachingActionType(str, enum.Enum):
 @dataclass
 class ConversationTurnEvent:
     """Represents a discrete turn in a contact center customer interaction."""
+
     conversation_id: str
     turn_id: str
     tenant_id: str
@@ -58,6 +61,7 @@ class ConversationTurnEvent:
 @dataclass
 class CoachingRecommendation:
     """Real-time coaching guidance delivered to an active agent during a call."""
+
     recommendation_id: str
     conversation_id: str
     turn_id: str
@@ -101,9 +105,7 @@ class ClickHouseColumnarBuffer:
             return 0
 
         for event in self._buffer:
-            date_str = datetime.datetime.fromtimestamp(
-                event.timestamp, tz=datetime.timezone.utc
-            ).strftime("%Y-%m-%d")
+            date_str = datetime.datetime.fromtimestamp(event.timestamp, tz=datetime.timezone.utc).strftime("%Y-%m-%d")
             partition_key = (event.tenant_id, date_str)
 
             if partition_key not in self._partitions:
@@ -172,9 +174,7 @@ class ClickHouseColumnarBuffer:
             "intent_distribution": intent_counts,
         }
 
-    def query_tenant_sentiment_trend(
-        self, tenant_id: str, start_ts: float, end_ts: float
-    ) -> List[Dict[str, Any]]:
+    def query_tenant_sentiment_trend(self, tenant_id: str, start_ts: float, end_ts: float) -> List[Dict[str, Any]]:
         """Calculates daily sentiment aggregations between two timestamps."""
         self.flush()
         buckets: Dict[str, List[float]] = {}
@@ -192,11 +192,13 @@ class ClickHouseColumnarBuffer:
         for date_str in sorted(buckets.keys()):
             scores = buckets[date_str]
             avg_score = sum(scores) / len(scores) if scores else 0.0
-            result.append({
-                "date": date_str,
-                "turn_count": len(scores),
-                "avg_sentiment": round(avg_score, 4),
-            })
+            result.append(
+                {
+                    "date": date_str,
+                    "turn_count": len(scores),
+                    "avg_sentiment": round(avg_score, 4),
+                }
+            )
         return result
 
     def prune_partitions_older_than(self, tenant_id: str, cutoff_ts: float) -> int:
@@ -321,9 +323,7 @@ class CrestaCDPRealtimeEngine:
         self._ingest_latencies_ms: List[float] = []
         self._slo_violations: int = 0
 
-    def ingest_turn(
-        self, event: ConversationTurnEvent
-    ) -> Tuple[bool, Optional[CoachingRecommendation]]:
+    def ingest_turn(self, event: ConversationTurnEvent) -> Tuple[bool, Optional[CoachingRecommendation]]:
         """Ingests a conversation turn into both ClickHouse and Elasticsearch engines.
 
         Returns (flushed, coaching_recommendation).
@@ -346,9 +346,7 @@ class CrestaCDPRealtimeEngine:
 
         return flushed, recommendation
 
-    def _evaluate_coaching_trigger(
-        self, event: ConversationTurnEvent
-    ) -> Optional[CoachingRecommendation]:
+    def _evaluate_coaching_trigger(self, event: ConversationTurnEvent) -> Optional[CoachingRecommendation]:
         """Rules and semantic heuristic engine generating real-time agent guidance."""
         text_lower = event.text.lower()
 

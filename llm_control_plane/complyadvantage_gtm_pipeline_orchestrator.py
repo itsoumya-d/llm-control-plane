@@ -139,15 +139,17 @@ class EnrichmentWaterfallEngine:
         cost = 0.002
         self.total_spend_usd += cost
         is_uk = (
-            "uk" in account.jurisdiction.lower()
-            or account.domain.endswith(".co.uk")
-            or account.domain.endswith(".uk")
+            "uk" in account.jurisdiction.lower() or account.domain.endswith(".co.uk") or account.domain.endswith(".uk")
         )
-        data = {
-            "registered_legal_entity": f"{account.company_name} UK Limited",
-            "active_incorporation": True,
-            "sic_code": "64999 - Financial intermediation not elsewhere classified",
-        } if is_uk else {"registered_legal_entity": f"{account.company_name} Inc.", "active_incorporation": True}
+        data = (
+            {
+                "registered_legal_entity": f"{account.company_name} UK Limited",
+                "active_incorporation": True,
+                "sic_code": "64999 - Financial intermediation not elsewhere classified",
+            }
+            if is_uk
+            else {"registered_legal_entity": f"{account.company_name} Inc.", "active_incorporation": True}
+        )
 
         account.metadata.update(data)
         return EnrichmentProviderResult(

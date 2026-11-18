@@ -117,12 +117,14 @@ def test_clickhouse_query_agent_performance():
     now = 1731650000.0
 
     # Add 4 turns for ag-1 under tenant-1
-    for i, (sent, lat, intent) in enumerate([
-        (0.2, 10.0, "faq"),
-        (0.6, 20.0, "faq"),
-        (-0.2, 30.0, "billing"),
-        (0.8, 40.0, "technical"),
-    ]):
+    for i, (sent, lat, intent) in enumerate(
+        [
+            (0.2, 10.0, "faq"),
+            (0.6, 20.0, "faq"),
+            (-0.2, 30.0, "billing"),
+            (0.8, 40.0, "technical"),
+        ]
+    ):
         buffer.append(
             ConversationTurnEvent(
                 conversation_id=f"conv-{i}",
@@ -205,9 +207,7 @@ def test_clickhouse_query_trend_and_partition_pruning():
         )
     )
 
-    trend = buffer.query_tenant_sentiment_trend(
-        tenant_id="tenant-a", start_ts=day1_ts, end_ts=day2_ts + 3600
-    )
+    trend = buffer.query_tenant_sentiment_trend(tenant_id="tenant-a", start_ts=day1_ts, end_ts=day2_ts + 3600)
     assert len(trend) == 2
     assert trend[0]["turn_count"] == 1
     assert trend[0]["avg_sentiment"] == 0.4
@@ -217,9 +217,7 @@ def test_clickhouse_query_trend_and_partition_pruning():
     # Prune partitions older than Day 2
     pruned = buffer.prune_partitions_older_than(tenant_id="tenant-a", cutoff_ts=day2_ts)
     assert pruned == 1  # Only Day 1 partition pruned
-    remaining = buffer.query_tenant_sentiment_trend(
-        tenant_id="tenant-a", start_ts=day1_ts, end_ts=day2_ts + 3600
-    )
+    remaining = buffer.query_tenant_sentiment_trend(tenant_id="tenant-a", start_ts=day1_ts, end_ts=day2_ts + 3600)
     assert len(remaining) == 1
     assert remaining[0]["date"] == "2024-11-16"
 
@@ -277,11 +275,13 @@ def test_elasticsearch_indexer_tenant_isolation_and_search():
 def test_elasticsearch_faceted_sentiment_filters():
     indexer = ElasticsearchConversationIndexer()
 
-    for i, (text, sent, intent) in enumerate([
-        ("Order arrived broken", -0.8, "shipping_complaint"),
-        ("Delivery was slightly late", -0.2, "shipping_complaint"),
-        ("Package received in good shape", 0.6, "shipping_success"),
-    ]):
+    for i, (text, sent, intent) in enumerate(
+        [
+            ("Order arrived broken", -0.8, "shipping_complaint"),
+            ("Delivery was slightly late", -0.2, "shipping_complaint"),
+            ("Package received in good shape", 0.6, "shipping_success"),
+        ]
+    ):
         indexer.index_turn(
             ConversationTurnEvent(
                 conversation_id="c",

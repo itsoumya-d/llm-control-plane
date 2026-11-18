@@ -14,7 +14,7 @@ import hashlib
 import json
 import logging
 import math
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger("dynatrace.kafka.fleet")
 
@@ -69,7 +69,8 @@ class KafkaTopicSpec:
             )
         if self.min_insync_replicas > self.replication_factor:
             errors.append(
-                f"Topic {self.name}: min_insync_replicas {self.min_insync_replicas} cannot exceed replication_factor {self.replication_factor}"
+                f"Topic {self.name}: min_insync_replicas {self.min_insync_replicas} "
+                f"cannot exceed replication_factor {self.replication_factor}"
             )
         return errors
 
@@ -194,6 +195,7 @@ class KafkaClusterStatus:
 # Reconciler & Quality Gate Engine
 # -------------------------------------------------------------------------
 
+
 @dataclasses.dataclass
 class QualityGateResult:
     passed: bool
@@ -207,9 +209,7 @@ class KafkaFleetReconciler:
     def __init__(self, max_allowed_lag_for_upgrade: int = 5000):
         self.max_allowed_lag_for_upgrade = max_allowed_lag_for_upgrade
 
-    def evaluate_pre_release_gate(
-        self, spec: KafkaClusterSpec, status: KafkaClusterStatus
-    ) -> QualityGateResult:
+    def evaluate_pre_release_gate(self, spec: KafkaClusterSpec, status: KafkaClusterStatus) -> QualityGateResult:
         reasons: List[str] = []
         checks = [
             "zero_under_replicated_partitions",
@@ -220,18 +220,15 @@ class KafkaFleetReconciler:
         ]
 
         if status.under_replicated_partitions > 0:
-            reasons.append(
-                f"Blocked: {status.under_replicated_partitions} under-replicated partitions detected"
-            )
+            reasons.append(f"Blocked: {status.under_replicated_partitions} under-replicated partitions detected")
 
         if status.active_controller_count != 1:
-            reasons.append(
-                f"Blocked: active controller count is {status.active_controller_count} (must be exactly 1)"
-            )
+            reasons.append(f"Blocked: active controller count is {status.active_controller_count} (must be exactly 1)")
 
         if status.max_consumer_lag > self.max_allowed_lag_for_upgrade:
             reasons.append(
-                f"Blocked: max consumer lag {status.max_consumer_lag} exceeds SLA threshold {self.max_allowed_lag_for_upgrade}"
+                f"Blocked: max consumer lag {status.max_consumer_lag} "
+                f"exceeds SLA threshold {self.max_allowed_lag_for_upgrade}"
             )
 
         out_of_sync = [b.broker_id for b in status.brokers if not b.in_sync]
@@ -248,17 +245,13 @@ class KafkaFleetReconciler:
             checks_performed=checks,
         )
 
-    def detect_configuration_drift(
-        self, desired: KafkaClusterSpec, current: KafkaClusterStatus
-    ) -> List[str]:
+    def detect_configuration_drift(self, desired: KafkaClusterSpec, current: KafkaClusterStatus) -> List[str]:
         drift: List[str] = []
         if desired.kafka_version != current.active_version:
             drift.append(f"Version drift: desired {desired.kafka_version} vs active {current.active_version}")
 
         if desired.broker_replicas != current.active_replicas:
-            drift.append(
-                f"Replica drift: desired {desired.broker_replicas} vs active {current.active_replicas}"
-            )
+            drift.append(f"Replica drift: desired {desired.broker_replicas} vs active {current.active_replicas}")
 
         spec_hash = desired.spec_hash()
         if current.applied_spec_hash and spec_hash != current.applied_spec_hash:
@@ -277,11 +270,13 @@ class KafkaFleetReconciler:
         gate = self.evaluate_pre_release_gate(desired, current)
         if not gate.passed:
             updated.current_state = ClusterState.DEGRADED
-            updated.conditions.append({
-                "type": "QualityGateFailed",
-                "status": "True",
-                "reasons": gate.reasons,
-            })
+            updated.conditions.append(
+                {
+                    "type": "QualityGateFailed",
+                    "status": "True",
+                    "reasons": gate.reasons,
+                }
+            )
             logs.append(f"Reconciliation blocked by quality gate: {gate.reasons}")
             return updated, logs
 
@@ -294,9 +289,7 @@ class KafkaFleetReconciler:
         # Step 3: Handle rolling version upgrade
         if desired.kafka_version != current.active_version:
             updated.current_state = ClusterState.UPGRADING
-            logs.append(
-                f"Executing rolling upgrade: {current.active_version} -> {desired.kafka_version}"
-            )
+            logs.append(f"Executing rolling upgrade: {current.active_version} -> {desired.kafka_version}")
             # Sequential rolling upgrade node-by-node
             for broker in updated.brokers:
                 logs.append(f"Restarting broker {broker.broker_id} with Kafka {desired.kafka_version}")
@@ -314,14 +307,16 @@ class KafkaFleetReconciler:
             for i in range(diff):
                 new_id = start_id + i
                 rack_id = f"zone-{(new_id % 3) + 1}"
-                updated.brokers.append(BrokerRuntimeStatus(
-                    broker_id=new_id,
-                    pod_name=f"{desired.name}-kafka-{new_id}",
-                    rack=rack_id,
-                    kafka_version=desired.kafka_version,
-                    in_sync=True,
-                    disk_capacity_gb=float(desired.resources.storage_gb),
-                ))
+                updated.brokers.append(
+                    BrokerRuntimeStatus(
+                        broker_id=new_id,
+                        pod_name=f"{desired.name}-kafka-{new_id}",
+                        rack=rack_id,
+                        kafka_version=desired.kafka_version,
+                        in_sync=True,
+                        disk_capacity_gb=float(desired.resources.storage_gb),
+                    )
+                )
             updated.active_replicas = desired.broker_replicas
 
         # Finalize state
@@ -334,6 +329,7 @@ class KafkaFleetReconciler:
 # -------------------------------------------------------------------------
 # Cruise Control Partition Rebalancing Engine
 # -------------------------------------------------------------------------
+
 
 @dataclasses.dataclass
 class PartitionMoveProposal:
@@ -395,13 +391,15 @@ class CruiseControlPartitionRebalancer:
         )
 
         for p_id in range(num_partitions_to_move):
-            proposals.append(PartitionMoveProposal(
-                topic=topic_name,
-                partition=p_id,
-                source_broker=heaviest.broker_id,
-                target_broker=lightest.broker_id,
-                size_mb=move_size_mb,
-            ))
+            proposals.append(
+                PartitionMoveProposal(
+                    topic=topic_name,
+                    partition=p_id,
+                    source_broker=heaviest.broker_id,
+                    target_broker=lightest.broker_id,
+                    size_mb=move_size_mb,
+                )
+            )
 
         return proposals
 
@@ -410,6 +408,7 @@ class CruiseControlPartitionRebalancer:
 # Prometheus Observability & Telemetry Collector
 # -------------------------------------------------------------------------
 
+
 class KafkaObservabilityAndLagMonitor:
     """Collects and formats Prometheus metrics for broker health and consumer lag."""
 
@@ -417,9 +416,7 @@ class KafkaObservabilityAndLagMonitor:
         self.cluster_name = cluster_name
         self.namespace = namespace
 
-    def calculate_consumer_lag(
-        self, topic_offsets: Dict[int, int], consumer_offsets: Dict[int, int]
-    ) -> Dict[int, int]:
+    def calculate_consumer_lag(self, topic_offsets: Dict[int, int], consumer_offsets: Dict[int, int]) -> Dict[int, int]:
         """Calculates lag per partition: topic log-end offset minus consumer committed offset."""
         lag: Dict[int, int] = {}
         for p, log_end in topic_offsets.items():
@@ -433,17 +430,26 @@ class KafkaObservabilityAndLagMonitor:
         consumer_lags: Dict[str, Dict[str, int]],  # group -> topic -> total lag
     ) -> str:
         lines = [
-            f"# HELP kafka_server_brokermonitoring_underreplicatedpartitions Number of under-replicated partitions.",
-            f"# TYPE kafka_server_brokermonitoring_underreplicatedpartitions gauge",
-            f'kafka_server_brokermonitoring_underreplicatedpartitions{{cluster="{self.cluster_name}",namespace="{self.namespace}"}} {status.under_replicated_partitions}',
-            f"# HELP kafka_controller_activecontrollercount Number of active controllers in the cluster.",
-            f"# TYPE kafka_controller_activecontrollercount gauge",
-            f'kafka_controller_activecontrollercount{{cluster="{self.cluster_name}",namespace="{self.namespace}"}} {status.active_controller_count}',
-            f"# HELP kafka_cluster_active_replicas Number of active broker replicas.",
-            f"# TYPE kafka_cluster_active_replicas gauge",
-            f'kafka_cluster_active_replicas{{cluster="{self.cluster_name}",namespace="{self.namespace}"}} {status.active_replicas}',
-            f"# HELP kafka_consumergroup_lag Number of unprocessed messages per consumer group and topic.",
-            f"# TYPE kafka_consumergroup_lag gauge",
+            "# HELP kafka_server_brokermonitoring_underreplicatedpartitions Number of under-replicated partitions.",
+            "# TYPE kafka_server_brokermonitoring_underreplicatedpartitions gauge",
+            (
+                f'kafka_server_brokermonitoring_underreplicatedpartitions{{cluster="{self.cluster_name}",'
+                f'namespace="{self.namespace}"}} {status.under_replicated_partitions}'
+            ),
+            "# HELP kafka_controller_activecontrollercount Number of active controllers in the cluster.",
+            "# TYPE kafka_controller_activecontrollercount gauge",
+            (
+                f'kafka_controller_activecontrollercount{{cluster="{self.cluster_name}",'
+                f'namespace="{self.namespace}"}} {status.active_controller_count}'
+            ),
+            "# HELP kafka_cluster_active_replicas Number of active broker replicas.",
+            "# TYPE kafka_cluster_active_replicas gauge",
+            (
+                f'kafka_cluster_active_replicas{{cluster="{self.cluster_name}",'
+                f'namespace="{self.namespace}"}} {status.active_replicas}'
+            ),
+            "# HELP kafka_consumergroup_lag Number of unprocessed messages per consumer group and topic.",
+            "# TYPE kafka_consumergroup_lag gauge",
         ]
 
         for group, topics in consumer_lags.items():
@@ -454,7 +460,10 @@ class KafkaObservabilityAndLagMonitor:
 
         for b in status.brokers:
             lines.append(
-                f'kafka_broker_disk_used_ratio{{cluster="{self.cluster_name}",broker_id="{b.broker_id}"}} {(b.disk_used_gb / b.disk_capacity_gb):.4f}'
+                (
+                    f'kafka_broker_disk_used_ratio{{cluster="{self.cluster_name}",'
+                    f'broker_id="{b.broker_id}"}} {(b.disk_used_gb / b.disk_capacity_gb):.4f}'
+                )
             )
 
         return "\n".join(lines) + "\n"
@@ -463,6 +472,7 @@ class KafkaObservabilityAndLagMonitor:
 # -------------------------------------------------------------------------
 # GitOps & Helm Template Synthesis
 # -------------------------------------------------------------------------
+
 
 class ArgoCDGitOpsValidator:
     """Synthesizes Helm values and validates ArgoCD Application manifests."""
@@ -530,6 +540,7 @@ class ArgoCDGitOpsValidator:
 # AIOps Autonomous Incident Triage & Remediation
 # -------------------------------------------------------------------------
 
+
 @dataclasses.dataclass
 class IncidentDiagnosis:
     incident_type: str
@@ -557,8 +568,13 @@ class AIOpsToilAutomator:
             return IncidentDiagnosis(
                 incident_type="UNDER_REPLICATED_PARTITIONS",
                 severity="P2",
-                root_cause=f"{status.under_replicated_partitions} partitions are out of sync due to broker disk saturation or network partitions.",
-                suggested_action="Execute Cruise Control partition rebalance and verify follower replica fetcher threads.",
+                root_cause=(
+                    f"{status.under_replicated_partitions} partitions are out of sync "
+                    "due to broker disk saturation or network partitions."
+                ),
+                suggested_action=(
+                    "Execute Cruise Control partition rebalance and verify follower replica fetcher threads."
+                ),
                 automated_remediation_applicable=True,
             )
 
@@ -569,8 +585,13 @@ class AIOpsToilAutomator:
                 return IncidentDiagnosis(
                     incident_type="BROKER_DISK_EXHAUSTION",
                     severity="P1",
-                    root_cause=f"Broker {b.broker_id} has exceeded 90% disk utilization ({b.disk_used_gb}GB / {b.disk_capacity_gb}GB).",
-                    suggested_action="Trigger automated PVC storage expansion or offload partitions via Cruise Control.",
+                    root_cause=(
+                    f"Broker {b.broker_id} has exceeded 90% disk utilization "
+                    f"({b.disk_used_gb}GB / {b.disk_capacity_gb}GB)."
+                ),
+                    suggested_action=(
+                    "Trigger automated PVC storage expansion or offload partitions via Cruise Control."
+                ),
                     automated_remediation_applicable=True,
                 )
 

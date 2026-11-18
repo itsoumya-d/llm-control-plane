@@ -110,10 +110,7 @@ class GenomicDataIngestionPipeline:
         self.max_n_ratio = max_n_ratio
 
     def parse_fasta(
-        self,
-        fasta_content: str,
-        sequence_type: SequenceType,
-        metadata: Optional[Dict[str, Any]] = None
+        self, fasta_content: str, sequence_type: SequenceType, metadata: Optional[Dict[str, Any]] = None
     ) -> List[GenomicSequenceRecord]:
         """Parses multi-record FASTA formatted text and calculates biological and QC statistics."""
         records: List[GenomicSequenceRecord] = []
@@ -164,13 +161,15 @@ class GenomicDataIngestionPipeline:
                 )
 
             phred_scores = [ord(char) - 33 for char in qual_str]
-            records.append(self._build_record(
-                seq_id=seq_id,
-                raw_sequence=seq,
-                sequence_type=SequenceType.METAGENOMIC_READ,
-                quality_scores=phred_scores,
-                metadata=metadata
-            ))
+            records.append(
+                self._build_record(
+                    seq_id=seq_id,
+                    raw_sequence=seq,
+                    sequence_type=SequenceType.METAGENOMIC_READ,
+                    quality_scores=phred_scores,
+                    metadata=metadata,
+                )
+            )
 
         return records
 
@@ -180,7 +179,7 @@ class GenomicDataIngestionPipeline:
         raw_sequence: str,
         sequence_type: SequenceType,
         quality_scores: Optional[List[int]] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> GenomicSequenceRecord:
         length = len(raw_sequence)
         sha256 = hashlib.sha256(raw_sequence.encode("utf-8")).hexdigest()
@@ -233,7 +232,7 @@ class GenomicDataIngestionPipeline:
             mean_phred_score=mean_phred,
             metadata=metadata or {},
             is_valid=is_valid,
-            qc_warnings=warnings
+            qc_warnings=warnings,
         )
 
 
@@ -280,9 +279,7 @@ class DistributedWorkflowDAG:
         return topological_order[::-1]
 
     def execute_task(
-        self,
-        task_id: str,
-        executor_fn: Optional[Callable[[WorkflowTask], Dict[str, Any]]] = None
+        self, task_id: str, executor_fn: Optional[Callable[[WorkflowTask], Dict[str, Any]]] = None
     ) -> bool:
         """Executes a single task within the DAG, handling retries and state updates."""
         task = self.tasks[task_id]
@@ -306,7 +303,7 @@ class DistributedWorkflowDAG:
                     "result": "OK",
                     "compute_target": task.compute_target.value,
                     "command": task.command,
-                    "records_processed": 1000
+                    "records_processed": 1000,
                 }
             task.output = output
             task.status = TaskStatus.COMPLETED
@@ -342,17 +339,19 @@ class DistributedWorkflowDAG:
             "success": success,
             "task_count": len(self.tasks),
             "results": results,
-            "lineage_hash": self.compute_lineage_hash()
+            "lineage_hash": self.compute_lineage_hash(),
         }
 
     def _record_lineage(self, task: WorkflowTask) -> None:
-        self.execution_lineage.append({
-            "task_id": task.task_id,
-            "status": task.status.value,
-            "retries": task.retry_count,
-            "compute_target": task.compute_target.value,
-            "timestamp": time.time()
-        })
+        self.execution_lineage.append(
+            {
+                "task_id": task.task_id,
+                "status": task.status.value,
+                "retries": task.retry_count,
+                "compute_target": task.compute_target.value,
+                "timestamp": time.time(),
+            }
+        )
 
     def compute_lineage_hash(self) -> str:
         serialized = json.dumps(self.execution_lineage, sort_keys=True)
@@ -371,19 +370,17 @@ class BioAgentMCPServer:
     def _register_default_tools(self) -> None:
         self.register_tool(
             name="validate_sequence",
-            description=(
-                "Validates FASTA or FASTQ sequence string, returning length, GC-content, and SHA-256."
-            ),
+            description=("Validates FASTA or FASTQ sequence string, returning length, GC-content, and SHA-256."),
             parameters={
                 "type": "object",
                 "properties": {
                     "format": {"type": "string", "enum": ["fasta", "fastq"]},
                     "content": {"type": "string"},
-                    "sequence_type": {"type": "string", "enum": ["DNA", "RNA", "PROTEIN", "METAGENOMIC_READ"]}
+                    "sequence_type": {"type": "string", "enum": ["DNA", "RNA", "PROTEIN", "METAGENOMIC_READ"]},
                 },
-                "required": ["format", "content"]
+                "required": ["format", "content"],
             },
-            handler=self._handle_validate_sequence
+            handler=self._handle_validate_sequence,
         )
 
         self.register_tool(
@@ -394,11 +391,11 @@ class BioAgentMCPServer:
                 "properties": {
                     "kmer_motif": {"type": "string"},
                     "biome": {"type": "string"},
-                    "min_similarity": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                    "min_similarity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
                 },
-                "required": ["kmer_motif"]
+                "required": ["kmer_motif"],
             },
-            handler=self._handle_search_tga
+            handler=self._handle_search_tga,
         )
 
         self.register_tool(
@@ -409,11 +406,11 @@ class BioAgentMCPServer:
                 "properties": {
                     "sequence_id": {"type": "string"},
                     "assay_type": {"type": "string", "enum": [e.value for e in AssayType]},
-                    "compute_target": {"type": "string", "enum": [e.value for e in ComputeTarget]}
+                    "compute_target": {"type": "string", "enum": [e.value for e in ComputeTarget]},
                 },
-                "required": ["sequence_id", "assay_type"]
+                "required": ["sequence_id", "assay_type"],
             },
-            handler=self._handle_dispatch_assay
+            handler=self._handle_dispatch_assay,
         )
 
     def register_tool(
@@ -421,7 +418,7 @@ class BioAgentMCPServer:
         name: str,
         description: str,
         parameters: Dict[str, Any],
-        handler: Callable[[Dict[str, Any]], Dict[str, Any]]
+        handler: Callable[[Dict[str, Any]], Dict[str, Any]],
     ) -> None:
         self.tools[name] = MCPToolDefinition(name=name, description=description, parameters=parameters, handler=handler)
 
@@ -446,7 +443,7 @@ class BioAgentMCPServer:
                 "arguments": arguments,
                 "status": "success",
                 "latency_ms": round(elapsed * 1000, 2),
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
             self.audit_log.append(call_record)
             return {"status": "success", "result": result, "telemetry": {"latency_ms": call_record["latency_ms"]}}
@@ -458,7 +455,7 @@ class BioAgentMCPServer:
                 "status": "error",
                 "error": str(e),
                 "latency_ms": round(elapsed * 1000, 2),
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
             self.audit_log.append(error_record)
             return {"status": "error", "error": str(e), "telemetry": {"latency_ms": error_record["latency_ms"]}}
@@ -486,10 +483,10 @@ class BioAgentMCPServer:
                     "sha256": r.sha256_checksum,
                     "is_valid": r.is_valid,
                     "qc_warnings": r.qc_warnings,
-                    "mean_phred": r.mean_phred_score
+                    "mean_phred": r.mean_phred_score,
                 }
                 for r in records
-            ]
+            ],
         }
 
     def _handle_search_tga(self, args: Dict[str, Any]) -> Dict[str, Any]:
@@ -509,15 +506,15 @@ class BioAgentMCPServer:
                     "gene_id": match_id,
                     "origin_country": "Antarctica / Hydrothermal Vent",
                     "similarity_score": 0.98,
-                    "predicted_function": "Thermophilic DNA-directed RNA polymerase subunit"
+                    "predicted_function": "Thermophilic DNA-directed RNA polymerase subunit",
                 },
                 {
                     "gene_id": f"TGA-{match_id[4:10]}B",
                     "origin_country": "Iceland Geothermal",
                     "similarity_score": 0.92,
-                    "predicted_function": "Extremophile chaperonin / protein foldase"
-                }
-            ]
+                    "predicted_function": "Extremophile chaperonin / protein foldase",
+                },
+            ],
         }
 
     def _handle_dispatch_assay(self, args: Dict[str, Any]) -> Dict[str, Any]:
@@ -533,7 +530,7 @@ class BioAgentMCPServer:
             "compute_target": compute_target,
             "status": "QUEUED",
             "estimated_time_seconds": 45,
-            "cluster_namespace": "basecamp-research-eden-evals"
+            "cluster_namespace": "basecamp-research-eden-evals",
         }
 
 
@@ -554,13 +551,11 @@ class BasecampResearchPlatformOrchestrator:
         self,
         fasta_content: str,
         sample_origin: str = "Trillion Gene Atlas Expedition",
-        compute_target: ComputeTarget = ComputeTarget.KUBERNETES_GPU_CLUSTER
+        compute_target: ComputeTarget = ComputeTarget.KUBERNETES_GPU_CLUSTER,
     ) -> Dict[str, Any]:
         """End-to-end ingestion, quality validation, and simulated EDEN foundation model assay."""
         records = self.ingestion.parse_fasta(
-            fasta_content=fasta_content,
-            sequence_type=SequenceType.DNA,
-            metadata={"origin": sample_origin}
+            fasta_content=fasta_content, sequence_type=SequenceType.DNA, metadata={"origin": sample_origin}
         )
 
         valid_records = [r for r in records if r.is_valid]
@@ -571,14 +566,14 @@ class BasecampResearchPlatformOrchestrator:
             task_id="qc-validation",
             task_name="Quality Assessment & Filtering",
             compute_target=ComputeTarget.LOCAL_CONTAINER,
-            command="run-fastqc --strict"
+            command="run-fastqc --strict",
         )
         task_eden = WorkflowTask(
             task_id="eden-inference",
             task_name="EDEN Foundation Model Embedding",
             compute_target=compute_target,
             command="python -m eden.models.infer --weights eden-v3-10b",
-            dependencies=["qc-validation"]
+            dependencies=["qc-validation"],
         )
 
         workflow.add_task(task_qc)
@@ -590,5 +585,5 @@ class BasecampResearchPlatformOrchestrator:
             "total_ingested": len(records),
             "valid_records": len(valid_records),
             "workflow_execution": exec_summary,
-            "mcp_tools_available": len(self.mcp_server.list_tools())
+            "mcp_tools_available": len(self.mcp_server.list_tools()),
         }

@@ -24,7 +24,7 @@ def test_dialect_create_table():
         primary_key=["id", "timestamp"],
         partition_by="timestamp",
         shards=6,
-        replicas="1-2"
+        replicas="1-2",
     )
     assert 'CREATE TABLE IF NOT EXISTS "llm_telemetry"' in ddl
     assert 'PRIMARY KEY ("id", "timestamp")' in ddl
@@ -41,7 +41,7 @@ def test_dialect_knn_vector_query():
         query_vector=query_vec,
         k=5,
         filters={"model": "gpt-4o", "tenant_id": "tenant-123"},
-        fields=["id", "model", "content"]
+        fields=["id", "model", "content"],
     )
     assert 'SELECT "id", "model", "content", _score AS similarity FROM "prompt_vectors"' in sql
     assert "knn_match(embedding, $1, $2)" in sql
@@ -56,13 +56,10 @@ def test_dialect_knn_vector_query():
 def test_dialect_upsert_query():
     cols = ["id", "latency_ms", "status"]
     sql = CrateDBSQLDialect.rewrite_upsert_query(
-        table_name="task_status",
-        conflict_keys=["id"],
-        update_columns=["latency_ms", "status"],
-        columns=cols
+        table_name="task_status", conflict_keys=["id"], update_columns=["latency_ms", "status"], columns=cols
     )
     assert 'INSERT INTO "task_status" ("id", "latency_ms", "status")' in sql
-    assert 'VALUES ($1, $2, $3)' in sql
+    assert "VALUES ($1, $2, $3)" in sql
     assert 'ON CONFLICT ("id") DO UPDATE SET "latency_ms" = excluded."latency_ms", "status" = excluded."status"' in sql
 
 
@@ -73,7 +70,7 @@ def test_dialect_time_series_aggregation():
         metric_column="latency_ms",
         interval="hour",
         start_time_iso="2026-11-01T00:00:00Z",
-        end_time_iso="2026-11-16T00:00:00Z"
+        end_time_iso="2026-11-16T00:00:00Z",
     )
     assert "date_trunc('hour', \"recorded_at\") AS time_bucket" in sql
     assert 'AVG("latency_ms") AS avg_metric' in sql
@@ -140,7 +137,7 @@ def test_telemetry_store_buffering_and_flush():
         prompt_tokens=50,
         completion_tokens=20,
         total_tokens=70,
-        cost_usd=0.0015
+        cost_usd=0.0015,
     )
     assert store.get_metrics()["buffered_records"] == 1
     assert store.get_metrics()["total_flushed"] == 0
@@ -154,7 +151,7 @@ def test_telemetry_store_buffering_and_flush():
         prompt_tokens=40,
         completion_tokens=15,
         total_tokens=55,
-        cost_usd=0.0009
+        cost_usd=0.0009,
     )
     assert store.get_metrics()["buffered_records"] == 0
     assert store.get_metrics()["total_flushed"] == 2
@@ -179,7 +176,7 @@ def test_telemetry_store_error_and_dead_letter():
         prompt_tokens=10,
         completion_tokens=5,
         total_tokens=15,
-        cost_usd=0.0001
+        cost_usd=0.0001,
     )
 
     count = store.flush()

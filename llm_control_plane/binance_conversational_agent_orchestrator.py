@@ -55,7 +55,7 @@ class MultiTurnAgentMemoryManager:
     def _prune_session(self, session_id: str) -> None:
         turns = self.sessions[session_id]
         if len(turns) > self.max_turns:
-            self.sessions[session_id] = turns[-self.max_turns:]
+            self.sessions[session_id] = turns[-self.max_turns :]
         total_tokens = sum(t.tokens for t in self.sessions[session_id])
         while total_tokens > self.max_tokens and len(self.sessions[session_id]) > 2:
             removed = self.sessions[session_id].pop(0)
@@ -150,7 +150,7 @@ class BinanceFinancialToolGateway:
             return {
                 "status": "REJECTED",
                 "reason": f"Excessive price divergence: target price {proposal.target_price} diverges "
-                          f"{slippage*100:.2f}% from live spot {current_price}",
+                f"{slippage * 100:.2f}% from live spot {current_price}",
                 "current_spot_price": current_price,
             }
         notional_value = proposal.target_price * proposal.quantity
@@ -164,11 +164,13 @@ class BinanceFinancialToolGateway:
             "requires_2fa": notional_value > 10000.0,
             "hash": hashlib.sha256(f"{sym}:{proposal.action}:{proposal.target_price}".encode()).hexdigest()[:16],
         }
-        self.execution_log.append({
-            "tool": "validate_and_plan_strategy",
-            "proposal": proposal.model_dump(),
-            "result": res,
-        })
+        self.execution_log.append(
+            {
+                "tool": "validate_and_plan_strategy",
+                "proposal": proposal.model_dump(),
+                "result": res,
+            }
+        )
         return res
 
 

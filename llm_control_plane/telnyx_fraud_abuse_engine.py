@@ -68,32 +68,79 @@ class AdversarialTextNormalizer:
 
     # Zero-width, directional, and invisible formatting characters
     ZERO_WIDTH_CHARS: Set[str] = {
-        "\u200B",  # Zero-width space
-        "\u200C",  # Zero-width non-joiner
-        "\u200D",  # Zero-width joiner
-        "\u200E",  # Left-to-right mark
-        "\u200F",  # Right-to-left mark
-        "\u202A",  # LRE
-        "\u202B",  # RLE
-        "\u202C",  # PDF
-        "\u202D",  # LRO
-        "\u202E",  # RLO
+        "\u200b",  # Zero-width space
+        "\u200c",  # Zero-width non-joiner
+        "\u200d",  # Zero-width joiner
+        "\u200e",  # Left-to-right mark
+        "\u200f",  # Right-to-left mark
+        "\u202a",  # LRE
+        "\u202b",  # RLE
+        "\u202c",  # PDF
+        "\u202d",  # LRO
+        "\u202e",  # RLO
         "\u2060",  # Word joiner
-        "\uFEFF",  # Byte order mark
-        "\u00AD",  # Soft hyphen
+        "\ufeff",  # Byte order mark
+        "\u00ad",  # Soft hyphen
     }
 
     # Common Cyrillic, Greek, and Unicode homoglyphs mapped to ASCII equivalents
     HOMOGLYPH_MAP: Dict[str, str] = {
         # Cyrillic
-        "а": "a", "А": "A", "в": "b", "В": "B", "с": "c", "С": "C", "е": "e", "Е": "E",
-        "і": "i", "І": "I", "ј": "j", "Ј": "J", "к": "k", "К": "K", "м": "m", "М": "M",
-        "н": "h", "Н": "H", "о": "o", "О": "O", "р": "p", "Р": "P", "ѕ": "s", "Ѕ": "S",
-        "т": "t", "Т": "T", "у": "y", "У": "Y", "х": "x", "Х": "X",
+        "а": "a",
+        "А": "A",
+        "в": "b",
+        "В": "B",
+        "с": "c",
+        "С": "C",
+        "е": "e",
+        "Е": "E",
+        "і": "i",
+        "І": "I",
+        "ј": "j",
+        "Ј": "J",
+        "к": "k",
+        "К": "K",
+        "м": "m",
+        "М": "M",
+        "н": "h",
+        "Н": "H",
+        "о": "o",
+        "О": "O",
+        "р": "p",
+        "Р": "P",
+        "ѕ": "s",
+        "Ѕ": "S",
+        "т": "t",
+        "Т": "T",
+        "у": "y",
+        "У": "Y",
+        "х": "x",
+        "Х": "X",
         # Greek
-        "α": "a", "Α": "A", "β": "b", "Β": "B", "ε": "e", "Ε": "E", "η": "n", "Η": "H",
-        "ι": "i", "Ι": "I", "κ": "k", "Κ": "K", "ν": "v", "Ν": "N", "ο": "o", "Ο": "O",
-        "ρ": "p", "Ρ": "P", "τ": "t", "Τ": "T", "υ": "u", "Υ": "Y", "χ": "x", "Χ": "X",
+        "α": "a",
+        "Α": "A",
+        "β": "b",
+        "Β": "B",
+        "ε": "e",
+        "Ε": "E",
+        "η": "n",
+        "Η": "H",
+        "ι": "i",
+        "Ι": "I",
+        "κ": "k",
+        "Κ": "K",
+        "ν": "v",
+        "Ν": "N",
+        "ο": "o",
+        "Ο": "O",
+        "ρ": "p",
+        "Ρ": "P",
+        "τ": "t",
+        "Τ": "T",
+        "υ": "u",
+        "Υ": "Y",
+        "χ": "x",
+        "Χ": "X",
     }
 
     # Common leetspeak symbol substitutions
@@ -116,9 +163,7 @@ class AdversarialTextNormalizer:
         re.IGNORECASE,
     )
 
-    SUSPICIOUS_SHORTENERS = {
-        "bit.ly", "tinyurl.com", "t.co", "is.gd", "ow.ly", "rb.gy", "cutt.ly", "shorturl.at"
-    }
+    SUSPICIOUS_SHORTENERS = {"bit.ly", "tinyurl.com", "t.co", "is.gd", "ow.ly", "rb.gy", "cutt.ly", "shorturl.at"}
 
     def normalize(self, text: str) -> NormalizationResult:
         """Strip zero-width characters, normalize homoglyphs/NFKD, and resolve leetspeak."""
@@ -325,16 +370,38 @@ class TelnyxFraudDecisionEngine:
 
     # Targeted brand keywords commonly impersonated in European/US smishing
     PROTECTED_BRANDS = {
-        "telnyx", "bank of ireland", "aib", "revolut", "an post", "paypal",
-        "apple", "microsoft", "amazon", "netflix", "dhl", "ups", "fedex", "dpd"
+        "telnyx",
+        "bank of ireland",
+        "aib",
+        "revolut",
+        "an post",
+        "paypal",
+        "apple",
+        "microsoft",
+        "amazon",
+        "netflix",
+        "dhl",
+        "ups",
+        "fedex",
+        "dpd",
     }
 
     # Urgent credential/action phishing trigger phrases
     URGENT_PHISHING_TRIGGERS = [
-        "account suspended", "unauthorized transaction", "click here to verify",
-        "verify your identity", "immediate action required", "login attempt detected",
-        "billing failure", "card deactivated", "claim your prize", "refund pending",
-        "package detained", "customs fee required", "one-time passcode", "otp code"
+        "account suspended",
+        "unauthorized transaction",
+        "click here to verify",
+        "verify your identity",
+        "immediate action required",
+        "login attempt detected",
+        "billing failure",
+        "card deactivated",
+        "claim your prize",
+        "refund pending",
+        "package detained",
+        "customs fee required",
+        "one-time passcode",
+        "otp code",
     ]
 
     def __init__(
@@ -634,16 +701,18 @@ class HumanInTheLoopReplayHarness:
             return False
 
         entry.human_disposition = disposition
-        self.replay_test_cases.append({
-            "audit_id": audit_id,
-            "raw_message_hash": entry.raw_message_hash,
-            "normalized_text": entry.normalized_text,
-            "sender_id": entry.sender_id,
-            "recipient": entry.recipient,
-            "disposition": disposition,
-            "expected_archetype": corrected_archetype,
-            "notes": notes,
-        })
+        self.replay_test_cases.append(
+            {
+                "audit_id": audit_id,
+                "raw_message_hash": entry.raw_message_hash,
+                "normalized_text": entry.normalized_text,
+                "sender_id": entry.sender_id,
+                "recipient": entry.recipient,
+                "disposition": disposition,
+                "expected_archetype": corrected_archetype,
+                "notes": notes,
+            }
+        )
         return True
 
     def run_regression_replay(self) -> Dict[str, Any]:
@@ -665,12 +734,14 @@ class HumanInTheLoopReplayHarness:
                 passed += 1
             else:
                 failed += 1
-            details.append({
-                "audit_id": tc["audit_id"],
-                "expected": tc["expected_archetype"].value,
-                "actual": res.archetype.value,
-                "status": "PASS" if is_match else "FAIL",
-            })
+            details.append(
+                {
+                    "audit_id": tc["audit_id"],
+                    "expected": tc["expected_archetype"].value,
+                    "actual": res.archetype.value,
+                    "status": "PASS" if is_match else "FAIL",
+                }
+            )
 
         return {
             "total_cases": len(self.replay_test_cases),

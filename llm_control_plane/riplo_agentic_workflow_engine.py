@@ -218,9 +218,7 @@ class AgenticWorkflowDAG:
         if self._total_tokens_consumed + tokens_used > self.max_workflow_tokens:
             step.status = WorkflowStepStatus.FAILED
             total = self._total_tokens_consumed + tokens_used
-            raise OverflowError(
-                f"Workflow token budget exceeded: {total} > {self.max_workflow_tokens}"
-            )
+            raise OverflowError(f"Workflow token budget exceeded: {total} > {self.max_workflow_tokens}")
 
         step.tokens_consumed = tokens_used
         self._total_tokens_consumed += tokens_used
@@ -266,7 +264,7 @@ class PartnerReadyEvaluationHarness:
 
         # 1. Citation Coverage (Threshold >= 0.95)
         if coverage < 0.95:
-            reasons.append(f"Citation coverage {coverage*100:.1f}% below 95% partner threshold.")
+            reasons.append(f"Citation coverage {coverage * 100:.1f}% below 95% partner threshold.")
 
         # 2. Factual Precision (Mock/Verified consistency)
         precision = 1.0 if stats["verified_claims"] == total_claims and total_claims > 0 else 0.85

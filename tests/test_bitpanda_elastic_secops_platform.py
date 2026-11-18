@@ -19,8 +19,7 @@ def test_rule_validation():
         rule_id="BP-SEC-001",
         name="AWS Root Session Without MFA",
         query=(
-            "FROM aws-cloudtrail-* | WHERE event.name == 'ConsoleLogin' "
-            "and aws.cloudtrail.user_identity.type == 'Root'"
+            "FROM aws-cloudtrail-* | WHERE event.name == 'ConsoleLogin' and aws.cloudtrail.user_identity.type == 'Root'"
         ),
         language=QueryLanguage.ESQL,
         severity=SeverityLevel.CRITICAL,

@@ -1,8 +1,8 @@
 import pytest
+
 from llm_control_plane.dynatrace_kafka_fleet_operator import (
-    AIOpsToilAutomator,
     AclOperation,
-    AclPermission,
+    AIOpsToilAutomator,
     ArgoCDGitOpsValidator,
     BrokerResourceSpec,
     BrokerRuntimeStatus,
@@ -178,7 +178,7 @@ def test_reconcile_rolling_upgrade(base_cluster_spec, base_cluster_status):
     assert updated_status.current_state == ClusterState.READY
     assert updated_status.active_version == "3.8.1"
     assert all(b.kafka_version == "3.8.1" for b in updated_status.brokers)
-    assert any("Rolling upgrade completed successfully" in l for l in logs)
+    assert any("Rolling upgrade completed successfully" in log_line for log_line in logs)
 
 
 def test_reconcile_scale_out(base_cluster_spec, base_cluster_status):
@@ -189,7 +189,7 @@ def test_reconcile_scale_out(base_cluster_spec, base_cluster_status):
     assert updated_status.current_state == ClusterState.READY
     assert updated_status.active_replicas == 5
     assert len(updated_status.brokers) == 5
-    assert any("Scaling out cluster by +2 brokers" in l for l in logs)
+    assert any("Scaling out cluster by +2 brokers" in log_line for log_line in logs)
 
 
 def test_cruise_control_partition_rebalancing(base_cluster_spec, base_cluster_status):
@@ -197,15 +197,13 @@ def test_cruise_control_partition_rebalancing(base_cluster_spec, base_cluster_st
 
     # Create artificial disk skew on broker 0
     base_cluster_status.brokers[0].disk_used_gb = 1800.0  # 90% full
-    base_cluster_status.brokers[1].disk_used_gb = 400.0   # 20% full
-    base_cluster_status.brokers[2].disk_used_gb = 400.0   # 20% full
+    base_cluster_status.brokers[1].disk_used_gb = 400.0  # 20% full
+    base_cluster_status.brokers[2].disk_used_gb = 400.0  # 20% full
 
     imbalance = rebalancer.compute_imbalance_ratio(base_cluster_status.brokers)
     assert imbalance > 0.15
 
-    proposals = rebalancer.generate_rebalance_proposals(
-        base_cluster_status.brokers, base_cluster_spec.topics
-    )
+    proposals = rebalancer.generate_rebalance_proposals(base_cluster_status.brokers, base_cluster_spec.topics)
     assert len(proposals) > 0
     first = proposals[0]
     assert first.source_broker == 0

@@ -168,9 +168,7 @@ class MicroVMSandboxPool:
     @property
     def available_count(self) -> int:
         return sum(
-            1
-            for v in self._sandboxes.values()
-            if v.status in (SandboxStatus.WARM_READY, SandboxStatus.RESTORED)
+            1 for v in self._sandboxes.values() if v.status in (SandboxStatus.WARM_READY, SandboxStatus.RESTORED)
         )
 
 

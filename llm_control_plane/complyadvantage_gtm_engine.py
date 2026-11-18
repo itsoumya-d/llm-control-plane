@@ -185,13 +185,15 @@ class FinCrimeAccountScorer:
     def update_weight(self, signal_name: str, new_weight: float, reason: str) -> None:
         old_val = self.weights.get(signal_name, 0.0)
         self.weights[signal_name] = new_weight
-        self.weight_history.append({
-            "signal": signal_name,
-            "old_weight": old_val,
-            "new_weight": new_weight,
-            "reason": reason,
-            "updated_at": time.time(),
-        })
+        self.weight_history.append(
+            {
+                "signal": signal_name,
+                "old_weight": old_val,
+                "new_weight": new_weight,
+                "reason": reason,
+                "updated_at": time.time(),
+            }
+        )
 
     def score(self, account: EnrichedAccount) -> AccountScoreReport:
         breakdown: Dict[str, float] = {}
@@ -285,8 +287,7 @@ class ClaudeGTMPlaySynthesizer:
         else:
             target_persona = "Head of Financial Crime Detection / ML Platform Lead"
             hook = (
-                f"Saw {account.company_name} expanding fintech offerings while navigating expanding KYC/AML "
-                f"mandates."
+                f"Saw {account.company_name} expanding fintech offerings while navigating expanding KYC/AML mandates."
             )
 
         regulatory_context = (
@@ -356,12 +357,14 @@ class BiDirectionalCRMSyncReconciler:
                 "Enrichment_Sources__c": ",".join(local_account.data_sources),
                 "Last_AI_Enriched_Date__c": time.time(),
             }
-            self.audit_log.append({
-                "action": SyncAction.INSERT.value,
-                "domain": domain,
-                "fields_written": list(new_payload.keys()),
-                "timestamp": time.time(),
-            })
+            self.audit_log.append(
+                {
+                    "action": SyncAction.INSERT.value,
+                    "domain": domain,
+                    "fields_written": list(new_payload.keys()),
+                    "timestamp": time.time(),
+                }
+            )
             return SyncAction.INSERT, new_payload
 
         # Case 2: Record exists in CRM -> Check for field changes & respect CRM ownership
@@ -388,21 +391,25 @@ class BiDirectionalCRMSyncReconciler:
         if not needs_update:
             return SyncAction.SKIP, {}
 
-        self.audit_log.append({
-            "action": SyncAction.UPDATE.value,
-            "domain": domain,
-            "fields_updated": list(update_fields.keys()),
-            "timestamp": time.time(),
-        })
+        self.audit_log.append(
+            {
+                "action": SyncAction.UPDATE.value,
+                "domain": domain,
+                "fields_updated": list(update_fields.keys()),
+                "timestamp": time.time(),
+            }
+        )
         return SyncAction.UPDATE, update_fields
 
     def handle_sync_error(self, domain: str, payload: Dict[str, Any], error_msg: str) -> None:
-        self.dead_letter_queue.append({
-            "domain": domain,
-            "payload": payload,
-            "error": error_msg,
-            "failed_at": time.time(),
-        })
+        self.dead_letter_queue.append(
+            {
+                "domain": domain,
+                "payload": payload,
+                "error": error_msg,
+                "failed_at": time.time(),
+            }
+        )
 
 
 class ComplyAdvantageGTMEngine:

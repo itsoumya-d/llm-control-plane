@@ -42,7 +42,7 @@ def coordinator(underwriting_engine, event_bridge):
         insured_entity="Dublin Tech Logistics Ltd",
         policy_type=PolicyType.COMMERCIAL_PROPERTY,
         coverage_limit_cents=10_000_000,  # €100,000
-        deductible_cents=50_000,          # €500
+        deductible_cents=50_000,  # €500
         active=True,
     )
     coord.register_policy(policy)

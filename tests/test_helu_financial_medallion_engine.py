@@ -25,7 +25,7 @@ def sample_balanced_voucher_batch():
             "account_name": "Accounts Receivable Trade",
             "debit_amount": "5000.00",
             "credit_amount": "0.00",
-            "currency": "EUR"
+            "currency": "EUR",
         },
         {
             "voucher_id": "VOUCH-1001",
@@ -36,7 +36,7 @@ def sample_balanced_voucher_batch():
             "account_name": "SaaS Subscription Revenue",
             "debit_amount": "0.00",
             "credit_amount": "5000.00",
-            "currency": "EUR"
+            "currency": "EUR",
         },
         # Voucher 2: Cloud infrastructure expense paid via bank (SAP)
         {
@@ -48,7 +48,7 @@ def sample_balanced_voucher_batch():
             "account_name": "AWS Infrastructure Costs",
             "debit_amount": "1200.00",
             "credit_amount": "0.00",
-            "currency": "EUR"
+            "currency": "EUR",
         },
         {
             "voucher_id": "VOUCH-1002",
@@ -59,8 +59,8 @@ def sample_balanced_voucher_batch():
             "account_name": "Erste Bank Operating Account",
             "debit_amount": "0.00",
             "credit_amount": "1200.00",
-            "currency": "EUR"
-        }
+            "currency": "EUR",
+        },
     ]
 
 
@@ -88,8 +88,8 @@ def test_bronze_ingestion_dlq():
             "account_code": "1000",
             "debit_amount": "NOT_A_NUMBER",
             "credit_amount": "0.00",
-            "currency": "EUR"
-        }
+            "currency": "EUR",
+        },
     ]
     res = worker.ingest_batch(malformed)
     assert res["ingested"] == 0
@@ -121,17 +121,19 @@ def test_silver_account_classification():
 def test_silver_currency_translation():
     transformer = SilverDimensionalTransformer({"USD": Decimal("0.90"), "EUR": Decimal("1.0")})
     worker = BronzeIngestionWorker()
-    worker.ingest_record({
-        "voucher_id": "V-USD-1",
-        "entity_id": "HELU-US",
-        "source_erp": "QUICKBOOKS",
-        "posting_date": "2026-11-15",
-        "account_code": "1200",
-        "account_name": "US Receivables",
-        "debit_amount": "1000.00",
-        "credit_amount": "0.00",
-        "currency": "USD"
-    })
+    worker.ingest_record(
+        {
+            "voucher_id": "V-USD-1",
+            "entity_id": "HELU-US",
+            "source_erp": "QUICKBOOKS",
+            "posting_date": "2026-11-15",
+            "account_code": "1200",
+            "account_name": "US Receivables",
+            "debit_amount": "1000.00",
+            "credit_amount": "0.00",
+            "currency": "USD",
+        }
+    )
     raw_rec = worker.bronze_store[0]
     fact = transformer.transform_record(raw_rec)
 
@@ -151,17 +153,19 @@ def test_financial_reconciliation_gate():
     assert info["unbalanced_count"] == 0
 
     # Add unbalanced voucher
-    worker.ingest_record({
-        "voucher_id": "VOUCH-UNBALANCED",
-        "entity_id": "HELU-AT-01",
-        "source_erp": "DATEV",
-        "posting_date": "2026-11-15",
-        "account_code": "1200",
-        "account_name": "Receivables",
-        "debit_amount": "100.00",
-        "credit_amount": "0.00",
-        "currency": "EUR"
-    })
+    worker.ingest_record(
+        {
+            "voucher_id": "VOUCH-UNBALANCED",
+            "entity_id": "HELU-AT-01",
+            "source_erp": "DATEV",
+            "posting_date": "2026-11-15",
+            "account_code": "1200",
+            "account_name": "Receivables",
+            "debit_amount": "100.00",
+            "credit_amount": "0.00",
+            "currency": "EUR",
+        }
+    )
     valid2, info2 = FinancialReconciliationGate.verify_voucher_double_entry(worker.bronze_store)
     assert valid2 is False
     assert info2["unbalanced_count"] == 1

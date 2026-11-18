@@ -20,6 +20,7 @@ logger = logging.getLogger("cratedb_ecosystem_adapter")
 @dataclasses.dataclass
 class CrateDBNode:
     """Represents an individual CrateDB cluster node."""
+
     host: str
     pgwire_port: int = 5432
     http_port: int = 4200
@@ -31,6 +32,7 @@ class CrateDBNode:
 @dataclasses.dataclass
 class CrateDBDriverConfig:
     """Configuration for CrateDB ecosystem connection and dialect."""
+
     nodes: List[CrateDBNode] = dataclasses.field(default_factory=lambda: [CrateDBNode("localhost")])
     schema: str = "doc"
     username: str = "crate"
@@ -57,7 +59,7 @@ class CrateDBSQLDialect:
         primary_key: Optional[Sequence[str]] = None,
         partition_by: Optional[str] = None,
         shards: int = 4,
-        replicas: str = "0-1"
+        replicas: str = "0-1",
     ) -> str:
         """Generates a CREATE TABLE DDL with CrateDB partitioning and routing parameters."""
         col_defs = [f'"{col}" {dtype}' for col, dtype in columns.items()]
@@ -79,7 +81,7 @@ class CrateDBSQLDialect:
         query_vector: Sequence[float],
         k: int = 10,
         filters: Optional[Dict[str, Any]] = None,
-        fields: Optional[Sequence[str]] = None
+        fields: Optional[Sequence[str]] = None,
     ) -> Tuple[str, List[Any]]:
         """
         Builds a CrateDB vector similarity query using the KNN operator.
@@ -98,34 +100,31 @@ class CrateDBSQLDialect:
                 param_idx += 1
 
         sql = (
-            f'SELECT {select_fields}, _score AS similarity '
+            f"SELECT {select_fields}, _score AS similarity "
             f'FROM "{table_name}" '
-            f'WHERE {" AND ".join(where_clauses)} '
-            f'ORDER BY _score DESC '
-            f'LIMIT {k}'
+            f"WHERE {' AND '.join(where_clauses)} "
+            f"ORDER BY _score DESC "
+            f"LIMIT {k}"
         )
         return sql, params
 
     @staticmethod
     def rewrite_upsert_query(
-        table_name: str,
-        conflict_keys: Sequence[str],
-        update_columns: Sequence[str],
-        columns: Sequence[str]
+        table_name: str, conflict_keys: Sequence[str], update_columns: Sequence[str], columns: Sequence[str]
     ) -> str:
         """
         Generates an idempotent upsert query compatible with CrateDB (PostgreSQL ON CONFLICT DO UPDATE).
         """
         col_list = ", ".join(f'"{c}"' for c in columns)
-        val_placeholders = ", ".join(f"${i+1}" for i in range(len(columns)))
+        val_placeholders = ", ".join(f"${i + 1}" for i in range(len(columns)))
         conflict_target = ", ".join(f'"{k}"' for k in conflict_keys)
 
         update_set = ", ".join(f'"{c}" = excluded."{c}"' for c in update_columns)
 
         return (
             f'INSERT INTO "{table_name}" ({col_list}) '
-            f'VALUES ({val_placeholders}) '
-            f'ON CONFLICT ({conflict_target}) DO UPDATE SET {update_set}'
+            f"VALUES ({val_placeholders}) "
+            f"ON CONFLICT ({conflict_target}) DO UPDATE SET {update_set}"
         )
 
     @staticmethod
@@ -135,7 +134,7 @@ class CrateDBSQLDialect:
         metric_column: str,
         interval: str = "minute",
         start_time_iso: Optional[str] = None,
-        end_time_iso: Optional[str] = None
+        end_time_iso: Optional[str] = None,
     ) -> Tuple[str, List[Any]]:
         """Generates date_trunc time-series aggregation query with percentiles and count."""
         where_clauses = []
@@ -151,18 +150,18 @@ class CrateDBSQLDialect:
             params.append(end_time_iso)
             p_idx += 1
 
-        where_sql = f'WHERE {" AND ".join(where_clauses)} ' if where_clauses else ""
+        where_sql = f"WHERE {' AND '.join(where_clauses)} " if where_clauses else ""
 
         sql = (
-            f'SELECT date_trunc(\'{interval}\', "{timestamp_column}") AS time_bucket, '
-            f'COUNT(*) AS event_count, '
+            f"SELECT date_trunc('{interval}', \"{timestamp_column}\") AS time_bucket, "
+            f"COUNT(*) AS event_count, "
             f'AVG("{metric_column}") AS avg_metric, '
             f'MAX("{metric_column}") AS max_metric, '
             f'MIN("{metric_column}") AS min_metric '
             f'FROM "{table_name}" '
-            f'{where_sql}'
-            f'GROUP BY 1 '
-            f'ORDER BY 1 ASC'
+            f"{where_sql}"
+            f"GROUP BY 1 "
+            f"ORDER BY 1 ASC"
         )
         return sql, params
 
@@ -216,8 +215,13 @@ class CrateDBConnectionPool:
                 node.is_healthy = False
                 node.last_error = str(ex)
                 last_exception = ex
-                logger.warning("Query failed on CrateDB node %s: %s (attempt %d/%d)",
-                               node.host, ex, attempts, self.config.max_retries)
+                logger.warning(
+                    "Query failed on CrateDB node %s: %s (attempt %d/%d)",
+                    node.host,
+                    ex,
+                    attempts,
+                    self.config.max_retries,
+                )
                 time.sleep(self.config.retry_backoff_sec * attempts)
 
         err_msg = f"CrateDB query failed across nodes after {attempts} attempts: {last_exception}"
@@ -251,7 +255,7 @@ class CrateDBTelemetryStore:
         cost_usd: float,
         status_code: int = 200,
         embedding: Optional[Sequence[float]] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Appends a telemetry record to the in-memory batch buffer."""
         record = {

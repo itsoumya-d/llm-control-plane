@@ -20,14 +20,16 @@ from typing import Any, Callable, Dict, List, Optional
 
 class ActionRiskTier(str, Enum):
     """Hierarchical risk classification for autonomous enterprise agent actions."""
-    TIER_1_AUTO_APPROVED = "tier_1_auto_approved"     # Read-only queries, status checks, catalog lookups
-    TIER_2_BOUNDED_MUTATION = "tier_2_bounded_mutation" # Draft POs, invoice reconciliations under threshold
-    TIER_3_HUMAN_CONSENSUS = "tier_3_human_consensus"   # Payments > threshold, bank changes, new vendors
+
+    TIER_1_AUTO_APPROVED = "tier_1_auto_approved"  # Read-only queries, status checks, catalog lookups
+    TIER_2_BOUNDED_MUTATION = "tier_2_bounded_mutation"  # Draft POs, invoice reconciliations under threshold
+    TIER_3_HUMAN_CONSENSUS = "tier_3_human_consensus"  # Payments > threshold, bank changes, new vendors
 
 
 @dataclass
 class WALEvent:
     """Immutable Write-Ahead Log event record with cryptographic tamper-evident hash."""
+
     event_id: str
     sequence_num: int
     session_id: str
@@ -63,10 +65,7 @@ class WriteAheadLogStateCheckpoint:
         return self._last_hash
 
     async def append_event(
-        self,
-        event_type: str,
-        payload: Dict[str, Any],
-        idempotency_key: Optional[str] = None
+        self, event_type: str, payload: Dict[str, Any], idempotency_key: Optional[str] = None
     ) -> WALEvent:
         async with self._lock:
             if idempotency_key and idempotency_key in self._idempotency_keys:
@@ -103,11 +102,7 @@ class WriteAheadLogStateCheckpoint:
                 return False
             payload_str = json.dumps(event.payload, sort_keys=True)
             expected = WALEvent.compute_hash(
-                event.prev_hash,
-                event.sequence_num,
-                event.event_type,
-                payload_str,
-                event.timestamp_ns
+                event.prev_hash, event.sequence_num, event.event_type, payload_str, event.timestamp_ns
             )
             if event.event_hash != expected:
                 return False
@@ -120,7 +115,7 @@ class WriteAheadLogStateCheckpoint:
             "session_id": self.session_id,
             "variables": {},
             "executed_actions": [],
-            "last_sequence": self._current_seq
+            "last_sequence": self._current_seq,
         }
         for ev in self._events:
             if ev.event_type == "set_variable":
@@ -153,7 +148,7 @@ class EnterprisePolicyEnforcer:
                 allowed=False,
                 risk_tier=ActionRiskTier.TIER_3_HUMAN_CONSENSUS,
                 requires_escalation=True,
-                reason="Policy circuit breaker active due to repeated validation failures."
+                reason="Policy circuit breaker active due to repeated validation failures.",
             )
 
         # Read-only or catalog lookups
@@ -162,7 +157,7 @@ class EnterprisePolicyEnforcer:
                 allowed=True,
                 risk_tier=ActionRiskTier.TIER_1_AUTO_APPROVED,
                 requires_escalation=False,
-                reason="Low-risk read action automatically approved."
+                reason="Low-risk read action automatically approved.",
             )
 
         # Restricted critical operations
@@ -171,7 +166,7 @@ class EnterprisePolicyEnforcer:
                 allowed=False,
                 risk_tier=ActionRiskTier.TIER_3_HUMAN_CONSENSUS,
                 requires_escalation=True,
-                reason=f"Restricted action {action_type} strictly requires human consensus."
+                reason=f"Restricted action {action_type} strictly requires human consensus.",
             )
 
         # Financial transactions
@@ -181,14 +176,14 @@ class EnterprisePolicyEnforcer:
                 allowed=False,
                 risk_tier=ActionRiskTier.TIER_3_HUMAN_CONSENSUS,
                 requires_escalation=True,
-                reason=f"Amount ${amount:.2f} exceeds auto-approval threshold ${self.max_auto_spend_usd:.2f}."
+                reason=f"Amount ${amount:.2f} exceeds auto-approval threshold ${self.max_auto_spend_usd:.2f}.",
             )
 
         return PolicyEvaluationResult(
             allowed=True,
             risk_tier=ActionRiskTier.TIER_2_BOUNDED_MUTATION,
             requires_escalation=False,
-            reason=f"Bounded mutation (${amount:.2f}) within permissible limits."
+            reason=f"Bounded mutation (${amount:.2f}) within permissible limits.",
         )
 
     def record_outcome(self, success: bool):
@@ -234,10 +229,7 @@ class FreehandEnterpriseAgentRuntime:
         self._tools[name] = handler
 
     async def execute_step(
-        self,
-        action_type: str,
-        params: Dict[str, Any],
-        idempotency_key: Optional[str] = None
+        self, action_type: str, params: Dict[str, Any], idempotency_key: Optional[str] = None
     ) -> Dict[str, Any]:
         start_time = time.perf_counter()
         trace_id = self.session_id
@@ -249,7 +241,7 @@ class FreehandEnterpriseAgentRuntime:
             await self.wal.append_event(
                 "policy_blocked",
                 {"action": action_type, "reason": eval_result.reason, "tier": eval_result.risk_tier.value},
-                idempotency_key=idempotency_key
+                idempotency_key=idempotency_key,
             )
             duration_ms = (time.perf_counter() - start_time) * 1000.0
             self.trace_spans.append(
@@ -260,7 +252,7 @@ class FreehandEnterpriseAgentRuntime:
                     duration_ms=duration_ms,
                     token_usage=120,
                     status="BLOCKED",
-                    metadata={"reason": eval_result.reason}
+                    metadata={"reason": eval_result.reason},
                 )
             )
             return {
@@ -268,7 +260,7 @@ class FreehandEnterpriseAgentRuntime:
                 "status": "BLOCKED",
                 "risk_tier": eval_result.risk_tier.value,
                 "requires_escalation": eval_result.requires_escalation,
-                "reason": eval_result.reason
+                "reason": eval_result.reason,
             }
 
         # Dispatch tool
@@ -288,7 +280,7 @@ class FreehandEnterpriseAgentRuntime:
             await self.wal.append_event(
                 "execute_action",
                 {"action": action_type, "params": params, "result": result},
-                idempotency_key=idempotency_key
+                idempotency_key=idempotency_key,
             )
 
             self.policy.record_outcome(True)
@@ -301,15 +293,10 @@ class FreehandEnterpriseAgentRuntime:
                     duration_ms=duration_ms,
                     token_usage=250,
                     status="SUCCESS",
-                    metadata={"result_keys": list(result.keys()) if isinstance(result, dict) else []}
+                    metadata={"result_keys": list(result.keys()) if isinstance(result, dict) else []},
                 )
             )
-            return {
-                "success": True,
-                "status": "COMPLETED",
-                "risk_tier": eval_result.risk_tier.value,
-                "result": result
-            }
+            return {"success": True, "status": "COMPLETED", "risk_tier": eval_result.risk_tier.value, "result": result}
         except Exception as e:
             self.policy.record_outcome(False)
             duration_ms = (time.perf_counter() - start_time) * 1000.0
@@ -321,7 +308,7 @@ class FreehandEnterpriseAgentRuntime:
                     duration_ms=duration_ms,
                     token_usage=100,
                     status="FAILED",
-                    metadata={"error": str(e)}
+                    metadata={"error": str(e)},
                 )
             )
             return {"success": False, "status": "FAILED", "error": str(e)}
@@ -363,5 +350,5 @@ class AgentReplayEvalHarness:
             "completion_rate": completion_rate,
             "policy_violations_prevented": policy_violations_prevented,
             "avg_latency_ms": round(avg_latency, 2),
-            "benchmark_status": "PASS" if completion_rate >= 0.95 else "FAIL"
+            "benchmark_status": "PASS" if completion_rate >= 0.95 else "FAIL",
         }

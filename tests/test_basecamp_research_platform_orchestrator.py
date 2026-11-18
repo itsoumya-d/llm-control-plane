@@ -89,11 +89,7 @@ def test_workflow_dag_topological_sort_and_execution():
     t1 = WorkflowTask("task-1", "Ingest", ComputeTarget.AWS_BATCH_CPU, "ingest.sh")
     t2 = WorkflowTask("task-2", "Quality Control", ComputeTarget.LOCAL_CONTAINER, "qc.sh", dependencies=["task-1"])
     t3 = WorkflowTask(
-        "task-3",
-        "EDEN Foundation Embedding",
-        ComputeTarget.KUBERNETES_GPU_CLUSTER,
-        "eden.sh",
-        dependencies=["task-2"]
+        "task-3", "EDEN Foundation Embedding", ComputeTarget.KUBERNETES_GPU_CLUSTER, "eden.sh", dependencies=["task-2"]
     )
 
     dag.add_task(t1)
@@ -152,29 +148,27 @@ def test_mcp_server_tools_and_invocations():
     assert "dispatch_foundation_assay" in tool_names
 
     # Test tool invocation: validate_sequence
-    res_val = mcp.call_tool("validate_sequence", {
-        "format": "fasta",
-        "content": ">SEQ1\nATGCGATCGATC\n",
-        "sequence_type": "DNA"
-    })
+    res_val = mcp.call_tool(
+        "validate_sequence", {"format": "fasta", "content": ">SEQ1\nATGCGATCGATC\n", "sequence_type": "DNA"}
+    )
     assert res_val["status"] == "success"
     assert res_val["result"]["record_count"] == 1
     assert "latency_ms" in res_val["telemetry"]
 
     # Test tool invocation: search_trillion_gene_atlas
-    res_search = mcp.call_tool("search_trillion_gene_atlas", {
-        "kmer_motif": "ATGCGATC",
-        "biome": "Hydrothermal Vent"
-    })
+    res_search = mcp.call_tool("search_trillion_gene_atlas", {"kmer_motif": "ATGCGATC", "biome": "Hydrothermal Vent"})
     assert res_search["status"] == "success"
     assert res_search["result"]["matches_found"] > 0
 
     # Test tool invocation: dispatch_foundation_assay
-    res_assay = mcp.call_tool("dispatch_foundation_assay", {
-        "sequence_id": "BCR-001",
-        "assay_type": AssayType.EDEN_FOUNDATION_EMBEDDING.value,
-        "compute_target": ComputeTarget.KUBERNETES_GPU_CLUSTER.value
-    })
+    res_assay = mcp.call_tool(
+        "dispatch_foundation_assay",
+        {
+            "sequence_id": "BCR-001",
+            "assay_type": AssayType.EDEN_FOUNDATION_EMBEDDING.value,
+            "compute_target": ComputeTarget.KUBERNETES_GPU_CLUSTER.value,
+        },
+    )
     assert res_assay["status"] == "success"
     assert res_assay["result"]["status"] == "QUEUED"
 
@@ -186,8 +180,7 @@ def test_mcp_server_tools_and_invocations():
 def test_end_to_end_platform_orchestration():
     orchestrator = BasecampResearchPlatformOrchestrator()
     result = orchestrator.ingest_and_benchmark_sample(
-        fasta_content=SAMPLE_FASTA,
-        sample_origin="Trillion Gene Atlas Patagonia"
+        fasta_content=SAMPLE_FASTA, sample_origin="Trillion Gene Atlas Patagonia"
     )
 
     assert result["total_ingested"] == 2

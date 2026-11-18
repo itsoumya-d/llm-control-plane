@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 class TelemetryFormat(str, enum.Enum):
     """Supported serialization formats for telemetry payloads."""
+
     PROTOBUF = "PROTOBUF"
     ARROW = "ARROW"
     RAW_BINARY = "RAW_BINARY"
@@ -24,6 +25,7 @@ class TelemetryFormat(str, enum.Enum):
 
 class ThrottlingLevel(str, enum.Enum):
     """Dynamic backpressure throttling levels under fluctuating link bandwidth."""
+
     NORMAL = "NORMAL"
     SHED_LOW_PRIORITY = "SHED_LOW_PRIORITY"
     COMPRESS_DELTA = "COMPRESS_DELTA"
@@ -33,6 +35,7 @@ class ThrottlingLevel(str, enum.Enum):
 @dataclasses.dataclass(frozen=True)
 class TelemetryFrame:
     """Individual sensory telemetry frame received from edge sensor nodes."""
+
     frame_id: str
     stream_id: str
     sequence_number: int
@@ -72,6 +75,7 @@ class TelemetryFrame:
 @dataclasses.dataclass
 class TelemetryBatchResult:
     """Outcome of batch processing through the orchestrator pipeline."""
+
     batch_id: str
     processed_count: int
     dropped_count: int
@@ -232,10 +236,10 @@ class AirGappedCryptographicLedger:
         for block in self._blocks:
             if block["previous_hash"] != prev:
                 return False
-            b_h = block['height']
-            b_id = block['batch_id']
-            b_m = block['merkle_root']
-            b_ts = block['timestamp_ns']
+            b_h = block["height"]
+            b_id = block["batch_id"]
+            b_m = block["merkle_root"]
+            b_ts = block["timestamp_ns"]
             expected_content = f"{b_h}:{prev}:{b_id}:{b_m}:{b_ts}"
             if hashlib.sha256(expected_content.encode("utf-8")).hexdigest() != block["block_hash"]:
                 return False

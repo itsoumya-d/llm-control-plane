@@ -242,20 +242,24 @@ class DagsterOrchestrationEngine:
         for key, node in self.assets.items():
             if node.last_materialized_at is None:
                 stale_assets.append(key)
-                self.alert_log.append({
-                    "asset": key,
-                    "reason": "never_materialized",
-                    "detected_at": current_time.isoformat(),
-                })
+                self.alert_log.append(
+                    {
+                        "asset": key,
+                        "reason": "never_materialized",
+                        "detected_at": current_time.isoformat(),
+                    }
+                )
             else:
                 elapsed = (current_time - node.last_materialized_at).total_seconds()
                 if elapsed > node.freshness_max_lag_seconds:
                     stale_assets.append(key)
-                    self.alert_log.append({
-                        "asset": key,
-                        "reason": f"lag_exceeded_{elapsed:.0f}s",
-                        "detected_at": current_time.isoformat(),
-                    })
+                    self.alert_log.append(
+                        {
+                            "asset": key,
+                            "reason": f"lag_exceeded_{elapsed:.0f}s",
+                            "detected_at": current_time.isoformat(),
+                        }
+                    )
         return stale_assets
 
 
@@ -266,12 +270,14 @@ class RedshiftWarehouseManager:
         self.query_telemetry: List[Dict[str, Any]] = []
 
     def record_query(self, query_id: str, table_name: str, duration_ms: float, rows_scanned: int) -> None:
-        self.query_telemetry.append({
-            "query_id": query_id,
-            "table_name": table_name,
-            "duration_ms": duration_ms,
-            "rows_scanned": rows_scanned,
-        })
+        self.query_telemetry.append(
+            {
+                "query_id": query_id,
+                "table_name": table_name,
+                "duration_ms": duration_ms,
+                "rows_scanned": rows_scanned,
+            }
+        )
 
     def recommend_dist_key(self, table_name: str) -> str:
         """Determines best distribution key based on query join and aggregation frequency."""

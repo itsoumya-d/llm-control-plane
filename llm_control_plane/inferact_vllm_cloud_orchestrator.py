@@ -239,9 +239,9 @@ class InferactVLLMCloudOrchestrator:
             pipeline_parallel_size=self.spec.pipeline_parallel_size,
         )
 
-        assigned_gpus = [
-            g for g in target_node.gpus.values() if g.is_healthy and g.assigned_actor_id is None
-        ][:needed_gpus]
+        assigned_gpus = [g for g in target_node.gpus.values() if g.is_healthy and g.assigned_actor_id is None][
+            :needed_gpus
+        ]
         for rank, gpu in enumerate(assigned_gpus):
             actor_id = f"{group_id}-actor-{rank}"
             gpu.assigned_actor_id = actor_id

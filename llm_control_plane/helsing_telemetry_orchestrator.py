@@ -40,6 +40,7 @@ class StreamHealth(str, enum.Enum):
 
 class BufferOverflowError(Exception):
     """Raised when the ring buffer exceeds capacity and cannot shed lower priority frames."""
+
     pass
 
 
@@ -106,9 +107,7 @@ class ResilientRingBuffer:
                 self._seen_ids.remove(evicted.frame_id)
                 self._evicted_count += 1
             else:
-                raise BufferOverflowError(
-                    f"Buffer at capacity {self.capacity} with no lower priority frame to shed."
-                )
+                raise BufferOverflowError(f"Buffer at capacity {self.capacity} with no lower priority frame to shed.")
 
         self._buffer[frame.sequence_num] = frame
         self._seen_ids.add(frame.frame_id)
@@ -258,17 +257,19 @@ class HelsingTelemetryStreamer:
         batch = ordered[:max_batch]
         records: List[Dict[str, Any]] = []
         for f in batch:
-            records.append({
-                "frame_id": f.frame_id,
-                "sensor_type": f.sensor_type.value,
-                "channel_id": f.channel_id,
-                "sequence_num": f.sequence_num,
-                "timestamp_ms": f.timestamp_ms,
-                "priority": f.priority.value,
-                "payload_len": len(f.payload),
-                "metadata": f.metadata,
-                "checksum": f.checksum,
-            })
+            records.append(
+                {
+                    "frame_id": f.frame_id,
+                    "sensor_type": f.sensor_type.value,
+                    "channel_id": f.channel_id,
+                    "sequence_num": f.sequence_num,
+                    "timestamp_ms": f.timestamp_ms,
+                    "priority": f.priority.value,
+                    "payload_len": len(f.payload),
+                    "metadata": f.metadata,
+                    "checksum": f.checksum,
+                }
+            )
         return records
 
     def get_diagnostics(self) -> Dict[str, Any]:

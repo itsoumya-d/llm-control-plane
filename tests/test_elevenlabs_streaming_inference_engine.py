@@ -27,26 +27,20 @@ def test_kv_cache_allocation_and_reuse():
 
 
 def test_quantization_calibration():
-    engine_int8 = ElevenLabsStreamingInferenceEngine(
-        StreamingInferenceConfig(quantization=QuantizationFormat.INT8)
-    )
+    engine_int8 = ElevenLabsStreamingInferenceEngine(StreamingInferenceConfig(quantization=QuantizationFormat.INT8))
     res_int8 = engine_int8.calibrate_quantization((4096, 4096))
     assert res_int8["format"] == "INT8"
     assert res_int8["compression_ratio"] == 2.0
     assert res_int8["audio_fidelity_preserved"] is True
     assert res_int8["estimated_snr_db"] > 45.0
 
-    engine_fp8 = ElevenLabsStreamingInferenceEngine(
-        StreamingInferenceConfig(quantization=QuantizationFormat.FP8)
-    )
+    engine_fp8 = ElevenLabsStreamingInferenceEngine(StreamingInferenceConfig(quantization=QuantizationFormat.FP8))
     res_fp8 = engine_fp8.calibrate_quantization((4096, 4096))
     assert res_fp8["format"] == "FP8"
     assert res_fp8["compression_ratio"] == 2.0
     assert res_fp8["audio_fidelity_preserved"] is True
 
-    engine_fp16 = ElevenLabsStreamingInferenceEngine(
-        StreamingInferenceConfig(quantization=QuantizationFormat.FP16)
-    )
+    engine_fp16 = ElevenLabsStreamingInferenceEngine(StreamingInferenceConfig(quantization=QuantizationFormat.FP16))
     res_fp16 = engine_fp16.calibrate_quantization((4096, 4096))
     assert res_fp16["compression_ratio"] == 1.0
 

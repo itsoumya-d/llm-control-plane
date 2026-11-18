@@ -128,7 +128,7 @@ class BronzeIngestionWorker:
             credit_amount=credit,
             currency=str(raw_data["currency"]).upper(),
             description=str(raw_data.get("description", "")),
-            metadata=raw_data.get("metadata", {})
+            metadata=raw_data.get("metadata", {}),
         )
 
         record_key = f"{rec.entity_id}:{rec.voucher_id}:{rec.account_code}:{rec.debit_amount}:{rec.credit_amount}"
@@ -153,7 +153,7 @@ class BronzeIngestionWorker:
             "total": len(batch),
             "ingested": success_count,
             "dlq_errors": error_count,
-            "stored_total": len(self.bronze_store)
+            "stored_total": len(self.bronze_store),
         }
 
 
@@ -165,7 +165,7 @@ class SilverDimensionalTransformer:
         "USD": Decimal("0.92"),
         "GBP": Decimal("1.18"),
         "CHF": Decimal("1.04"),
-        "INR": Decimal("0.011")
+        "INR": Decimal("0.011"),
     }
 
     def __init__(self, exchange_rates: Optional[Dict[str, Decimal]] = None) -> None:
@@ -200,7 +200,9 @@ class SilverDimensionalTransformer:
 
         # Hash fingerprint for data auditability
         hasher = hashlib.sha256()
-        hasher.update(f"{raw.entity_id}|{raw.voucher_id}|{raw.account_code}|{net_original}|{raw.currency}".encode("utf-8"))
+        hasher.update(
+            f"{raw.entity_id}|{raw.voucher_id}|{raw.account_code}|{net_original}|{raw.currency}".encode("utf-8")
+        )
         fingerprint = hasher.hexdigest()
 
         fact = NormalizedTransactionFact(
@@ -218,7 +220,7 @@ class SilverDimensionalTransformer:
             exchange_rate_to_eur=rate,
             amount_eur=amount_eur,
             is_balanced=True,
-            hash_fingerprint=fingerprint
+            hash_fingerprint=fingerprint,
         )
         self.silver_store.append(fact)
         return fact
@@ -230,7 +232,7 @@ class SilverDimensionalTransformer:
         return {
             "stage": MedallionStage.SILVER.value,
             "processed": len(transformed),
-            "stored_total": len(self.silver_store)
+            "stored_total": len(self.silver_store),
         }
 
 
@@ -241,14 +243,11 @@ class GoldFinancialMartBuilder:
         pass
 
     def build_statement(
-        self,
-        entity_id: str,
-        fiscal_year: int,
-        fiscal_period: int,
-        silver_facts: List[NormalizedTransactionFact]
+        self, entity_id: str, fiscal_year: int, fiscal_period: int, silver_facts: List[NormalizedTransactionFact]
     ) -> FinancialStatementReport:
         filtered = [
-            f for f in silver_facts
+            f
+            for f in silver_facts
             if f.entity_id == entity_id and f.fiscal_year == fiscal_year and f.fiscal_period == fiscal_period
         ]
 
@@ -261,16 +260,16 @@ class GoldFinancialMartBuilder:
         for f in filtered:
             if f.account_type == AccountType.REVENUE:
                 # Credit balances in revenue represent positive income
-                total_rev += (-f.amount_eur if f.amount_eur < 0 else f.amount_eur)
+                total_rev += -f.amount_eur if f.amount_eur < 0 else f.amount_eur
             elif f.account_type == AccountType.EXPENSE:
                 # Debits in expense
-                total_exp += (f.amount_eur if f.amount_eur > 0 else -f.amount_eur)
+                total_exp += f.amount_eur if f.amount_eur > 0 else -f.amount_eur
             elif f.account_type == AccountType.ASSET:
                 total_assets += f.amount_eur
             elif f.account_type == AccountType.LIABILITY:
-                total_liab += (-f.amount_eur if f.amount_eur < 0 else f.amount_eur)
+                total_liab += -f.amount_eur if f.amount_eur < 0 else f.amount_eur
             elif f.account_type == AccountType.EQUITY:
-                total_equity += (-f.amount_eur if f.amount_eur < 0 else f.amount_eur)
+                total_equity += -f.amount_eur if f.amount_eur < 0 else f.amount_eur
 
         net_income = total_rev - total_exp
         # Total equity absorbs current period net income
@@ -294,7 +293,7 @@ class GoldFinancialMartBuilder:
             balance_sheet_balanced=is_balanced,
             discrepancy_eur=discrepancy,
             row_count=len(filtered),
-            generated_at=dt.datetime.now(dt.timezone.utc).isoformat()
+            generated_at=dt.datetime.now(dt.timezone.utc).isoformat(),
         )
 
 
@@ -320,7 +319,7 @@ class FinancialReconciliationGate:
         return is_valid, {
             "total_vouchers_checked": len(vouchers),
             "unbalanced_count": len(unbalanced),
-            "unbalanced_vouchers": unbalanced
+            "unbalanced_vouchers": unbalanced,
         }
 
 
@@ -333,11 +332,7 @@ class HeluFinancialPipelineOrchestrator:
         self.gold = GoldFinancialMartBuilder()
 
     def run_pipeline(
-        self,
-        batch: List[Dict[str, Any]],
-        entity_id: str,
-        fiscal_year: int,
-        fiscal_period: int
+        self, batch: List[Dict[str, Any]], entity_id: str, fiscal_year: int, fiscal_period: int
     ) -> Dict[str, Any]:
         # 1. Ingest to Bronze
         bronze_res = self.bronze.ingest_batch(batch)
@@ -358,5 +353,5 @@ class HeluFinancialPipelineOrchestrator:
             "bronze": bronze_res,
             "reconciliation": {"double_entry_verified": rec_ok, "details": rec_info},
             "silver": silver_res,
-            "gold_statement": dataclasses.asdict(statement)
+            "gold_statement": dataclasses.asdict(statement),
         }

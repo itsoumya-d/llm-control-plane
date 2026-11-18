@@ -91,11 +91,13 @@ class TerraformModuleReconciler:
         for res_id, declared_attrs in declared_state.items():
             actual_attrs = actual_state.get(res_id)
             if actual_attrs is None:
-                drifted_resources.append({
-                    "resource_id": res_id,
-                    "drift_type": "MISSING_IN_ACTUAL",
-                    "details": "Resource declared in code but absent in live environment.",
-                })
+                drifted_resources.append(
+                    {
+                        "resource_id": res_id,
+                        "drift_type": "MISSING_IN_ACTUAL",
+                        "details": "Resource declared in code but absent in live environment.",
+                    }
+                )
                 continue
 
             diffs: dict[str, tuple[Any, Any]] = {}
@@ -105,11 +107,13 @@ class TerraformModuleReconciler:
                     diffs[attr_key] = (declared_val, actual_val)
 
             if diffs:
-                drifted_resources.append({
-                    "resource_id": res_id,
-                    "drift_type": "ATTRIBUTE_MISMATCH",
-                    "differences": diffs,
-                })
+                drifted_resources.append(
+                    {
+                        "resource_id": res_id,
+                        "drift_type": "ATTRIBUTE_MISMATCH",
+                        "differences": diffs,
+                    }
+                )
 
         return {
             "has_drift": len(drifted_resources) > 0,
@@ -260,19 +264,23 @@ class KafkaStreamingWatchdog:
             broker_leadership_count[p.leader_broker_id] = broker_leadership_count.get(p.leader_broker_id, 0) + 1
 
             if len(p.in_sync_replicas) < len(p.replicas):
-                under_replicated.append({
-                    "topic": p.topic,
-                    "partition": p.partition_id,
-                    "replicas": p.replicas,
-                    "isr": p.in_sync_replicas,
-                })
+                under_replicated.append(
+                    {
+                        "topic": p.topic,
+                        "partition": p.partition_id,
+                        "replicas": p.replicas,
+                        "isr": p.in_sync_replicas,
+                    }
+                )
 
             if p.consumer_lag > self.max_allowed_lag:
-                high_lag_partitions.append({
-                    "topic": p.topic,
-                    "partition": p.partition_id,
-                    "lag": p.consumer_lag,
-                })
+                high_lag_partitions.append(
+                    {
+                        "topic": p.topic,
+                        "partition": p.partition_id,
+                        "lag": p.consumer_lag,
+                    }
+                )
 
         # Calculate partition distribution skew
         leadership_values = list(broker_leadership_count.values())
@@ -315,9 +323,7 @@ class LinuxFleetHostAuditor:
         self.critical_services = critical_services or ["sshd", "chronyd", "node_exporter"]
 
     def audit_host(self, host: LinuxHostSpec) -> dict[str, Any]:
-        missing_services: list[str] = [
-            svc for svc in self.critical_services if svc not in host.active_systemd_services
-        ]
+        missing_services: list[str] = [svc for svc in self.critical_services if svc not in host.active_systemd_services]
 
         sysctl_mismatches: dict[str, dict[str, Any]] = {}
         for param, expected_val in self.REQUIRED_SYSCTL.items():

@@ -34,6 +34,7 @@ class JVMDataType(str, Enum):
 
 class InteropMessageEnvelope(BaseModel):
     """Binary/Protobuf message envelope crossing Python/JVM boundary."""
+
     message_id: str = Field(description="Unique UUID / sequence identifier")
     payload_type: str = Field(description="Protobuf schema contract name")
     jvm_type: JVMDataType = Field(description="Corresponding JVM class type")
@@ -259,11 +260,13 @@ class DeterministicToolExecutionGateway:
             if validation.valid:
                 sql = validation.sanitized_sql or ""
                 result = executor_fn(sql) if executor_fn else {"status": "SUCCESS", "rows": 42, "query": sql}
-                self.execution_audit.append({
-                    "contract": current_contract.model_dump(),
-                    "attempts": attempt,
-                    "status": "EXECUTED",
-                })
+                self.execution_audit.append(
+                    {
+                        "contract": current_contract.model_dump(),
+                        "attempts": attempt,
+                        "status": "EXECUTED",
+                    }
+                )
                 return {
                     "success": True,
                     "attempts": attempt,
@@ -279,12 +282,14 @@ class DeterministicToolExecutionGateway:
                     elif "missing required parameter 'sql'" in err_lower:
                         current_contract.arguments["sql"] = "SELECT 1"
                 else:
-                    self.execution_audit.append({
-                        "contract": current_contract.model_dump(),
-                        "attempts": attempt,
-                        "status": "REJECTED",
-                        "error": validation.error_message,
-                    })
+                    self.execution_audit.append(
+                        {
+                            "contract": current_contract.model_dump(),
+                            "attempts": attempt,
+                            "status": "REJECTED",
+                            "error": validation.error_message,
+                        }
+                    )
                     return {
                         "success": False,
                         "attempts": attempt,

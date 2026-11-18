@@ -74,8 +74,7 @@ def test_eval_harness_catches_hallucinations_and_missing_disclaimer():
 
     # 1. Compliant output with anchor and disclaimer
     text_ok = (
-        "You will receive a government bonus of £1,000.00. "
-        "Note that capital at risk and this is not financial advice."
+        "You will receive a government bonus of £1,000.00. Note that capital at risk and this is not financial advice."
     )
     passed, hal, disc = harness.evaluate_output(case, text_ok, latency_ms=45.0)
     assert passed is True
