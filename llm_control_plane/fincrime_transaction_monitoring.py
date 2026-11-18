@@ -10,10 +10,8 @@ from __future__ import annotations
 import datetime as dt
 import enum
 import hashlib
-import json
-import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Set
 
 
 class AlertSeverity(str, enum.Enum):
@@ -90,7 +88,6 @@ class SuspiciousActivityReport:
 class TransactionMonitoringEngine:
     """In-memory distributed sliding-window transaction monitoring and screening engine."""
 
-    # Standard FATF high-risk & sanctioned country codes
     HIGH_RISK_COUNTRIES = {"IR", "KP", "MM", "SY", "RU"}
     REPORTING_THRESHOLD_EUR = 10000.0
 
@@ -105,7 +102,6 @@ class TransactionMonitoringEngine:
         self.max_daily_amount = max_daily_amount
         self.max_daily_transactions = max_daily_transactions
         self.structuring_lower_bound = structuring_lower_bound
-        # account_id -> list of transactions sorted by timestamp
         self._history: Dict[str, List[Transaction]] = {}
         self._sanctioned_parties: Set[str] = set()
 
@@ -121,7 +117,9 @@ class TransactionMonitoringEngine:
         history.append(tx)
 
         # 1. Sanctions Screening
-        if tx.counterparty_id.strip().upper() in self._sanctioned_parties or tx.account_id.strip().upper() in self._sanctioned_parties:
+        cpty = tx.counterparty_id.strip().upper()
+        acct = tx.account_id.strip().upper()
+        if cpty in self._sanctioned_parties or acct in self._sanctioned_parties:
             violations.append(
                 RuleViolation(
                     rule_type=RuleType.SANCTIONS_SCREENING,
@@ -148,19 +146,26 @@ class TransactionMonitoringEngine:
         cutoff = tx.timestamp - dt.timedelta(hours=self.velocity_window_hours)
         recent_txs = [t for t in history if t.timestamp >= cutoff]
 
-        # 3. Structuring / Smurfing Detection: multiple txs just below threshold
+        # 3. Structuring / Smurfing Detection
         structuring_candidates = [
             t
             for t in recent_txs
             if self.structuring_lower_bound <= t.amount < self.REPORTING_THRESHOLD_EUR
         ]
         if len(structuring_candidates) >= 2:
+            bound = self.structuring_lower_bound
+            thresh = self.REPORTING_THRESHOLD_EUR
+            win = self.velocity_window_hours
+            msg = (
+                f"Detected {len(structuring_candidates)} transfers between €{bound:.0f} "
+                f"and €{thresh:.0f} within {win}h."
+            )
             violations.append(
                 RuleViolation(
                     rule_type=RuleType.STRUCTURING_SMURFING,
                     severity=AlertSeverity.HIGH,
                     rule_name="Suspected Transaction Structuring (Smurfing)",
-                    details=f"Detected {len(structuring_candidates)} transfers between €{self.structuring_lower_bound:.0f} and €{self.REPORTING_THRESHOLD_EUR:.0f} within {self.velocity_window_hours}h.",
+                    details=msg,
                     matched_transaction_ids=[t.transaction_id for t in structuring_candidates],
                 )
             )
@@ -168,12 +173,16 @@ class TransactionMonitoringEngine:
         # 4. Velocity & Cumulative Volume Thresholds
         recent_volume = sum(t.amount for t in recent_txs)
         if len(recent_txs) > self.max_daily_transactions or recent_volume > self.max_daily_amount:
+            sev = AlertSeverity.MEDIUM if recent_volume <= self.max_daily_amount * 1.5 else AlertSeverity.HIGH
+            count = len(recent_txs)
+            win = self.velocity_window_hours
+            detail_msg = f"Account accumulated {count} transactions totaling €{recent_volume:.2f} within {win}h."
             violations.append(
                 RuleViolation(
                     rule_type=RuleType.VELOCITY_THRESHOLD,
-                    severity=AlertSeverity.MEDIUM if recent_volume <= self.max_daily_amount * 1.5 else AlertSeverity.HIGH,
+                    severity=sev,
                     rule_name="Excessive Account Velocity and Volume",
-                    details=f"Account accumulated {len(recent_txs)} transactions totaling €{recent_volume:.2f} within {self.velocity_window_hours}h.",
+                    details=detail_msg,
                     matched_transaction_ids=[t.transaction_id for t in recent_txs],
                 )
             )
@@ -226,6 +235,7 @@ class FinCrimeComplianceEvaluator:
         relevant_txs = [t for t in tx_history if t.transaction_id in matched_ids]
         total_amount = sum(t.amount for t in relevant_txs)
         currencies = sorted(list({t.currency for t in relevant_txs}))
+        curr_str = "/".join(currencies)
 
         highest_severity = AlertSeverity.LOW
         for v in evaluation_result.violations:
@@ -239,7 +249,7 @@ class FinCrimeComplianceEvaluator:
 
         narrative_lines = [
             f"Account {account_id} triggered automated financial crime screening alerts.",
-            f"Total flagged exposure: {total_amount:.2f} ({'/'.join(currencies)}) across {len(relevant_txs)} transactions.",
+            f"Total flagged exposure: {total_amount:.2f} ({curr_str}) across {len(relevant_txs)} transactions.",
             "Violations observed:",
         ]
         for v in evaluation_result.violations:
@@ -252,24 +262,26 @@ class FinCrimeComplianceEvaluator:
         else:
             recommended_action = "ENHANCED_DUE_DILIGENCE_REVIEW"
 
-        # Deterministic audit hash for immutability
         payload = f"{account_id}:{highest_severity.value}:{total_amount:.2f}:{sorted(list(matched_ids))}"
         audit_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
         report_id = f"SAR-{account_id[:8]}-{audit_hash[:8]}"
+
+        summary_text = (
+            f"Automated AML Alert on account {account_id} with risk score "
+            f"{evaluation_result.risk_score:.1f}/100"
+        )
 
         report = SuspiciousActivityReport(
             report_id=report_id,
             account_id=account_id,
             severity=highest_severity,
-            summary=f"Automated AML Alert on account {account_id} with risk score {evaluation_result.risk_score:.1f}/100",
+            summary=summary_text,
             narrative=narrative,
             recommended_action=recommended_action,
             supporting_transaction_ids=sorted(list(matched_ids)),
             audit_hash=audit_hash,
         )
 
-        # Verify grounding against raw transactions to guarantee zero hallucinated metrics
         self.verify_grounding(report, relevant_txs)
         return report
 
