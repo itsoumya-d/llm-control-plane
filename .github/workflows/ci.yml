@@ -42,6 +42,9 @@ jobs:
       - name: Compile check
         run: python -m compileall -q llm_control_plane
 
+      - name: Smoke test
+        run: bash scripts/smoke.sh
+
   package:
     needs: test
     runs-on: ubuntu-latest

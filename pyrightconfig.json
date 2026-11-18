@@ -1,0 +1,9 @@
+{
+  "include": [
+    "llm_control_plane"
+  ],
+  "exclude": [
+    "tests",
+    ".venv"
+  ]
+}

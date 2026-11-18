@@ -130,7 +130,7 @@ def test_prompt_injection_defense():
 def test_triage_boundary_privilege_separation():
     evaluator = TriageEvaluatorSandbox(signing_secret="secret-test-key")
     dispatcher = TriageActionDispatcher(
-        api_tokens={"github": "gh-mock-token", "slack": "xoxb-mock-token"},
+        api_tokens={"github": "gh-mock-token", "slack": "mock-slack-test-token"},
         verification_secret="secret-test-key",
     )
 
