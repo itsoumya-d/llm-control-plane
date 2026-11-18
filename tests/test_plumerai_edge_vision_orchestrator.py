@@ -78,9 +78,7 @@ def test_edge_event_ingestion(orchestrator: PlumeraiEdgeVisionOrchestrator, samp
         timestamp_ms=1763260800000,
         event_type="people_detection",
         confidence=0.94,
-        bounding_boxes=[
-            BoundingBox(x_min=0.1, y_min=0.2, x_max=0.5, y_max=0.8, label="person", confidence=0.94)
-        ],
+        bounding_boxes=[BoundingBox(x_min=0.1, y_min=0.2, x_max=0.5, y_max=0.8, label="person", confidence=0.94)],
         feature_embedding=[0.15, 0.45, -0.22, 0.81],
     )
     assert orchestrator.ingest_edge_event(ev) is True

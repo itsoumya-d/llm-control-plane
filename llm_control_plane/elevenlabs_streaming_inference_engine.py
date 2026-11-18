@@ -18,8 +18,8 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 class InferencePriority(str, enum.Enum):
     INTERACTIVE = "INTERACTIVE"  # Conversational voice agents (target TTFB < 80ms)
-    STANDARD = "STANDARD"        # User-facing real-time TTS (target TTFB < 150ms)
-    BATCH = "BATCH"              # High-throughput asynchronous generation
+    STANDARD = "STANDARD"  # User-facing real-time TTS (target TTFB < 150ms)
+    BATCH = "BATCH"  # High-throughput asynchronous generation
 
 
 class QuantizationFormat(str, enum.Enum):
@@ -232,8 +232,7 @@ class ElevenLabsStreamingInferenceEngine:
         ttfb = chunks[0].time_to_chunk_ms if chunks else 0.0
         total_time = chunks[-1].time_to_chunk_ms if chunks else 0.0
         delays = [chunks[0].time_to_chunk_ms] + [
-            chunks[i].time_to_chunk_ms - chunks[i - 1].time_to_chunk_ms
-            for i in range(1, len(chunks))
+            chunks[i].time_to_chunk_ms - chunks[i - 1].time_to_chunk_ms for i in range(1, len(chunks))
         ]
         sorted_delays = sorted(delays)
 

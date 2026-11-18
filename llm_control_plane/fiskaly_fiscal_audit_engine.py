@@ -119,8 +119,7 @@ class CloudTSECryptographicSigner:
         elif tx.jurisdiction == FiscalJurisdiction.GERMANY_KASSENSICHV:
             sig_clip = signature_b64[:30]
             qr_payload = (
-                f"V0;{tx.cash_register_id};{sequence_number};"
-                f"{tx.timestamp.isoformat()};{payload_hash};{sig_clip}"
+                f"V0;{tx.cash_register_id};{sequence_number};{tx.timestamp.isoformat()};{payload_hash};{sig_clip}"
             )
         else:
             qr_payload = f"TBAI-AT_{tx.cash_register_id}_{sequence_number}_{payload_hash[:16]}"
@@ -269,19 +268,23 @@ class FiscalTransactionAnomalyDetector:
 
         # Check total discrepancy
         if abs(calculated_vat - tx.total_vat) > 0.05:
-            anomalies.append({
-                "type": FiscalAnomalyType.VAT_CALCULATION_MISMATCH,
-                "severity": "HIGH",
-                "message": f"Declared VAT {tx.total_vat} differs from calculated VAT {calculated_vat:.2f}",
-            })
+            anomalies.append(
+                {
+                    "type": FiscalAnomalyType.VAT_CALCULATION_MISMATCH,
+                    "severity": "HIGH",
+                    "message": f"Declared VAT {tx.total_vat} differs from calculated VAT {calculated_vat:.2f}",
+                }
+            )
 
         # 2. Negative transaction check
         if tx.total_gross < 0 and not tx.metadata.get("is_credit_note"):
-            anomalies.append({
-                "type": FiscalAnomalyType.NEGATIVE_TOTAL_WITHOUT_CREDIT_FLAG,
-                "severity": "CRITICAL",
-                "message": f"Negative gross total {tx.total_gross} submitted without valid credit note metadata",
-            })
+            anomalies.append(
+                {
+                    "type": FiscalAnomalyType.NEGATIVE_TOTAL_WITHOUT_CREDIT_FLAG,
+                    "severity": "CRITICAL",
+                    "message": f"Negative gross total {tx.total_gross} submitted without valid credit note metadata",
+                }
+            )
 
         # 3. Future-dated or excessively stale offline replay timestamp
         now = dt.datetime.now(dt.timezone.utc)
@@ -292,17 +295,21 @@ class FiscalTransactionAnomalyDetector:
         diff_hours = (now - tx_time).total_seconds() / 3600.0
 
         if diff_hours < -0.2:  # More than 12 minutes in the future
-            anomalies.append({
-                "type": FiscalAnomalyType.STALE_OFFLINE_TIMESTAMP,
-                "severity": "CRITICAL",
-                "message": f"Transaction timestamp {tx.timestamp} is in the future",
-            })
+            anomalies.append(
+                {
+                    "type": FiscalAnomalyType.STALE_OFFLINE_TIMESTAMP,
+                    "severity": "CRITICAL",
+                    "message": f"Transaction timestamp {tx.timestamp} is in the future",
+                }
+            )
         elif diff_hours > self.max_offline_skew_hours and tx.offline_retry_count == 0:
-            anomalies.append({
-                "type": FiscalAnomalyType.STALE_OFFLINE_TIMESTAMP,
-                "severity": "MEDIUM",
-                "message": f"Transaction timestamp is {diff_hours:.1f} hours old without offline flag",
-            })
+            anomalies.append(
+                {
+                    "type": FiscalAnomalyType.STALE_OFFLINE_TIMESTAMP,
+                    "severity": "MEDIUM",
+                    "message": f"Transaction timestamp is {diff_hours:.1f} hours old without offline flag",
+                }
+            )
 
         is_clean = len([a for a in anomalies if a["severity"] in ("HIGH", "CRITICAL")]) == 0
         return is_clean, anomalies

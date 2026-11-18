@@ -121,20 +121,31 @@ def test_dbt_traveler_engagement_mart():
     quantizer = PrivacyPreservingLocationQuantizer(salt="salt_test", precision_decimals=2)
     ev1 = quantizer.process(
         TravelTelemetryEvent(
-            "e1", "u1", "d1", TravelEventType.STEP_RECORDED, 1000, 52.37, 4.89,
-            {"step_count": 100, "trip_id": "trip_alps"}
+            "e1",
+            "u1",
+            "d1",
+            TravelEventType.STEP_RECORDED,
+            1000,
+            52.37,
+            4.89,
+            {"step_count": 100, "trip_id": "trip_alps"},
         )
     )
     ev2 = quantizer.process(
         TravelTelemetryEvent(
-            "e2", "u1", "d1", TravelEventType.PHOTO_ATTACHED, 5000, 52.38, 4.90,
-            {"photo_count": 3, "trip_id": "trip_alps"}
+            "e2",
+            "u1",
+            "d1",
+            TravelEventType.PHOTO_ATTACHED,
+            5000,
+            52.38,
+            4.90,
+            {"photo_count": 3, "trip_id": "trip_alps"},
         )
     )
     ev3 = quantizer.process(
         TravelTelemetryEvent(
-            "e3", "u1", "d1", TravelEventType.TRIP_PUBLISHED, 9000, 52.39, 4.91,
-            {"trip_id": "trip_alps"}
+            "e3", "u1", "d1", TravelEventType.TRIP_PUBLISHED, 9000, 52.39, 4.91, {"trip_id": "trip_alps"}
         )
     )
 
@@ -205,20 +216,30 @@ def test_polarsteps_orchestrator_end_to_end():
     orchestrator = PolarstepsTravelDataPlatformOrchestrator(salt="e2e_salt")
     batch = [
         TravelTelemetryEvent(
-            "ev1", "user_a", "d1", TravelEventType.STEP_RECORDED, 1000, 52.37, 4.89,
-            {"step_count": 50, "trip_id": "t1"}
+            "ev1", "user_a", "d1", TravelEventType.STEP_RECORDED, 1000, 52.37, 4.89, {"step_count": 50, "trip_id": "t1"}
         ),
         TravelTelemetryEvent(
-            "ev1_dup", "user_a", "d1", TravelEventType.STEP_RECORDED, 1000, 52.37, 4.89,
-            {"step_count": 50, "trip_id": "t1"}
+            "ev1_dup",
+            "user_a",
+            "d1",
+            TravelEventType.STEP_RECORDED,
+            1000,
+            52.37,
+            4.89,
+            {"step_count": 50, "trip_id": "t1"},
         ),
         TravelTelemetryEvent(
-            "ev2", "user_a", "d1", TravelEventType.TRAVEL_BOOK_PREVIEWED, 2000, 52.38, 4.90,
-            {"trip_id": "t1"}
+            "ev2", "user_a", "d1", TravelEventType.TRAVEL_BOOK_PREVIEWED, 2000, 52.38, 4.90, {"trip_id": "t1"}
         ),
         TravelTelemetryEvent(
-            "ev3", "user_a", "d1", TravelEventType.TRAVEL_BOOK_ORDERED, 3000, 52.39, 4.91,
-            {"gross_amount": 55.0, "trip_id": "t1"}
+            "ev3",
+            "user_a",
+            "d1",
+            TravelEventType.TRAVEL_BOOK_ORDERED,
+            3000,
+            52.39,
+            4.91,
+            {"gross_amount": 55.0, "trip_id": "t1"},
         ),
     ]
     res = orchestrator.process_incoming_batch(batch)

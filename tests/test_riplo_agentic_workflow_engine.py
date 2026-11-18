@@ -98,9 +98,7 @@ def test_dag_execution_and_token_budget() -> None:
     )
     dag.provenance_graph.register_chunk(chunk)
 
-    step1 = WorkflowStep(
-        step_id="s1", name="Financial Review", task_description="Inspect liquidity"
-    )
+    step1 = WorkflowStep(step_id="s1", name="Financial Review", task_description="Inspect liquidity")
     dag.add_step(step1)
 
     def mock_exec(step: WorkflowStep):

@@ -82,7 +82,7 @@ class PrivacyPreservingLocationQuantizer:
         return hmac.new(self.salt, raw_id.encode("utf-8"), hashlib.sha256).hexdigest()[:16]
 
     def quantize_coordinate(self, coord: float) -> float:
-        factor = 10 ** self.precision_decimals
+        factor = 10**self.precision_decimals
         return round(math.floor(coord * factor) / factor, self.precision_decimals)
 
     def process(self, event: TravelTelemetryEvent) -> QuantizedTravelEvent:
@@ -90,8 +90,7 @@ class PrivacyPreservingLocationQuantizer:
         q_lon = self.quantize_coordinate(event.longitude)
         pseudo_id = self.pseudonymize_id(event.traveler_id)
         sanitized_props = {
-            k: v for k, v in event.metadata.items()
-            if k not in ("exact_address", "ip_address", "imei", "home_street")
+            k: v for k, v in event.metadata.items() if k not in ("exact_address", "ip_address", "imei", "home_street")
         }
         return QuantizedTravelEvent(
             event_id=event.event_id,
@@ -183,9 +182,7 @@ class DbtAnalyticsMartSynthesizer:
             else:
                 val = metadata[key]
                 if not isinstance(val, expected_types):
-                    issues.append(
-                        f"Field '{key}' expected type {expected_types}, got {type(val).__name__}"
-                    )
+                    issues.append(f"Field '{key}' expected type {expected_types}, got {type(val).__name__}")
 
         if any("Missing required" in i for i in issues):
             return SchemaDriftSeverity.BREAKING_MISSING_REQUIRED, issues
@@ -231,14 +228,16 @@ class DbtAnalyticsMartSynthesizer:
         marts: List[Dict[str, Any]] = []
         for row in traveler_trips.values():
             duration_hours = (row["last_event_ms"] - row["first_event_ms"]) / (1000 * 3600)
-            marts.append({
-                "pseudonymized_traveler_id": row["pseudonymized_traveler_id"],
-                "trip_id": row["trip_id"],
-                "total_steps": row["total_steps_logged"],
-                "total_photos": row["total_photos_attached"],
-                "duration_hours": round(duration_hours, 2),
-                "is_published": row["is_published"],
-            })
+            marts.append(
+                {
+                    "pseudonymized_traveler_id": row["pseudonymized_traveler_id"],
+                    "trip_id": row["trip_id"],
+                    "total_steps": row["total_steps_logged"],
+                    "total_photos": row["total_photos_attached"],
+                    "duration_hours": round(duration_hours, 2),
+                    "is_published": row["is_published"],
+                }
+            )
         return marts
 
     def build_book_conversion_funnel_mart(self) -> Dict[str, Any]:
@@ -273,8 +272,15 @@ class LLMAnalyticalQueryGuardrail:
     """
 
     PROHIBITED_TERMS = (
-        "exact_lat", "exact_lon", "home_address", "ip_address", "mac_address",
-        "ssn", "passport_number", "full_name", "phone_number"
+        "exact_lat",
+        "exact_lon",
+        "home_address",
+        "ip_address",
+        "mac_address",
+        "ssn",
+        "passport_number",
+        "full_name",
+        "phone_number",
     )
 
     @classmethod

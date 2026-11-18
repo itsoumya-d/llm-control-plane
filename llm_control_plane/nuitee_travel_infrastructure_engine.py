@@ -267,11 +267,13 @@ class IdempotentBookingSettlementWorker:
             record.failure_reason = f"circuit_open_for_supplier_{req.supplier_id}"
             record.updated_at = time.time()
             record.audit_trail.append(f"failed_due_to_open_circuit_{req.supplier_id}")
-            self._dead_letter_queue.append({
-                "booking_id": req.booking_id,
-                "reason": record.failure_reason,
-                "timestamp": time.time(),
-            })
+            self._dead_letter_queue.append(
+                {
+                    "booking_id": req.booking_id,
+                    "reason": record.failure_reason,
+                    "timestamp": time.time(),
+                }
+            )
             return record
 
         if simulate_supplier_failure:
@@ -279,11 +281,13 @@ class IdempotentBookingSettlementWorker:
             record.failure_reason = "upstream_supplier_rejected_booking"
             record.updated_at = time.time()
             record.audit_trail.append("supplier_rejection_logged")
-            self._dead_letter_queue.append({
-                "booking_id": req.booking_id,
-                "reason": record.failure_reason,
-                "timestamp": time.time(),
-            })
+            self._dead_letter_queue.append(
+                {
+                    "booking_id": req.booking_id,
+                    "reason": record.failure_reason,
+                    "timestamp": time.time(),
+                }
+            )
             return record
 
         # Transition to HELD then CONFIRMED
@@ -294,14 +298,16 @@ class IdempotentBookingSettlementWorker:
         record.audit_trail.append(f"confirmed_with_{record.supplier_confirmation_code}")
 
         # Emit partner webhook event
-        self._webhook_events.append({
-            "event": "booking.confirmed",
-            "partner_id": req.partner_id,
-            "booking_id": req.booking_id,
-            "vertical": req.vertical.value,
-            "confirmation_code": record.supplier_confirmation_code,
-            "timestamp": time.time(),
-        })
+        self._webhook_events.append(
+            {
+                "event": "booking.confirmed",
+                "partner_id": req.partner_id,
+                "booking_id": req.booking_id,
+                "vertical": req.vertical.value,
+                "confirmation_code": record.supplier_confirmation_code,
+                "timestamp": time.time(),
+            }
+        )
 
         return record
 

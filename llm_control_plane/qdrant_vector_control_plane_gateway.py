@@ -17,6 +17,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 class OAuth2TokenScope(str, Enum):
     """Granular permission scopes for Qdrant Cloud and MCP agent access."""
+
     READ_COLLECTION = "qdrant:collection:read"
     WRITE_VECTORS = "qdrant:vectors:write"
     ADMIN_CLUSTER = "qdrant:cluster:admin"
@@ -26,6 +27,7 @@ class OAuth2TokenScope(str, Enum):
 @dataclass
 class TokenClaims:
     """Decoded and validated OAuth2 token claims for humans and AI agents."""
+
     token_id: str
     tenant_id: str
     principal_id: str
@@ -58,7 +60,7 @@ class ScopedOAuth2TokenIntrospector:
         scopes: Set[OAuth2TokenScope],
         allowed_collections: Set[str],
         ttl_seconds: float = 3600.0,
-        is_agent: bool = True
+        is_agent: bool = True,
     ) -> str:
         now = time.time()
         expires_at = now + ttl_seconds
@@ -75,7 +77,7 @@ class ScopedOAuth2TokenIntrospector:
             is_agent=is_agent,
             scopes=scopes,
             allowed_collections=allowed_collections,
-            expires_at=expires_at
+            expires_at=expires_at,
         )
         self._cache[token] = (claims, now + self._cache_ttl)
         return token
@@ -112,7 +114,7 @@ class ScopedOAuth2TokenIntrospector:
             is_agent=(is_agent_str == "True"),
             scopes=scopes,
             allowed_collections=colls,
-            expires_at=expires_at
+            expires_at=expires_at,
         )
         self._cache[token] = (claims, now + self._cache_ttl)
         return claims
@@ -152,9 +154,7 @@ class QdrantMCPAgentBridge:
     """Model Context Protocol (MCP) tool gateway bridging AI agents to Qdrant Cloud."""
 
     def __init__(
-        self,
-        introspector: ScopedOAuth2TokenIntrospector,
-        rate_limiter: Optional[TokenBucketRateLimiter] = None
+        self, introspector: ScopedOAuth2TokenIntrospector, rate_limiter: Optional[TokenBucketRateLimiter] = None
     ):
         self.introspector = introspector
         self.rate_limiter = rate_limiter or TokenBucketRateLimiter()
@@ -197,7 +197,7 @@ class QdrantMCPAgentBridge:
                     endpoint=f"mcp/{tool_name}",
                     duration_ms=duration_ms,
                     status="SUCCESS",
-                    metadata={"principal": claims.principal_id, "collection": collection}
+                    metadata={"principal": claims.principal_id, "collection": collection},
                 )
             )
             return {"success": True, "result": res}
@@ -210,7 +210,7 @@ class QdrantMCPAgentBridge:
                     endpoint=f"mcp/{tool_name}",
                     duration_ms=duration_ms,
                     status="ERROR",
-                    metadata={"error": str(e)}
+                    metadata={"error": str(e)},
                 )
             )
             return {"success": False, "error": str(e), "code": "INTERNAL_ERROR"}
@@ -242,12 +242,14 @@ class QdrantVectorControlPlaneGateway:
 
         spec.status = "ACTIVE"
         self._clusters[spec.cluster_id] = spec
-        self._reconciliation_log.append({
-            "action": "provision",
-            "cluster_id": spec.cluster_id,
-            "tenant_id": spec.tenant_id,
-            "timestamp": time.time()
-        })
+        self._reconciliation_log.append(
+            {
+                "action": "provision",
+                "cluster_id": spec.cluster_id,
+                "tenant_id": spec.tenant_id,
+                "timestamp": time.time(),
+            }
+        )
         return {"success": True, "cluster": spec}
 
     def get_cluster(self, token: str, cluster_id: str) -> Optional[VectorClusterSpec]:
@@ -275,11 +277,7 @@ class VectorClusterObservabilityCollector:
 
     def __init__(self):
         self._latencies: List[float] = []
-        self._metrics: Dict[str, Any] = {
-            "total_vectors": 0,
-            "active_segments": 0,
-            "memory_bytes": 0
-        }
+        self._metrics: Dict[str, Any] = {"total_vectors": 0, "active_segments": 0, "memory_bytes": 0}
 
     def record_query_latency(self, duration_ms: float):
         self._latencies.append(duration_ms)

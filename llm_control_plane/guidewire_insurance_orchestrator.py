@@ -168,9 +168,7 @@ class EventDrivenKafkaBridge:
         self.dead_letter_queue: List[Dict[str, Any]] = []
         self.processed_idempotency_keys: set[str] = set()
 
-    def publish_event(
-        self, topic: str, partition_key: str, payload: Dict[str, Any], idempotency_key: str
-    ) -> bool:
+    def publish_event(self, topic: str, partition_key: str, payload: Dict[str, Any], idempotency_key: str) -> bool:
         if idempotency_key in self.processed_idempotency_keys:
             # Deduplicated event
             return True
@@ -238,9 +236,7 @@ class ClaimsSagaCoordinator:
         if policy.available_coverage_cents() < claim.claimed_amount_cents:
             claim.status = ClaimStatus.REJECTED
             avail = policy.available_coverage_cents()
-            claim.audit_trail.append(
-                f"T1_FAIL: Claim {claim.claimed_amount_cents} exceeds available coverage {avail}"
-            )
+            claim.audit_trail.append(f"T1_FAIL: Claim {claim.claimed_amount_cents} exceeds available coverage {avail}")
             return False, "Claim amount exceeds available policy coverage limit"
 
         executed_steps.append("STEP_1_POLICY_VALIDATED")

@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 class HygienistSpecialty(str, Enum):
     """Clinical specialties and certifications for dental hygienists."""
+
     GENERAL_HYGIENE = "general_hygiene"
     PERIODONTAL = "periodontal"
     PEDIATRIC = "pediatric"
@@ -26,6 +27,7 @@ class HygienistSpecialty(str, Enum):
 
 class ShiftBookingStatus(str, Enum):
     """Lifecycle states of a marketplace dental shift."""
+
     REQUESTED = "REQUESTED"
     MATCHING = "MATCHING"
     OFFERED = "OFFERED"
@@ -37,6 +39,7 @@ class ShiftBookingStatus(str, Enum):
 
 class DentalClaimStatus(str, Enum):
     """Lifecycle states of an insurance RCM claim."""
+
     DRAFT = "DRAFT"
     VALIDATED = "VALIDATED"
     SUBMITTED = "SUBMITTED"
@@ -49,6 +52,7 @@ class DentalClaimStatus(str, Enum):
 @dataclass(frozen=True)
 class CDTProcedure:
     """Current Dental Terminology (CDT) procedure code definition."""
+
     code: str
     category: str
     description: str
@@ -84,6 +88,7 @@ CDT_CATALOG: Dict[str, CDTProcedure] = {
 @dataclass
 class DentalHygienist:
     """Registered dental hygienist profile in the Teero staffing marketplace."""
+
     hygienist_id: str
     name: str
     license_state: str
@@ -106,6 +111,7 @@ class DentalHygienist:
 @dataclass
 class DentalShiftRequest:
     """Staffing shift requisition from a dental practice."""
+
     shift_id: str
     practice_id: str
     practice_name: str
@@ -122,6 +128,7 @@ class DentalShiftRequest:
 @dataclass
 class DentalClaimItem:
     """Individual procedural line item on a dental claim."""
+
     cdt_code: str
     fee_usd: float
     tooth_number: Optional[int] = None
@@ -131,6 +138,7 @@ class DentalClaimItem:
 @dataclass
 class DentalInsuranceClaim:
     """Dental revenue cycle management claim for adjudication."""
+
     claim_id: str
     practice_id: str
     patient_id: str
@@ -176,9 +184,7 @@ class TeeroShiftMatchingEngine:
             if h.hourly_rate_usd > shift.max_hourly_rate_usd:
                 continue
 
-            dist = self.haversine_distance_km(
-                shift.practice_lat, shift.practice_lon, h.latitude, h.longitude
-            )
+            dist = self.haversine_distance_km(shift.practice_lat, shift.practice_lon, h.latitude, h.longitude)
             if dist > h.travel_radius_km:
                 continue
 
@@ -188,9 +194,7 @@ class TeeroShiftMatchingEngine:
             rate_score = (1.0 - (h.hourly_rate_usd / max(1.0, shift.max_hourly_rate_usd))) * 100.0
             rating_score = (h.rating / 5.0) * 100.0
 
-            total_score = round(
-                (rating_score * 0.40) + (rate_score * 0.30) + (proximity_score * 0.30), 2
-            )
+            total_score = round((rating_score * 0.40) + (rate_score * 0.30) + (proximity_score * 0.30), 2)
             scored.append((h, total_score))
 
         scored.sort(key=lambda x: x[1], reverse=True)
@@ -216,15 +220,11 @@ class TeeroRcmClaimAuditor:
 
             if code_def.requires_tooth_number:
                 if item.tooth_number is None or not (1 <= item.tooth_number <= 32):
-                    errors.append(
-                        f"Line {idx + 1} ({item.cdt_code}): Missing or invalid tooth number (must be 1-32)."
-                    )
+                    errors.append(f"Line {idx + 1} ({item.cdt_code}): Missing or invalid tooth number (must be 1-32).")
 
             if code_def.requires_quadrant:
                 if not item.quadrant or item.quadrant.upper() not in {"UR", "UL", "LL", "LR"}:
-                    errors.append(
-                        f"Line {idx + 1} ({item.cdt_code}): Missing or invalid quadrant (UR, UL, LL, LR)."
-                    )
+                    errors.append(f"Line {idx + 1} ({item.cdt_code}): Missing or invalid quadrant (UR, UL, LL, LR).")
 
             if item.fee_usd <= 0:
                 errors.append(f"Line {idx + 1} ({item.cdt_code}): Fee must be greater than zero.")
@@ -260,9 +260,7 @@ class TeeroRcmClaimAuditor:
         claim.allowed_amount_usd = round(allowed, 2)
         after_deductible = max(0.0, claim.allowed_amount_usd - annual_deductible_usd)
         claim.paid_amount_usd = round(after_deductible * coverage_rate, 2)
-        claim.patient_responsibility_usd = round(
-            claim.total_billed_usd - claim.paid_amount_usd, 2
-        )
+        claim.patient_responsibility_usd = round(claim.total_billed_usd - claim.paid_amount_usd, 2)
         claim.status = DentalClaimStatus.ADJUDICATED
         claim.adjudication_notes.append(
             f"Adjudicated successfully: Billed ${claim.total_billed_usd:.2f}, "
@@ -282,13 +280,15 @@ class TeeroTemporalWorkflowEngine:
         self.activity_log: List[Dict[str, Any]] = []
 
     def log_activity(self, workflow_id: str, activity_name: str, status: str, payload: Dict[str, Any]) -> None:
-        self.activity_log.append({
-            "timestamp": time.time(),
-            "workflow_id": workflow_id,
-            "activity": activity_name,
-            "status": status,
-            "payload": payload,
-        })
+        self.activity_log.append(
+            {
+                "timestamp": time.time(),
+                "workflow_id": workflow_id,
+                "activity": activity_name,
+                "status": status,
+                "payload": payload,
+            }
+        )
 
     def run_shift_matching_workflow(
         self,

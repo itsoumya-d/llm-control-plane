@@ -21,7 +21,7 @@ def test_adversarial_normalizer_zero_width_and_homoglyphs() -> None:
 
     # Text containing zero-width spaces (\u200B), Cyrillic 'а' (\u0430), and leetspeak '@'
     # "P[zw]а[zw]yp[zw]@l" -> "paypal"
-    adversarial_text = "P\u200B\u0430\u200Cyp\u200D@l Security Alert: Verify now at https://bit.ly/secure-login"
+    adversarial_text = "P\u200b\u0430\u200cyp\u200d@l Security Alert: Verify now at https://bit.ly/secure-login"
     result = normalizer.normalize(adversarial_text)
 
     assert "paypal" in result.normalized_text
@@ -62,7 +62,7 @@ def test_ait_traffic_watchdog_entropy_detection() -> None:
     # Legitimate entity with diverse recipients
     legit_entity = "entity_legit_corp"
     for i in range(15):
-        recipient = f"+3538{i:02d}999{i*7:03d}"
+        recipient = f"+3538{i:02d}999{i * 7:03d}"
         is_ait, _, _ = watchdog.evaluate_ait(
             entity_id=legit_entity,
             recipient=recipient,
@@ -76,7 +76,7 @@ def test_inline_decision_engine_brand_impersonation() -> None:
     engine = TelnyxFraudDecisionEngine()
 
     # Message claiming to be Revolut from suspicious alphanumeric sender 'VerifyNow'
-    msg = "R\u0435v\u043Elut Alert: Unauthorized transaction detected. Log in to cancel: http://revolut-cancel.cc"
+    msg = "R\u0435v\u043elut Alert: Unauthorized transaction detected. Log in to cancel: http://revolut-cancel.cc"
     decision = engine.evaluate_message(
         message=msg,
         sender_id="VerifyNow",
@@ -135,6 +135,7 @@ def test_inline_decision_engine_legitimate_otp() -> None:
 
 def test_fail_open_and_fail_closed_resilience() -> None:
     """Verify graceful degradation under simulated pipeline errors."""
+
     def broken_judge(text: str, sender: str) -> LLMJudgeVerdict:
         raise TimeoutError("Downstream inference service timed out")
 

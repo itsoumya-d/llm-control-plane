@@ -37,6 +37,7 @@ class MetricAggregation(str, enum.Enum):
 @dataclass
 class OTelSpan:
     """OpenTelemetry GenAI span following OTel semantic conventions."""
+
     trace_id: str
     span_id: str
     parent_span_id: Optional[str]
@@ -88,8 +89,18 @@ class ClickHouseQuerySanitizer:
     """AST / Lexical inspector for ClickHouse analytics queries."""
 
     FORBIDDEN_KEYWORDS: Set[str] = {
-        "DROP", "ALTER", "TRUNCATE", "INSERT", "DELETE",
-        "REPLACE", "CREATE", "KILL", "ATTACH", "DETACH", "OPTIMIZE", "SYSTEM"
+        "DROP",
+        "ALTER",
+        "TRUNCATE",
+        "INSERT",
+        "DELETE",
+        "REPLACE",
+        "CREATE",
+        "KILL",
+        "ATTACH",
+        "DETACH",
+        "OPTIMIZE",
+        "SYSTEM",
     }
 
     @classmethod
@@ -320,24 +331,47 @@ class NozSessionCoordinator:
             overflow = len(self.messages) - self.max_history_turns
             condensed = f"[System Context: Archived {overflow} earlier turns for session {self.session_id}]"
             now_iso = dt.datetime.now(dt.timezone.utc).isoformat()
-            self.messages = [
-                NozMessage(role="system", content=condensed, timestamp=now_iso)
-            ] + self.messages[overflow:]
+            self.messages = [NozMessage(role="system", content=condensed, timestamp=now_iso)] + self.messages[overflow:]
 
     async def stream_response(self, prompt: str) -> AsyncIterator[str]:
         """Stream response tokens formatted as Server-Sent Events (SSE)."""
         self.add_user_message(prompt)
 
         synthetic_tokens = [
-            "Analyzing ", "telemetry ", "waterfall ", "for ", "SigNoz ", "services... \n",
-            "Detected ", "elevated ", "P99 ", "latency ", "on ", "api-gateway ", "(142.5ms). \n",
-            "Root-cause: ", "Upstream ", "OpenAI ", "model ", "inference ", "delay. \n",
-            "Mitigation: ", "Enable ", "semantic ", "cache ", "and ", "fall ", "back ", "to ", "local ", "INT8.",
+            "Analyzing ",
+            "telemetry ",
+            "waterfall ",
+            "for ",
+            "SigNoz ",
+            "services... \n",
+            "Detected ",
+            "elevated ",
+            "P99 ",
+            "latency ",
+            "on ",
+            "api-gateway ",
+            "(142.5ms). \n",
+            "Root-cause: ",
+            "Upstream ",
+            "OpenAI ",
+            "model ",
+            "inference ",
+            "delay. \n",
+            "Mitigation: ",
+            "Enable ",
+            "semantic ",
+            "cache ",
+            "and ",
+            "fall ",
+            "back ",
+            "to ",
+            "local ",
+            "INT8.",
         ]
 
         for token in synthetic_tokens:
             if self._is_cancelled:
-                yield "event: cancelled\ndata: {\"reason\": \"User aborted session\"}\n\n"
+                yield 'event: cancelled\ndata: {"reason": "User aborted session"}\n\n'
                 return
             await asyncio.sleep(0.01)
             chunk = {

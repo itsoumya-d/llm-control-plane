@@ -127,9 +127,7 @@ class PrewaveSupplyChainOrchestrator:
         self._adjacency[edge.parent_id].append(edge)
         self._reverse_adjacency[edge.child_id].append(edge)
 
-    def traverse_tier_n_dependencies(
-        self, root_supplier_id: str, max_depth: int = 5
-    ) -> Dict[str, Any]:
+    def traverse_tier_n_dependencies(self, root_supplier_id: str, max_depth: int = 5) -> Dict[str, Any]:
         """Perform breadth-first traversal down the tier-N supplier tree."""
         if root_supplier_id not in self._suppliers:
             raise KeyError(f"Supplier {root_supplier_id} not registered")
@@ -303,25 +301,29 @@ ORDER BY tree.tier_depth ASC, tree.lead_time_days DESC;
             node = self._suppliers[s_id]
             risk = self.compute_compound_risk_score(s_id)
             status = "HEALTHY" if risk < 30.0 else "ELEVATED" if risk < 70.0 else "CRITICAL"
-            nodes.append({
-                "id": node.supplier_id,
-                "label": node.legal_name,
-                "tier": node.tier_level,
-                "country": node.country,
-                "riskScore": risk,
-                "status": status,
-            })
+            nodes.append(
+                {
+                    "id": node.supplier_id,
+                    "label": node.legal_name,
+                    "tier": node.tier_level,
+                    "country": node.country,
+                    "riskScore": risk,
+                    "status": status,
+                }
+            )
 
         edges: List[Dict[str, Any]] = []
         for dep in traversal["dependencies"]:
-            edges.append({
-                "source": dep["from_supplier_id"],
-                "target": dep["to_supplier_id"],
-                "component": dep["component"],
-                "leadTimeDays": dep["lead_time_days"],
-                "singleSource": dep["single_source"],
-                "depth": dep["depth"],
-            })
+            edges.append(
+                {
+                    "source": dep["from_supplier_id"],
+                    "target": dep["to_supplier_id"],
+                    "component": dep["component"],
+                    "leadTimeDays": dep["lead_time_days"],
+                    "singleSource": dep["single_source"],
+                    "depth": dep["depth"],
+                }
+            )
 
         return {
             "tenant": self.company_tenant,

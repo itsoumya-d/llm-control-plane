@@ -1,6 +1,5 @@
 """Tests for Nuitée Travel Infrastructure Engine & Asynchronous Settlement Primitives."""
 
-
 from llm_control_plane.nuitee_travel_infrastructure_engine import (
     BookingRequest,
     BookingStatus,

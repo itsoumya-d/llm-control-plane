@@ -46,6 +46,7 @@ class DORAClassification(str, enum.Enum):
 @dataclass
 class ElasticDetectionRule:
     """Detection rule definition supporting both ES|QL and KQL."""
+
     rule_id: str
     name: str
     query: str
@@ -81,6 +82,7 @@ class ElasticDetectionRule:
 @dataclass
 class SecurityAlert:
     """Security alert emitted by detection engine."""
+
     alert_id: str
     rule_id: str
     rule_name: str
@@ -203,25 +205,31 @@ class CloudThreatHunter:
             if user_identity.get("type") == "Root":
                 mfa_used = ev.get("additionalEventData", {}).get("MFAUsed") == "Yes"
                 if not mfa_used:
-                    findings.append({
-                        "hunt": "AWS Root Account Activity Without MFA",
-                        "severity": SeverityLevel.CRITICAL,
-                        "technique": "T1078.004",
-                        "event": ev,
-                        "details": "Root account session executed API calls without multi-factor authentication."
-                    })
+                    findings.append(
+                        {
+                            "hunt": "AWS Root Account Activity Without MFA",
+                            "severity": SeverityLevel.CRITICAL,
+                            "technique": "T1078.004",
+                            "event": ev,
+                            "details": "Root account session executed API calls without multi-factor authentication.",
+                        }
+                    )
 
             # Check suspicious policy attachment
             if event_name in ("AttachUserPolicy", "AttachRolePolicy", "PutUserPolicy"):
                 policy_arn = ev.get("requestParameters", {}).get("policyArn", "")
                 if "AdministratorAccess" in policy_arn:
-                    findings.append({
-                        "hunt": "Unauthorized AdministratorAccess Grant",
-                        "severity": SeverityLevel.HIGH,
-                        "technique": "T1098",
-                        "event": ev,
-                        "details": f"AdministratorAccess attached to {ev.get('requestParameters', {}).get('userName')}"
-                    })
+                    findings.append(
+                        {
+                            "hunt": "Unauthorized AdministratorAccess Grant",
+                            "severity": SeverityLevel.HIGH,
+                            "technique": "T1098",
+                            "event": ev,
+                            "details": (
+                                f"AdministratorAccess attached to {ev.get('requestParameters', {}).get('userName')}"
+                            ),
+                        }
+                    )
 
         return findings
 
@@ -237,15 +245,17 @@ class CloudThreatHunter:
 
         for user, count in decrypt_counts_by_user.items():
             if count >= threshold:
-                findings.append({
-                    "hunt": "KMS Bulk Decryption Anomalous Spike",
-                    "severity": SeverityLevel.CRITICAL,
-                    "technique": "T1552.004",
-                    "user_arn": user,
-                    "decrypt_count": count,
-                    "threshold": threshold,
-                    "details": f"User {user} invoked KMS:Decrypt {count} times within observation window."
-                })
+                findings.append(
+                    {
+                        "hunt": "KMS Bulk Decryption Anomalous Spike",
+                        "severity": SeverityLevel.CRITICAL,
+                        "technique": "T1552.004",
+                        "user_arn": user,
+                        "decrypt_count": count,
+                        "threshold": threshold,
+                        "details": f"User {user} invoked KMS:Decrypt {count} times within observation window.",
+                    }
+                )
 
         return findings
 
@@ -253,6 +263,7 @@ class CloudThreatHunter:
 @dataclass
 class IncidentRecord:
     """Incident response record tracked by SOAR manager."""
+
     incident_id: str
     title: str
     severity: SeverityLevel
@@ -351,12 +362,14 @@ class SecurityPostureHardeningAuditor:
             if bucket.get("public_access_block") is True:
                 checks_passed += 1
             else:
-                findings.append({
-                    "resource": bucket.get("name"),
-                    "control": "ISO 27001 A.8.24",
-                    "issue": "S3 bucket public access is not explicitly blocked.",
-                    "severity": SeverityLevel.HIGH
-                })
+                findings.append(
+                    {
+                        "resource": bucket.get("name"),
+                        "control": "ISO 27001 A.8.24",
+                        "issue": "S3 bucket public access is not explicitly blocked.",
+                        "severity": SeverityLevel.HIGH,
+                    }
+                )
 
         # Check 2: KMS Key Rotation Enabled
         for key in resources.get("kms_keys", []):
@@ -364,12 +377,14 @@ class SecurityPostureHardeningAuditor:
             if key.get("rotation_enabled") is True:
                 checks_passed += 1
             else:
-                findings.append({
-                    "resource": key.get("id"),
-                    "control": "DORA ICT Security (KMS Rotation)",
-                    "issue": "KMS key automatic annual rotation is disabled.",
-                    "severity": SeverityLevel.MEDIUM
-                })
+                findings.append(
+                    {
+                        "resource": key.get("id"),
+                        "control": "DORA ICT Security (KMS Rotation)",
+                        "issue": "KMS key automatic annual rotation is disabled.",
+                        "severity": SeverityLevel.MEDIUM,
+                    }
+                )
 
         # Check 3: IAM MFA enforcement
         for user in resources.get("iam_users", []):
@@ -377,12 +392,14 @@ class SecurityPostureHardeningAuditor:
             if user.get("mfa_enabled") is True:
                 checks_passed += 1
             else:
-                findings.append({
-                    "resource": user.get("name"),
-                    "control": "ISO 27001 A.9.4.2",
-                    "issue": "IAM user has console access without MFA enforcement.",
-                    "severity": SeverityLevel.HIGH
-                })
+                findings.append(
+                    {
+                        "resource": user.get("name"),
+                        "control": "ISO 27001 A.9.4.2",
+                        "issue": "IAM user has console access without MFA enforcement.",
+                        "severity": SeverityLevel.HIGH,
+                    }
+                )
 
         score_pct = round((checks_passed / checks_run * 100.0) if checks_run > 0 else 100.0, 1)
 
@@ -391,5 +408,5 @@ class SecurityPostureHardeningAuditor:
             "checks_passed": checks_passed,
             "posture_score_pct": score_pct,
             "compliant": score_pct >= 90.0,
-            "findings": findings
+            "findings": findings,
         }

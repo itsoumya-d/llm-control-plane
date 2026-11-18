@@ -155,9 +155,7 @@ class VerveYieldOptimizationService:
         batch_results = self.score_auction_batch([request])
         return batch_results[0]
 
-    def score_auction_batch(
-        self, requests: List[AuctionBidRequest]
-    ) -> List[YieldScoringResult]:
+    def score_auction_batch(self, requests: List[AuctionBidRequest]) -> List[YieldScoringResult]:
         """Processes a batch of auction requests within latency SLA."""
         start_time = time.perf_counter()
         micro_batch_id = f"mb_{int(start_time * 1000)}_{len(requests)}"
@@ -217,9 +215,7 @@ class ShadowAuctionEvalHarness:
     def __init__(self, service: VerveYieldOptimizationService) -> None:
         self.service = service
 
-    def evaluate_historical_log(
-        self, auction_logs: List[Dict[str, Any]]
-    ) -> Dict[str, float]:
+    def evaluate_historical_log(self, auction_logs: List[Dict[str, Any]]) -> Dict[str, float]:
         """Evaluates model performance over historical auction logs.
 
         Each log entry contains:
@@ -270,9 +266,7 @@ class ShadowAuctionEvalHarness:
 
         fill_rate = fill_count / total_auctions
         revenue_lift_pct = (
-            ((candidate_revenue - historical_revenue) / historical_revenue) * 100.0
-            if historical_revenue > 0
-            else 0.0
+            ((candidate_revenue - historical_revenue) / historical_revenue) * 100.0 if historical_revenue > 0 else 0.0
         )
         sla_compliance_pct = (sla_compliant_count / total_auctions) * 100.0
 

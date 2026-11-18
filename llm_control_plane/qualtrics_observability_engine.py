@@ -149,10 +149,7 @@ class CustomerExperienceCorrelator:
     ) -> CustomerImpactSignal:
         """Calculate p99 latency, error rate, and customer impact breach."""
         now = time.time()
-        relevant = [
-            e for e in events
-            if e.service_name == service_name and (now - e.timestamp) <= window_seconds
-        ]
+        relevant = [e for e in events if e.service_name == service_name and (now - e.timestamp) <= window_seconds]
         if not relevant:
             return CustomerImpactSignal(
                 metric_name="customer_experience_index",
@@ -166,9 +163,9 @@ class CustomerExperienceCorrelator:
 
         latencies = [e.latency_ms for e in relevant if e.latency_ms is not None]
         errors = [
-            e for e in relevant
-            if (e.http_status and e.http_status >= 500)
-            or (e.log_message and "ERROR" in e.log_message)
+            e
+            for e in relevant
+            if (e.http_status and e.http_status >= 500) or (e.log_message and "ERROR" in e.log_message)
         ]
 
         # Calculate p99 latency
@@ -368,8 +365,7 @@ class EksObservabilityAutomator:
             )
         if desired_endpoints.get("path") != live_endpoints.get("path"):
             drift_issues.append(
-                f"Metrics path drift: desired {desired_endpoints.get('path')} "
-                f"vs live {live_endpoints.get('path')}"
+                f"Metrics path drift: desired {desired_endpoints.get('path')} vs live {live_endpoints.get('path')}"
             )
 
         return len(drift_issues) == 0, drift_issues

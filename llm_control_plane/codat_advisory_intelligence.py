@@ -24,6 +24,7 @@ class ModelTier(str, enum.Enum):
 @dataclasses.dataclass(frozen=True)
 class ProvenanceRecord:
     """Audit lineage record linking an AI answer metric directly to source books."""
+
     metric_name: str
     numeric_value: float
     source_ledger_id: str
@@ -36,6 +37,7 @@ class ProvenanceRecord:
 @dataclasses.dataclass
 class WorkingCapitalSignal:
     """Anomalies and material financial changes detected in client books."""
+
     signal_id: str
     client_id: str
     signal_type: str  # e.g., 'dso_deterioration', 'customer_concentration'
@@ -48,6 +50,7 @@ class WorkingCapitalSignal:
 @dataclasses.dataclass
 class ModelCostMetrics:
     """Token economics attribution per banker query."""
+
     model_name: str
     prompt_tokens: int
     completion_tokens: int
@@ -89,7 +92,7 @@ class ModelChoiceCostRouter:
     """Routes queries to appropriate model tiers balancing reasoning vs token spend."""
 
     TIER_PRICING_PER_1K = {
-        ModelTier.FAST_EXTRACTOR: 0.00015,   # $0.15 / 1M tokens
+        ModelTier.FAST_EXTRACTOR: 0.00015,  # $0.15 / 1M tokens
         ModelTier.BALANCED_ANALYST: 0.0015,  # $1.50 / 1M tokens
         ModelTier.FRONTIER_REASONER: 0.015,  # $15.00 / 1M tokens
     }
@@ -105,8 +108,13 @@ class ModelChoiceCostRouter:
         """Classify question difficulty to minimize inference spend."""
         q_lower = query.lower()
         complex_keywords = [
-            "covenant", "default", "runway forecast", "restructure",
-            "sensitivity analysis", "stress test", "cross-collateral"
+            "covenant",
+            "default",
+            "runway forecast",
+            "restructure",
+            "sensitivity analysis",
+            "stress test",
+            "cross-collateral",
         ]
         if require_synthesis or any(k in q_lower for k in complex_keywords):
             return ModelTier.FRONTIER_REASONER
@@ -157,33 +165,25 @@ class CodatBankingMCPServer:
                     "type": "object",
                     "properties": {
                         "client_id": {"type": "string"},
-                        "metric_names": {"type": "array", "items": {"type": "string"}}
+                        "metric_names": {"type": "array", "items": {"type": "string"}},
                     },
-                    "required": ["client_id", "metric_names"]
-                }
+                    "required": ["client_id", "metric_names"],
+                },
             },
             {
                 "name": "detect_working_capital_signals",
                 "description": "Detect emerging financial risks, DSO drift, and debtor concentration in client books.",
                 "parameters": {
                     "type": "object",
-                    "properties": {
-                        "client_id": {"type": "string"}
-                    },
-                    "required": ["client_id"]
-                }
+                    "properties": {"client_id": {"type": "string"}},
+                    "required": ["client_id"],
+                },
             },
             {
                 "name": "verify_provenance",
                 "description": "Verify every numeric claim against immutable ledger records before answering.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "claims": {"type": "array"}
-                    },
-                    "required": ["claims"]
-                }
-            }
+                "parameters": {"type": "object", "properties": {"claims": {"type": "array"}}, "required": ["claims"]},
+            },
         ]
 
     def call_tool(self, tool_name: str, arguments: Dict[str, Any], client_books: Dict[str, Any]) -> Dict[str, Any]:
@@ -206,54 +206,50 @@ class CodatBankingMCPServer:
                 noi = pl.get("net_operating_income", 0.0)
                 debt_service = pl.get("debt_service", 0.0)
                 ratio, compliant = CommercialBankingSemanticLayer.calculate_dscr(noi, debt_service)
-                metrics_out["dscr"] = {
-                    "value": ratio,
-                    "covenant_compliant": compliant,
-                    "covenant_threshold": 1.20
-                }
-                provenance.append(ProvenanceRecord(
-                    metric_name="dscr",
-                    numeric_value=ratio,
-                    source_ledger_id=pl.get("ledger_ref", "LEDG-PL-001"),
-                    source_table="profit_and_loss",
-                    transaction_date=books.get("period_end", "2026-11-01"),
-                    confidence_score=1.0,
-                    grounded=True
-                ))
+                metrics_out["dscr"] = {"value": ratio, "covenant_compliant": compliant, "covenant_threshold": 1.20}
+                provenance.append(
+                    ProvenanceRecord(
+                        metric_name="dscr",
+                        numeric_value=ratio,
+                        source_ledger_id=pl.get("ledger_ref", "LEDG-PL-001"),
+                        source_table="profit_and_loss",
+                        transaction_date=books.get("period_end", "2026-11-01"),
+                        confidence_score=1.0,
+                        grounded=True,
+                    )
+                )
             elif m_norm in ("current_ratio", "liquidity"):
                 ca = bs.get("current_assets", 0.0)
                 cl = bs.get("current_liabilities", 0.0)
                 ratio, healthy = CommercialBankingSemanticLayer.calculate_current_ratio(ca, cl)
-                metrics_out["current_ratio"] = {
-                    "value": ratio,
-                    "healthy": healthy
-                }
-                provenance.append(ProvenanceRecord(
-                    metric_name="current_ratio",
-                    numeric_value=ratio,
-                    source_ledger_id=bs.get("ledger_ref", "LEDG-BS-001"),
-                    source_table="balance_sheet",
-                    transaction_date=books.get("period_end", "2026-11-01"),
-                    confidence_score=1.0,
-                    grounded=True
-                ))
+                metrics_out["current_ratio"] = {"value": ratio, "healthy": healthy}
+                provenance.append(
+                    ProvenanceRecord(
+                        metric_name="current_ratio",
+                        numeric_value=ratio,
+                        source_ledger_id=bs.get("ledger_ref", "LEDG-BS-001"),
+                        source_table="balance_sheet",
+                        transaction_date=books.get("period_end", "2026-11-01"),
+                        confidence_score=1.0,
+                        grounded=True,
+                    )
+                )
             elif m_norm in ("dso", "days_sales_outstanding"):
                 ar = bs.get("accounts_receivable", 0.0)
                 sales = pl.get("gross_sales", 0.0)
                 dso = CommercialBankingSemanticLayer.calculate_dso(ar, sales)
-                metrics_out["dso"] = {
-                    "value": dso,
-                    "unit": "days"
-                }
-                provenance.append(ProvenanceRecord(
-                    metric_name="dso",
-                    numeric_value=dso,
-                    source_ledger_id=bs.get("ar_ledger_ref", "LEDG-AR-001"),
-                    source_table="receivables_aging",
-                    transaction_date=books.get("period_end", "2026-11-01"),
-                    confidence_score=1.0,
-                    grounded=True
-                ))
+                metrics_out["dso"] = {"value": dso, "unit": "days"}
+                provenance.append(
+                    ProvenanceRecord(
+                        metric_name="dso",
+                        numeric_value=dso,
+                        source_ledger_id=bs.get("ar_ledger_ref", "LEDG-AR-001"),
+                        source_table="receivables_aging",
+                        transaction_date=books.get("period_end", "2026-11-01"),
+                        confidence_score=1.0,
+                        grounded=True,
+                    )
+                )
             else:
                 metrics_out[m] = {"error": "Metric not found in certified semantic layer"}
 
@@ -261,7 +257,7 @@ class CodatBankingMCPServer:
             "status": "SUCCESS",
             "client_id": client_id,
             "metrics": metrics_out,
-            "provenance": [dataclasses.asdict(p) for p in provenance]
+            "provenance": [dataclasses.asdict(p) for p in provenance],
         }
 
     def _tool_detect_signals(self, args: Dict[str, Any], books: Dict[str, Any]) -> Dict[str, Any]:
@@ -277,15 +273,17 @@ class CodatBankingMCPServer:
                 f"Days Sales Outstanding drifted by +{drift:.1f} days "
                 f"(from {dso_prior:.1f} to {dso_current:.1f} days). Cash conversion slowing."
             )
-            signals.append(WorkingCapitalSignal(
-                signal_id=f"SIG-DSO-{int(time.time())}",
-                client_id=client_id,
-                signal_type="dso_deterioration",
-                severity="WARNING" if drift < 20 else "CRITICAL",
-                description=desc,
-                metric_drift=drift,
-                detected_at=time.time()
-            ))
+            signals.append(
+                WorkingCapitalSignal(
+                    signal_id=f"SIG-DSO-{int(time.time())}",
+                    client_id=client_id,
+                    signal_type="dso_deterioration",
+                    severity="WARNING" if drift < 20 else "CRITICAL",
+                    description=desc,
+                    metric_drift=drift,
+                    detected_at=time.time(),
+                )
+            )
 
         # 2. Debtor Concentration Risk
         debtors = books.get("debtors", [])
@@ -298,21 +296,23 @@ class CodatBankingMCPServer:
                         f"High credit concentration: Debtor '{d.get('name')}' "
                         f"represents {pct:.1f}% of outstanding receivables."
                     )
-                    signals.append(WorkingCapitalSignal(
-                        signal_id=f"SIG-CONC-{int(time.time())}",
-                        client_id=client_id,
-                        signal_type="debtor_concentration",
-                        severity="WARNING",
-                        description=desc,
-                        metric_drift=pct,
-                        detected_at=time.time()
-                    ))
+                    signals.append(
+                        WorkingCapitalSignal(
+                            signal_id=f"SIG-CONC-{int(time.time())}",
+                            client_id=client_id,
+                            signal_type="debtor_concentration",
+                            severity="WARNING",
+                            description=desc,
+                            metric_drift=pct,
+                            detected_at=time.time(),
+                        )
+                    )
 
         return {
             "status": "SUCCESS",
             "client_id": client_id,
             "signals_detected": len(signals),
-            "signals": [dataclasses.asdict(s) for s in signals]
+            "signals": [dataclasses.asdict(s) for s in signals],
         }
 
     def _tool_verify_provenance(self, args: Dict[str, Any], books: Dict[str, Any]) -> Dict[str, Any]:
@@ -326,19 +326,16 @@ class CodatBankingMCPServer:
             ledger_id = c.get("source_ledger_id")
             val = c.get("numeric_value")
             is_valid = (ledger_id in known_ledger_ids) and (val is not None)
-            verified_claims.append({
-                "metric_name": c.get("metric_name"),
-                "value": val,
-                "verified": is_valid,
-                "ledger_ref": ledger_id
-            })
+            verified_claims.append(
+                {"metric_name": c.get("metric_name"), "value": val, "verified": is_valid, "ledger_ref": ledger_id}
+            )
             if not is_valid:
                 all_grounded = False
 
         return {
             "status": "SUCCESS" if all_grounded else "GROUNDING_FAILED",
             "all_grounded": all_grounded,
-            "claims": verified_claims
+            "claims": verified_claims,
         }
 
 
@@ -350,10 +347,7 @@ class CodatAdvisoryIntelligenceEngine:
         self.mcp_server = CodatBankingMCPServer()
 
     def process_banker_query(
-        self,
-        banker_query: str,
-        client_books: Dict[str, Any],
-        require_provenance_audit: bool = True
+        self, banker_query: str, client_books: Dict[str, Any], require_provenance_audit: bool = True
     ) -> Dict[str, Any]:
         start_t = time.time()
         client_id = client_books.get("client_id", "ACME-CORP")
@@ -389,27 +383,23 @@ class CodatAdvisoryIntelligenceEngine:
                 "answer": refusal_text,
                 "provenance": [],
                 "signals": [],
-                "model_metrics": dataclasses.asdict(ModelCostMetrics(
-                    model_name=selected_tier.value,
-                    prompt_tokens=42,
-                    completion_tokens=28,
-                    estimated_cost_usd=self.router.estimate_cost(selected_tier, 42, 28),
-                    cached=False,
-                    latency_ms=round((time.time() - start_t) * 1000, 2)
-                ))
+                "model_metrics": dataclasses.asdict(
+                    ModelCostMetrics(
+                        model_name=selected_tier.value,
+                        prompt_tokens=42,
+                        completion_tokens=28,
+                        estimated_cost_usd=self.router.estimate_cost(selected_tier, 42, 28),
+                        cached=False,
+                        latency_ms=round((time.time() - start_t) * 1000, 2),
+                    )
+                ),
             }
 
         mcp_res = self.mcp_server.call_tool(
-            "get_client_metrics",
-            {"client_id": client_id, "metric_names": requested_metrics},
-            client_books
+            "get_client_metrics", {"client_id": client_id, "metric_names": requested_metrics}, client_books
         )
 
-        signal_res = self.mcp_server.call_tool(
-            "detect_working_capital_signals",
-            {"client_id": client_id},
-            client_books
-        )
+        signal_res = self.mcp_server.call_tool("detect_working_capital_signals", {"client_id": client_id}, client_books)
 
         # 4. Formulate Synthesized Answer
         metrics = mcp_res.get("metrics", {})
@@ -428,11 +418,7 @@ class CodatAdvisoryIntelligenceEngine:
         if "current_ratio" in metrics:
             cr_info = metrics["current_ratio"]
             cr_val = cr_info.get("value")
-            cr_status = (
-                "healthy balance sheet liquidity"
-                if cr_info.get("healthy")
-                else "compressed liquidity buffer"
-            )
+            cr_status = "healthy balance sheet liquidity" if cr_info.get("healthy") else "compressed liquidity buffer"
             answer_parts.append(f"- Current Ratio: {cr_val:.2f}x ({cr_status}).")
 
         if "dso" in metrics:
@@ -459,7 +445,7 @@ class CodatAdvisoryIntelligenceEngine:
             completion_tokens=c_tokens,
             estimated_cost_usd=cost,
             cached=False,
-            latency_ms=round((time.time() - start_t) * 1000, 2)
+            latency_ms=round((time.time() - start_t) * 1000, 2),
         )
 
         result = {
@@ -470,7 +456,7 @@ class CodatAdvisoryIntelligenceEngine:
             "metrics": metrics,
             "provenance": provenance,
             "signals": detected_signals,
-            "model_metrics": dataclasses.asdict(cost_metrics)
+            "model_metrics": dataclasses.asdict(cost_metrics),
         }
 
         self.router.store_cache(cache_key, result)
@@ -492,25 +478,22 @@ class AdvisoryEvalHarness:
         expected_metric: str,
         expected_min_val: float,
         expected_max_val: float,
-        should_refuse: bool = False
+        should_refuse: bool = False,
     ) -> None:
-        self._golden_cases.append({
-            "case_id": case_id,
-            "query": query,
-            "client_books": client_books,
-            "expected_metric": expected_metric,
-            "expected_min_val": expected_min_val,
-            "expected_max_val": expected_max_val,
-            "should_refuse": should_refuse
-        })
+        self._golden_cases.append(
+            {
+                "case_id": case_id,
+                "query": query,
+                "client_books": client_books,
+                "expected_metric": expected_metric,
+                "expected_min_val": expected_min_val,
+                "expected_max_val": expected_max_val,
+                "should_refuse": should_refuse,
+            }
+        )
 
     def ingest_banker_correction(
-        self,
-        query: str,
-        client_books: Dict[str, Any],
-        corrected_metric: str,
-        exact_value: float,
-        reason: str
+        self, query: str, client_books: Dict[str, Any], corrected_metric: str, exact_value: float, reason: str
     ) -> str:
         """Takes a commercial banker correction and compiles it into an automated regression assertion."""
         case_id = f"REG-BANKER-{int(time.time())}-{len(self._golden_cases) + 1}"
@@ -521,7 +504,7 @@ class AdvisoryEvalHarness:
             expected_metric=corrected_metric,
             expected_min_val=exact_value * 0.999,
             expected_max_val=exact_value * 1.001,
-            should_refuse=False
+            should_refuse=False,
         )
         return case_id
 
@@ -548,11 +531,7 @@ class AdvisoryEvalHarness:
             else:
                 failed += 1
 
-            details.append({
-                "case_id": case["case_id"],
-                "passed": is_pass,
-                "status": res.get("status")
-            })
+            details.append({"case_id": case["case_id"], "passed": is_pass, "status": res.get("status")})
 
         total = len(self._golden_cases)
         pass_rate = round((passed / total) * 100.0, 1) if total > 0 else 100.0
@@ -562,5 +541,5 @@ class AdvisoryEvalHarness:
             "passed": passed,
             "failed": failed,
             "pass_rate_pct": pass_rate,
-            "eval_details": details
+            "eval_details": details,
         }

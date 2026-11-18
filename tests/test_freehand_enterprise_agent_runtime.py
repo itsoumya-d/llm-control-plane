@@ -30,15 +30,11 @@ def test_wal_idempotency_key_deduplication():
     async def _run():
         wal = WriteAheadLogStateCheckpoint("sess-idemp-202")
         ev1 = await wal.append_event(
-            "execute_action",
-            {"action": "create_payment", "amount": 5000},
-            idempotency_key="idemp-key-inv-9921"
+            "execute_action", {"action": "create_payment", "amount": 5000}, idempotency_key="idemp-key-inv-9921"
         )
         # Duplicate call with identical key
         ev2 = await wal.append_event(
-            "execute_action",
-            {"action": "create_payment", "amount": 5000},
-            idempotency_key="idemp-key-inv-9921"
+            "execute_action", {"action": "create_payment", "amount": 5000}, idempotency_key="idemp-key-inv-9921"
         )
 
         assert ev1.event_id == ev2.event_id

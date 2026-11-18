@@ -134,7 +134,7 @@ def test_rcm_claim_auditor_invalid_claim():
         items=[
             DentalClaimItem(cdt_code="D2391", fee_usd=195.0),  # missing tooth number
             DentalClaimItem(cdt_code="D4341", fee_usd=285.0),  # missing quadrant
-            DentalClaimItem(cdt_code="D9999", fee_usd=50.0),   # invalid CDT code
+            DentalClaimItem(cdt_code="D9999", fee_usd=50.0),  # invalid CDT code
             DentalClaimItem(cdt_code="D1110", fee_usd=-10.0),  # negative fee
         ],
     )

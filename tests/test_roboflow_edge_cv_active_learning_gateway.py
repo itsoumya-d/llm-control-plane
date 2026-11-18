@@ -37,9 +37,7 @@ def test_active_learning_confidence_filter():
         frame_id="frame_001",
         timestamp=1000.0,
         camera_id="cam_line_1",
-        detections=[
-            Detection(label="defect_scratch", confidence=0.96, box=BoundingBox(0, 0, 10, 10))
-        ],
+        detections=[Detection(label="defect_scratch", confidence=0.96, box=BoundingBox(0, 0, 10, 10))],
         latency_ms=18.5,
     )
     selected, reasons = al_filter.evaluate_sample(high_conf)
@@ -51,9 +49,7 @@ def test_active_learning_confidence_filter():
         frame_id="frame_002",
         timestamp=1001.0,
         camera_id="cam_line_1",
-        detections=[
-            Detection(label="defect_crack", confidence=0.68, box=BoundingBox(0, 0, 10, 10))
-        ],
+        detections=[Detection(label="defect_crack", confidence=0.68, box=BoundingBox(0, 0, 10, 10))],
         latency_ms=19.2,
     )
     selected, reasons = al_filter.evaluate_sample(uncertain)
@@ -85,9 +81,7 @@ def test_active_learning_iou_conflict_filter():
 
 def test_edge_sample_ring_buffer_eviction():
     buffer = EdgeSampleRingBuffer(max_capacity=3)
-    p = EdgeFramePrediction(
-        frame_id="f1", timestamp=1.0, camera_id="c1", detections=[], latency_ms=15.0
-    )
+    p = EdgeFramePrediction(frame_id="f1", timestamp=1.0, camera_id="c1", detections=[], latency_ms=15.0)
 
     buffer.push(p, ["reason1"])
     buffer.push(p, ["reason2"])

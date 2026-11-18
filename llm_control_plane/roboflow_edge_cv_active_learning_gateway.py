@@ -149,7 +149,7 @@ class EdgeBatchSyncGateway:
 
         if mock_network_failure:
             self.consecutive_failures += 1
-            backoff_sec = min(60.0, 1.5 ** self.consecutive_failures)
+            backoff_sec = min(60.0, 1.5**self.consecutive_failures)
             return {
                 "status": "NETWORK_ERROR",
                 "synced_count": 0,

@@ -16,7 +16,7 @@ def test_tenant_onboarding_enterprise_tier():
         tenant_id="wolt-eu",
         tenant_name="Wolt Delivery Platform",
         tier=PlatformTier.ENTERPRISE_CORE,
-        allowed_standards=[ComplianceStandard.GDPR, ComplianceStandard.ECSP_REGULATION, ComplianceStandard.ISO27001]
+        allowed_standards=[ComplianceStandard.GDPR, ComplianceStandard.ECSP_REGULATION, ComplianceStandard.ISO27001],
     )
 
     assert spec.tenant_id == "wolt-eu"
@@ -32,9 +32,7 @@ def test_tenant_onboarding_enterprise_tier():
 def test_tenant_onboarding_sandbox_tier():
     orchestrator = FinmidPlatformOrchestrator()
     spec = orchestrator.onboard_tenant(
-        tenant_id="b2b-saas-demo",
-        tenant_name="Demo SaaS Integration",
-        tier=PlatformTier.DEVELOPER_SANDBOX
+        tenant_id="b2b-saas-demo", tenant_name="Demo SaaS Integration", tier=PlatformTier.DEVELOPER_SANDBOX
     )
 
     assert spec.tier == PlatformTier.DEVELOPER_SANDBOX
@@ -45,9 +43,7 @@ def test_tenant_onboarding_sandbox_tier():
 def test_ephemeral_preview_provision_and_teardown():
     reconciler = EphemeralStagingReconciler()
     preview = reconciler.provision_preview(
-        pr_number=142,
-        branch_name="feat/instant-credit-settlement",
-        author="soumya_debnath"
+        pr_number=142, branch_name="feat/instant-credit-settlement", author="soumya_debnath"
     )
 
     assert preview.pr_number == 142
@@ -69,9 +65,7 @@ def test_ephemeral_preview_provision_and_teardown():
 def test_ephemeral_preview_ttl_expiration():
     reconciler = EphemeralStagingReconciler()
     preview = reconciler.provision_preview(
-        pr_number=204,
-        branch_name="fix/vat-invoice-rounding",
-        author="platform_team"
+        pr_number=204, branch_name="fix/vat-invoice-rounding", author="platform_team"
     )
 
     # Force expiration
@@ -88,13 +82,11 @@ def test_terraform_drift_watchdog_detection_and_reconciliation():
     declared_config = {
         "cidr_block": "10.100.0.0/16",
         "enable_dns_hostnames": True,
-        "tags": {"Environment": "Production", "Owner": "Platform"}
+        "tags": {"Environment": "Production", "Owner": "Platform"},
     }
 
     state = watchdog.register_resource(
-        resource_id="vpc-finmid-prod-eu-central",
-        resource_type="aws_vpc",
-        declared_config=declared_config
+        resource_id="vpc-finmid-prod-eu-central", resource_type="aws_vpc", declared_config=declared_config
     )
 
     assert state.has_drift is False
@@ -124,7 +116,7 @@ def test_credit_gateway_sla_monitoring_healthy():
         total_requests=10000,
         p95_latency_ms=28.5,
         p99_latency_ms=64.2,
-        error_count=5
+        error_count=5,
     )
 
     assert metric.error_rate == 0.0005
@@ -139,7 +131,7 @@ def test_credit_gateway_sla_monitoring_breached_latency():
         total_requests=5000,
         p95_latency_ms=120.0,
         p99_latency_ms=185.0,  # exceeds 150ms limit
-        error_count=10
+        error_count=10,
     )
 
     assert metric.is_sla_breached is True
@@ -155,7 +147,7 @@ def test_credit_gateway_sla_monitoring_breached_error_rate():
         total_requests=1000,
         p95_latency_ms=45.0,
         p99_latency_ms=90.0,
-        error_count=25  # 2.5% error rate, exceeds 1% limit
+        error_count=25,  # 2.5% error rate, exceeds 1% limit
     )
 
     assert metric.error_rate == 0.025

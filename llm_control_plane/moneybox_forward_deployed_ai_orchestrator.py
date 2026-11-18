@@ -107,8 +107,8 @@ class UKFinancialPIISanitizer:
         if any(p in lower for p in ["ignore all previous instructions", "system prompt override", "drop table users"]):
             blocked = True
 
-        status = GuardrailStatus.BLOCKED if blocked else (
-            GuardrailStatus.REDACTED if redacted else GuardrailStatus.CLEAN
+        status = (
+            GuardrailStatus.BLOCKED if blocked else (GuardrailStatus.REDACTED if redacted else GuardrailStatus.CLEAN)
         )
         cksum = hashlib.sha256(cur.encode("utf-8")).hexdigest()[:16]
         return PIIMaskResult(
@@ -164,12 +164,14 @@ class DeterministicWealthCalculator:
             pot = (pot + monthly_contribution) * (1.0 + monthly_rate)
             total_contributed += monthly_contribution
             if m % 12 == 0:
-                milestones.append({
-                    "year": m // 12,
-                    "projected_pot": round(pot, 2),
-                    "total_contributed": round(total_contributed, 2),
-                    "investment_growth": round(pot - total_contributed, 2),
-                })
+                milestones.append(
+                    {
+                        "year": m // 12,
+                        "projected_pot": round(pot, 2),
+                        "total_contributed": round(total_contributed, 2),
+                        "investment_growth": round(pot - total_contributed, 2),
+                    }
+                )
 
         return {
             "starting_pot": starting_pot,
@@ -331,8 +333,7 @@ class ForwardDeployedAIOrchestrator:
         # Step 4: Tiered Model Routing
         tier = self.route_model(task_type)
         cost_tokens = (
-            150 if tier == ModelTier.FAST_CLASSIFICATION
-            else (400 if tier == ModelTier.STRUCTURED_EXTRACTOR else 1200)
+            150 if tier == ModelTier.FAST_CLASSIFICATION else (400 if tier == ModelTier.STRUCTURED_EXTRACTOR else 1200)
         )
 
         if self.tokens_consumed + cost_tokens > self.max_token_budget:

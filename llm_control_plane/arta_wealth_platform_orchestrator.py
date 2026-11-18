@@ -132,7 +132,7 @@ class PartnerGatewayTransformer:
 
         self._processed_idempotency_keys[idem_key] = time.time()
 
-        order_id = f"ARTA-ORD-{int(time.time()*1000)}-{hashlib.md5(idem_key.encode()).hexdigest()[:6]}"
+        order_id = f"ARTA-ORD-{int(time.time() * 1000)}-{hashlib.md5(idem_key.encode()).hexdigest()[:6]}"
         return CanonicalInvestmentOrder(
             order_id=order_id,
             partner_id=partner_id,
@@ -254,13 +254,16 @@ class AgenticAdvisorGuardrailEngine:
     }
 
     def __init__(self, allowed_tools: Optional[List[str]] = None) -> None:
-        self.allowed_tools = set(allowed_tools or [
-            "portfolio_rebalancer",
-            "risk_tolerance_evaluator",
-            "tax_harvesting_scanner",
-            "private_market_tranche_allocator",
-            "liquidity_forecaster",
-        ])
+        self.allowed_tools = set(
+            allowed_tools
+            or [
+                "portfolio_rebalancer",
+                "risk_tolerance_evaluator",
+                "tax_harvesting_scanner",
+                "private_market_tranche_allocator",
+                "liquidity_forecaster",
+            ]
+        )
 
     def validate_tool_call(self, tool_name: str, arguments: Dict[str, Any]) -> Tuple[bool, str]:
         if tool_name not in self.allowed_tools:
