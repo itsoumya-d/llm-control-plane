@@ -76,9 +76,6 @@ class AuctionFeatureDriftMonitor:
         if self._count < 10:
             return False
 
-        variance = self._m2 / (self._count - 1) if self._count > 1 else 0.0
-        online_std = math.sqrt(max(variance, 1e-4))
-
         # Normalized distance between baseline and online distribution
         z_score = abs(self._mean - self.baseline_ecpm_mean) / (
             self.baseline_ecpm_std / math.sqrt(min(self._count, 100))
