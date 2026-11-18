@@ -141,14 +141,14 @@ class MultimodalDatasetIndexer:
             "embedding": embedding,
             "labels": [
                 {
-                    "class_name": l.class_name,
-                    "confidence": l.confidence,
-                    "geometry_type": l.geometry_type,
-                    "hash": l.compute_hash(),
+                    "class_name": lbl.class_name,
+                    "confidence": lbl.confidence,
+                    "geometry_type": lbl.geometry_type,
+                    "hash": lbl.compute_hash(),
                 }
-                for l in labels
+                for lbl in labels
             ],
-            "classes": {l.class_name for l in labels},
+            "classes": {lbl.class_name for lbl in labels},
         }
         return frame_key
 
@@ -167,9 +167,9 @@ class MultimodalDatasetIndexer:
 
             if class_filter is not None:
                 matching_labels = [
-                    l
-                    for l in frame["labels"]
-                    if l["class_name"] == class_filter and l["confidence"] >= min_confidence
+                    lbl
+                    for lbl in frame["labels"]
+                    if lbl["class_name"] == class_filter and lbl["confidence"] >= min_confidence
                 ]
                 if not matching_labels:
                     continue

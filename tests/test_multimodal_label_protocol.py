@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import time
-import pytest
-
 from llm_control_plane.multimodal_label_protocol import (
     AnnotationWALReconciler,
     DynamicBackpressureTokenBucket,
