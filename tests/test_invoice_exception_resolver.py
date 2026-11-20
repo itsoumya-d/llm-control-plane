@@ -2,7 +2,10 @@
 Unit tests for Autonomous AP Invoice Exception Resolution and Reconciliation Engine.
 """
 
+from __future__ import annotations
+
 import pytest
+
 from llm_control_plane.invoice_exception_resolver import (
     ApprovalState,
     ExceptionType,
@@ -84,8 +87,6 @@ def test_clean_three_way_match(sample_po_lines):
 
 
 def test_minor_price_variance_auto_resolution(sample_po_lines):
-    # PO-102 expects 45.0 EUR. Invoice charges 45.50 EUR (+1.1% variance, within 2% tolerance)
-    # Total variance = 20 * 0.50 = 10.0 EUR, within auto-approve threshold of 50.0 EUR
     engine = InvoiceExceptionResolutionEngine(auto_approve_threshold_usd=50.0)
     invoice = InvoiceDocument(
         invoice_id="INV-2026-002",
@@ -98,7 +99,7 @@ def test_minor_price_variance_auto_resolution(sample_po_lines):
                 line_number=1,
                 description="10G Direct Attach SFP+ Cable",
                 quantity=20.0,
-                unit_price=46.0,  # 46.0 vs 45.0 (+2.2% variance > 2% tolerance, total var = €20)
+                unit_price=46.0,
                 total_amount=920.0,
                 tax_rate=0.20,
                 gl_account="GL-6100-HARDWARE",
@@ -115,7 +116,10 @@ def test_minor_price_variance_auto_resolution(sample_po_lines):
     assert len(exceptions) == 1
     assert exceptions[0].exception_type == ExceptionType.PRICE_VARIANCE
     assert exceptions[0].auto_resolvable is True
-    assert exceptions[0].recommended_action == ResolutionAction.APPLY_PRICE_TOLERANCE_ADJUSTMENT
+    assert (
+        exceptions[0].recommended_action
+        == ResolutionAction.APPLY_PRICE_TOLERANCE_ADJUSTMENT
+    )
 
     res = engine.resolve_exceptions(invoice.invoice_id, exceptions)
     assert res["final_state"] == ApprovalState.AUTO_RESOLVED.value
@@ -124,8 +128,9 @@ def test_minor_price_variance_auto_resolution(sample_po_lines):
 
 
 def test_major_price_variance_escalation(sample_po_lines):
-    # PO-101 expects 1200.0 EUR. Invoice charges 1350.0 EUR (+12.5% variance > 2% and > 5% max tolerance)
-    engine = InvoiceExceptionResolutionEngine(auto_approve_threshold_usd=50.0, max_tolerance_pct=5.0)
+    engine = InvoiceExceptionResolutionEngine(
+        auto_approve_threshold_usd=50.0, max_tolerance_pct=5.0
+    )
     invoice = InvoiceDocument(
         invoice_id="INV-2026-003",
         vendor_id="VEND-DELL",
@@ -154,7 +159,10 @@ def test_major_price_variance_escalation(sample_po_lines):
     assert len(exceptions) == 1
     assert exceptions[0].exception_type == ExceptionType.PRICE_VARIANCE
     assert exceptions[0].auto_resolvable is False
-    assert exceptions[0].recommended_action == ResolutionAction.ESCALATE_TO_PROCUREMENT
+    assert (
+        exceptions[0].recommended_action
+        == ResolutionAction.ESCALATE_TO_PROCUREMENT
+    )
 
     res = engine.resolve_exceptions(invoice.invoice_id, exceptions)
     assert res["final_state"] == ApprovalState.ESCALATED.value
@@ -174,11 +182,11 @@ def test_quantity_mismatch_and_gl_account_drift(sample_po_lines):
             InvoiceLineItem(
                 line_number=1,
                 description="Enterprise Rack Server Unit",
-                quantity=8.0,  # 8 billed vs 5 ordered
+                quantity=8.0,
                 unit_price=1200.0,
                 total_amount=9600.0,
                 tax_rate=0.20,
-                gl_account="GL-9999-MISC",  # GL drift
+                gl_account="GL-9999-MISC",
                 po_line_id="PO-101",
             ),
         ],
@@ -218,7 +226,7 @@ def test_missing_po_line_and_arithmetic_mismatch(sample_po_lines):
                 po_line_id="PO-NON-EXISTENT",
             ),
         ],
-        total_net=3000.0,  # Sum is 3500 but net states 3000 -> arithmetic mismatch
+        total_net=3000.0,
         total_tax=600.0,
         total_gross=3600.0,
     )
@@ -226,7 +234,7 @@ def test_missing_po_line_and_arithmetic_mismatch(sample_po_lines):
     clean, exceptions = engine.reconcile_invoice(invoice, sample_po_lines)
     assert clean is False
     assert any(e.exception_type == ExceptionType.MISSING_PO_LINE for e in exceptions)
-    assert any(e.line_number == 0 for e in exceptions)  # arithmetic sum mismatch
+    assert any(e.line_number == 0 for e in exceptions)
 
     audit_events = engine.get_audit_trail(invoice.invoice_id)
     assert len(audit_events) >= 1

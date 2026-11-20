@@ -3,9 +3,12 @@ Autonomous AP Invoice Exception Resolution Agent, PO Reconciliation, and Audit T
 
 Provides enterprise accounts payable automation capabilities:
 1. InvoiceReconciler: 3-way line item matching against Purchase Orders with tolerance controls.
-2. ExceptionClassifier: Root-cause taxonomy classification for price, quantity, tax, and GL coding variances.
-3. AutonomousResolutionAgent: AI/heuristic agent resolving acceptable exceptions and escalating out-of-policy items.
-4. ApprovalWorkflowEngine: Idempotent state machine with verifiable cryptographically hashed audit trails.
+2. ExceptionClassifier: Root-cause taxonomy classification for price, quantity, tax,
+   and GL coding variances.
+3. AutonomousResolutionAgent: AI/heuristic agent resolving acceptable exceptions and
+   escalating out-of-policy items.
+4. ApprovalWorkflowEngine: Idempotent state machine with verifiable cryptographically
+   hashed audit trails.
 """
 
 from __future__ import annotations
@@ -81,7 +84,9 @@ class InvoiceDocument:
     total_net: float
     total_tax: float
     total_gross: float
-    created_at: str = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc).isoformat())
+    created_at: str = field(
+        default_factory=lambda: dt.datetime.now(dt.timezone.utc).isoformat()
+    )
 
 
 @dataclass
@@ -114,7 +119,9 @@ class InvoiceExceptionResolutionEngine:
     Applies clean architecture, domain-driven design, and AI agent delegation principles.
     """
 
-    def __init__(self, auto_approve_threshold_usd: float = 50.0, max_tolerance_pct: float = 5.0):
+    def __init__(
+        self, auto_approve_threshold_usd: float = 50.0, max_tolerance_pct: float = 5.0
+    ):
         self.auto_approve_threshold_usd = auto_approve_threshold_usd
         self.max_tolerance_pct = max_tolerance_pct
         self.audit_log: List[AuditEvent] = []
@@ -143,7 +150,9 @@ class InvoiceExceptionResolutionEngine:
                     variance_amount=abs(calculated_net - invoice.total_net),
                     variance_pct=0.0,
                     recommended_action=ResolutionAction.ROUTE_MANUAL_REVIEW,
-                    explanation="Sum of invoice line items does not equal total net amount.",
+                    explanation=(
+                        "Sum of invoice line items does not equal total net amount."
+                    ),
                     auto_resolvable=False,
                 )
             )
@@ -159,7 +168,10 @@ class InvoiceExceptionResolutionEngine:
                         variance_amount=line.total_amount,
                         variance_pct=100.0,
                         recommended_action=ResolutionAction.ESCALATE_TO_PROCUREMENT,
-                        explanation=f"Line {line.line_number} references non-existent PO line '{line.po_line_id}'.",
+                        explanation=(
+                            f"Line {line.line_number} references non-existent "
+                            f"PO line '{line.po_line_id}'."
+                        ),
                         auto_resolvable=False,
                     )
                 )
@@ -169,7 +181,12 @@ class InvoiceExceptionResolutionEngine:
 
             # 1. Price check
             unit_price_diff = line.unit_price - po_line.expected_unit_price
-            price_variance_pct = (unit_price_diff / po_line.expected_unit_price) * 100.0 if po_line.expected_unit_price else 0.0
+            if po_line.expected_unit_price:
+                price_variance_pct = (
+                    unit_price_diff / po_line.expected_unit_price
+                ) * 100.0
+            else:
+                price_variance_pct = 0.0
 
             if abs(price_variance_pct) > po_line.tolerance_pct:
                 total_variance = unit_price_diff * line.quantity
@@ -201,7 +218,10 @@ class InvoiceExceptionResolutionEngine:
 
             # 2. Quantity check
             qty_diff = line.quantity - po_line.expected_quantity
-            qty_variance_pct = (qty_diff / po_line.expected_quantity) * 100.0 if po_line.expected_quantity else 0.0
+            if po_line.expected_quantity:
+                qty_variance_pct = (qty_diff / po_line.expected_quantity) * 100.0
+            else:
+                qty_variance_pct = 0.0
             if qty_diff > 0 and abs(qty_variance_pct) > po_line.tolerance_pct:
                 exceptions.append(
                     ExceptionDetail(
@@ -211,7 +231,10 @@ class InvoiceExceptionResolutionEngine:
                         variance_amount=round(qty_diff * line.unit_price, 2),
                         variance_pct=round(qty_variance_pct, 2),
                         recommended_action=ResolutionAction.REQUEST_CREDIT_MEMO,
-                        explanation=f"Billed quantity ({line.quantity}) exceeds PO quantity ({po_line.expected_quantity}).",
+                        explanation=(
+                            f"Billed quantity ({line.quantity}) exceeds PO quantity "
+                            f"({po_line.expected_quantity})."
+                        ),
                         auto_resolvable=False,
                     )
                 )
@@ -226,14 +249,25 @@ class InvoiceExceptionResolutionEngine:
                         variance_amount=0.0,
                         variance_pct=0.0,
                         recommended_action=ResolutionAction.ADJUST_GL_CODING,
-                        explanation=f"GL Account '{line.gl_account}' drifts from PO standard '{po_line.expected_gl_account}'.",
+                        explanation=(
+                            f"GL Account '{line.gl_account}' drifts from PO standard "
+                            f"'{po_line.expected_gl_account}'."
+                        ),
                         auto_resolvable=True,
                     )
                 )
 
         clean = len(exceptions) == 0
-        target_state = ApprovalState.APPROVED if clean else ApprovalState.EXCEPTION_DETECTED
-        self._record_transition(invoice.invoice_id, self._states[invoice.invoice_id], target_state, "reconciler", {"exceptions_count": len(exceptions)})
+        target_state = (
+            ApprovalState.APPROVED if clean else ApprovalState.EXCEPTION_DETECTED
+        )
+        self._record_transition(
+            invoice.invoice_id,
+            self._states[invoice.invoice_id],
+            target_state,
+            "reconciler",
+            {"exceptions_count": len(exceptions)},
+        )
         return clean, exceptions
 
     def resolve_exceptions(
@@ -246,7 +280,9 @@ class InvoiceExceptionResolutionEngine:
         Process detected exceptions through automated policies.
         Auto-resolves minor tolerance variances, adjusts GL accounts, or escalates severe items.
         """
-        current_state = self._states.get(invoice_id, ApprovalState.EXCEPTION_DETECTED)
+        current_state = self._states.get(
+            invoice_id, ApprovalState.EXCEPTION_DETECTED
+        )
         all_resolvable = all(e.auto_resolvable for e in exceptions) if exceptions else True
 
         resolutions = []
@@ -298,7 +334,10 @@ class InvoiceExceptionResolutionEngine:
         self._states[invoice_id] = to_state
         ts = dt.datetime.now(dt.timezone.utc).isoformat()
         prev_hash = self.audit_log[-1].event_hash if self.audit_log else "0" * 64
-        payload = f"{invoice_id}|{from_state.value}|{to_state.value}|{actor}|{ts}|{json.dumps(details, sort_keys=True)}|{prev_hash}"
+        payload = (
+            f"{invoice_id}|{from_state.value}|{to_state.value}|{actor}|{ts}|"
+            f"{json.dumps(details, sort_keys=True)}|{prev_hash}"
+        )
         event_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
         event = AuditEvent(
@@ -320,7 +359,11 @@ class InvoiceExceptionResolutionEngine:
         """Verify tamper-resistance of the event hash chain."""
         for i, event in enumerate(self.audit_log):
             prev_hash = self.audit_log[i - 1].event_hash if i > 0 else "0" * 64
-            payload = f"{event.invoice_id}|{event.from_state.value}|{event.to_state.value}|{event.actor}|{event.timestamp}|{json.dumps(event.details, sort_keys=True)}|{prev_hash}"
+            payload = (
+                f"{event.invoice_id}|{event.from_state.value}|{event.to_state.value}|"
+                f"{event.actor}|{event.timestamp}|"
+                f"{json.dumps(event.details, sort_keys=True)}|{prev_hash}"
+            )
             expected = hashlib.sha256(payload.encode("utf-8")).hexdigest()
             if event.event_hash != expected:
                 return False
