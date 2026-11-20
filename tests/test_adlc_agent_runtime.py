@@ -5,6 +5,7 @@ Unit tests for the Agent Development Life Cycle (ADLC) Multi-Turn Agent Runtime.
 from __future__ import annotations
 
 import pytest
+
 from llm_control_plane.adlc_agent_runtime import (
     ADLCAgentRuntime,
     ADLCOfflineEvaluator,
@@ -49,7 +50,11 @@ def mock_gateway() -> SandboxedToolGateway:
             name="apply_retention_offer",
             description="Applies promotional discounts to prevent churn.",
             schema={"required": ["customer_id", "discount_pct"]},
-            handler=lambda args: {"customer_id": args["customer_id"], "applied": True, "discount_pct": args["discount_pct"]},
+            handler=lambda args: {
+                "customer_id": args["customer_id"],
+                "applied": True,
+                "discount_pct": args["discount_pct"],
+            },
             failure_threshold=2,
         )
     )
@@ -60,7 +65,10 @@ def mock_gateway() -> SandboxedToolGateway:
             name="search_catalog",
             description="Searches product catalog.",
             schema={"required": ["category"]},
-            handler=lambda args: {"category": args["category"], "items": ["Noise-Canceling Headphones", "Smart Thermostat"]},
+            handler=lambda args: {
+                "category": args["category"],
+                "items": ["Noise-Canceling Headphones", "Smart Thermostat"],
+            },
             failure_threshold=2,
         )
     )
@@ -105,7 +113,8 @@ def test_multiturn_churn_mitigation(base_contract, mock_gateway):
     runtime = ADLCAgentRuntime(base_contract, mock_gateway)
 
     # Turn 1: User indicates intent to cancel subscription
-    resp = runtime.process_user_turn("I want to cancel my subscription, it is too expensive.", intent="churn_mitigation")
+    user_msg = "I want to cancel my subscription, it is too expensive."
+    resp = runtime.process_user_turn(user_msg, intent="churn_mitigation")
     assert "20% loyalty discount" in resp.content
     assert len(resp.tool_calls) == 2
     assert resp.tool_calls[0]["tool"] == "lookup_customer_tier"
@@ -116,7 +125,8 @@ def test_multiturn_churn_mitigation(base_contract, mock_gateway):
 def test_device_troubleshoot_flow(base_contract, mock_gateway):
     runtime = ADLCAgentRuntime(base_contract, mock_gateway)
 
-    resp = runtime.process_user_turn("My screen is flickering, can you troubleshoot my device?", intent="device_troubleshoot")
+    user_msg = "My screen is flickering, can you troubleshoot my device?"
+    resp = runtime.process_user_turn(user_msg, intent="device_troubleshoot")
     assert "Diagnostic completed" in resp.content
     assert "Battery health is at 92%" in resp.content
     assert resp.tool_calls[0]["tool"] == "run_diagnostic"

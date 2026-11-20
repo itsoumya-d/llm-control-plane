@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import enum
 import hashlib
-import json
 import logging
 import time
 from dataclasses import dataclass, field
@@ -262,22 +261,35 @@ class ADLCAgentRuntime:
                 )
                 tool_calls.append({"tool": "run_diagnostic", "result": t_res.output, "success": t_res.success})
                 if t_res.success:
-                    return f"Diagnostic completed. Battery health is at {t_res.output.get('battery_pct')}%. Recommended step: restart device.", tool_calls
+                    diag_msg = (
+                        f"Diagnostic completed. Battery health is at {t_res.output.get('battery_pct')}%. "
+                        "Recommended step: restart device."
+                    )
+                    return diag_msg, tool_calls
 
         # Subscription Churn Mitigation Intent
-        if intent == "churn_mitigation" or any(w in user_message.lower() for w in ["cancel", "discount", "churn", "refund"]):
+        churn_words = ["cancel", "discount", "churn", "refund"]
+        if intent == "churn_mitigation" or any(w in user_message.lower() for w in churn_words):
             if "lookup_customer_tier" in self.contract.allowed_tools:
                 cust_res = self.gateway.execute_tool("lookup_customer_tier", {"customer_id": "CUST-4102"})
-                tool_calls.append({"tool": "lookup_customer_tier", "result": cust_res.output, "success": cust_res.success})
+                tool_calls.append(
+                    {"tool": "lookup_customer_tier", "result": cust_res.output, "success": cust_res.success}
+                )
 
             if "apply_retention_offer" in self.contract.allowed_tools:
                 offer_res = self.gateway.execute_tool(
                     "apply_retention_offer",
                     {"customer_id": "CUST-4102", "discount_pct": 20, "duration_months": 3},
                 )
-                tool_calls.append({"tool": "apply_retention_offer", "result": offer_res.output, "success": offer_res.success})
+                tool_calls.append(
+                    {"tool": "apply_retention_offer", "result": offer_res.output, "success": offer_res.success}
+                )
                 if offer_res.success:
-                    return "We would love to keep you with us. I have applied a 20% loyalty discount for the next 3 months to your subscription.", tool_calls
+                    ret_msg = (
+                        "We would love to keep you with us. I have applied a 20% loyalty discount "
+                        "for the next 3 months to your subscription."
+                    )
+                    return ret_msg, tool_calls
 
         # Product Recommendation Intent
         if intent == "recommendation" or "recommend" in user_message.lower():
