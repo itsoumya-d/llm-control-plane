@@ -1,0 +1,30 @@
+{
+  "jurisdiction": "IN",
+  "checked_on": "2026-11-27",
+  "sources": [
+    {
+      "id": "IN-DPDP-S8",
+      "standard": "Digital Personal Data Protection Act, 2023 (Section 8)",
+      "url": "https://www.meity.gov.in/content/digital-personal-data-protection-act-2023",
+      "checked_on": "2026-11-27"
+    },
+    {
+      "id": "IN-DPDP-S9",
+      "standard": "Digital Personal Data Protection Act, 2023 (Section 9)",
+      "url": "https://www.meity.gov.in/content/digital-personal-data-protection-act-2023",
+      "checked_on": "2026-11-27"
+    },
+    {
+      "id": "IN-CERT-LOG",
+      "standard": "CERT-In Directions under Section 70B of IT Act 2000",
+      "url": "https://www.cert-in.org.in/",
+      "checked_on": "2026-11-27"
+    },
+    {
+      "id": "IN-RBI-GOV",
+      "standard": "Reserve Bank of India (RBI) IT Governance Guidelines",
+      "url": "https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12562",
+      "checked_on": "2026-11-27"
+    }
+  ]
+}
