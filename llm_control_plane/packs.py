@@ -99,6 +99,37 @@ def evaluate_jurisdiction_policy(
                         f"request violates NZISM Cloud AI controls ({rule.source_url}): "
                         f"classified data tier '{classification}' requires verified sovereign tenant"
                     )
+        elif rule.id == "IN-DPDP-S8":
+            # DPDP Act 2023 Sec 8: Reasonable security safeguards against personal data breach
+            if request.metadata.get("contains_unredacted_pii", "").lower() in ("true", "1", "yes"):
+                reasons.append(
+                    f"request violates India DPDP Act 2023 Section 8 ({rule.source_url}): "
+                    f"unredacted personal data detected in prompt"
+                )
+        elif rule.id == "IN-DPDP-S9":
+            # DPDP Act 2023 Sec 9: Child behavioral monitoring and tracking prohibition
+            is_child = request.metadata.get("subject_is_child", "").lower() in ("true", "1", "yes")
+            parental_consent = request.metadata.get("parental_consent_verified", "").lower() in ("true", "1", "yes")
+            if is_child and not parental_consent:
+                reasons.append(
+                    f"request violates India DPDP Act 2023 Section 9 ({rule.source_url}): "
+                    f"processing child data without verified parental consent"
+                )
+        elif rule.id == "IN-CERT-LOG":
+            # CERT-In: Mandatory 180-day secure audit logging retention
+            if request.metadata.get("audit_logging_enabled", "").lower() in ("false", "0", "no"):
+                reasons.append(
+                    f"request violates CERT-In Cyber Security Directions ({rule.source_url}): "
+                    f"audit logging retention below 180-day mandate"
+                )
+        elif rule.id == "IN-RBI-GOV":
+            # RBI IT Governance: Autonomous financial decisions require explainability and governance
+            if request.use_case == "financial_autonomous_decision":
+                if request.metadata.get("model_explainability_verified", "").lower() not in ("true", "1", "yes"):
+                    reasons.append(
+                        f"request violates RBI IT Governance Framework ({rule.source_url}): "
+                        f"autonomous financial decision requires verified model explainability audit trail"
+                    )
 
     return PolicyDecision(
         allowed=not reasons,

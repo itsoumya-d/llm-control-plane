@@ -271,6 +271,7 @@ tests/             539 tests covering gateway, audit, eval, API, OpenRouter, Ray
 | Jurisdiction | Code | Key Standards Enforced | Rules As Of | Status |
 |---|---|---|---|---|
 | **New Zealand** | `nz` | Privacy Act 2020 (IPP 5 & 11), Algorithm Charter for Aotearoa NZ, NZISM Chapter 16 | 2026-11-27 | Active |
+| **India** | `in` | DPDP Act 2023 (Sec 8 & 9), CERT-In Cyber Security Directions 2022, RBI IT Governance Guidelines | 2026-11-27 | Active |
 
 Not legal or tax advice - check the official source.
 

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "IN-DPDP-S8",
+    "name": "Digital Personal Data Protection Act - Personal Data Security Safeguards",
+    "jurisdiction": "IN",
+    "standard": "Digital Personal Data Protection Act, 2023 (Section 8)",
+    "what_it_decides": "Mandates reasonable security safeguards to prevent personal data breach and requires redacting unconsented personal identifiable information (PII) before model processing.",
+    "values": {
+      "require_redaction": true,
+      "disallow_raw_pii": true,
+      "max_unredacted_pii_tokens": 0
+    },
+    "source_url": "https://www.meity.gov.in/content/digital-personal-data-protection-act-2023",
+    "checked_on": "2026-11-27"
+  },
+  {
+    "id": "IN-DPDP-S9",
+    "name": "Processing of Personal Data of Children and Behavioral Tracking Prohibition",
+    "jurisdiction": "IN",
+    "standard": "Digital Personal Data Protection Act, 2023 (Section 9)",
+    "what_it_decides": "Prohibits tracking, behavioral monitoring, or targeted advertising directed at children through AI models without verifiable parental consent.",
+    "values": {
+      "require_parental_consent": true,
+      "disallow_child_behavioral_tracking": true,
+      "disallow_child_targeted_advertising": true
+    },
+    "source_url": "https://www.meity.gov.in/content/digital-personal-data-protection-act-2023",
+    "checked_on": "2026-11-27"
+  },
+  {
+    "id": "IN-CERT-LOG",
+    "name": "Mandatory Cyber Security Incident and Access Log Retention",
+    "jurisdiction": "IN",
+    "standard": "CERT-In Directions under Section 70B of IT Act 2000",
+    "what_it_decides": "Mandates maintaining secure, tamper-evident logs of all ICT systems and model access records for a rolling period of 180 days within Indian jurisdiction.",
+    "values": {
+      "min_retention_days": 180,
+      "require_tamper_evident_audit_trail": true,
+      "require_localized_log_storage": true
+    },
+    "source_url": "https://www.cert-in.org.in/",
+    "checked_on": "2026-11-27"
+  },
+  {
+    "id": "IN-RBI-GOV",
+    "name": "Automated Financial Decision Governance and Model Explainability",
+    "jurisdiction": "IN",
+    "standard": "Reserve Bank of India (RBI) IT Governance and Model Risk Guidelines",
+    "what_it_decides": "Requires explainability audit trails, model risk governance, and explicit human accountability verification for autonomous credit, underwriting, or financial decisioning pipelines.",
+    "values": {
+      "require_human_oversight": true,
+      "require_model_explainability": true,
+      "require_drift_monitoring": true
+    },
+    "source_url": "https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12562",
+    "checked_on": "2026-11-27"
+  }
+]
