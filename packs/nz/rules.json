@@ -1,0 +1,58 @@
+[
+  {
+    "id": "NZ-PRIV-005",
+    "name": "Personal Information Storage and Security Guardrail",
+    "jurisdiction": "NZ",
+    "standard": "New Zealand Privacy Act 2020 (Principle 5)",
+    "what_it_decides": "Mandates that personal identifiable information (PII) must be redacted or encrypted before transmission to external AI model endpoints.",
+    "values": {
+      "require_redaction": true,
+      "disallow_raw_pii": true,
+      "max_unredacted_pii_tokens": 0
+    },
+    "source_url": "https://www.privacy.org.nz/privacy-act-2020/privacy-principles/5-storage-and-security-of-personal-information/",
+    "checked_on": "2026-11-27"
+  },
+  {
+    "id": "NZ-PRIV-011",
+    "name": "Cross-Border Model Inference Disclosure Controls",
+    "jurisdiction": "NZ",
+    "standard": "New Zealand Privacy Act 2020 (Principle 11)",
+    "what_it_decides": "Controls cross-border disclosure of sensitive data to offshore LLM providers without equivalent statutory privacy safeguards.",
+    "values": {
+      "require_comparable_safeguards": true,
+      "allowed_transfer_mechanisms": ["contractual_clauses", "adequacy_decision", "explicit_consent"],
+      "block_unauthorized_cross_border": true
+    },
+    "source_url": "https://www.privacy.org.nz/privacy-act-2020/privacy-principles/11-limits-on-disclosure-of-personal-information/",
+    "checked_on": "2026-11-27"
+  },
+  {
+    "id": "NZ-ALGO-CHARTER",
+    "name": "Algorithm Transparency and Human Oversight Mandate",
+    "jurisdiction": "NZ",
+    "standard": "Algorithm Charter for Aotearoa New Zealand",
+    "what_it_decides": "Requires human-in-the-loop oversight and explainable audit trails for high-impact automated AI decision pipelines.",
+    "values": {
+      "require_human_oversight": true,
+      "require_audit_logging": true,
+      "minimum_transparency_tier": "tier_2"
+    },
+    "source_url": "https://www.data.govt.nz/toolkit/data-ethics/government-algorithm-transparency-and-accountability/algorithm-charter/",
+    "checked_on": "2026-11-27"
+  },
+  {
+    "id": "NZ-NZISM-CLOUD",
+    "name": "NZISM AI Telemetry and Data Classification Protection",
+    "jurisdiction": "NZ",
+    "standard": "New Zealand Information Security Manual (NZISM)",
+    "what_it_decides": "Enforces strict classification boundaries, audit retention, and encryption in transit for public sector and enterprise AI workloads.",
+    "values": {
+      "min_tls_version": "1.3",
+      "require_cryptographic_audit_trail": true,
+      "restricted_data_tiers": ["CONFIDENTIAL", "RESTRICTED", "SECRET"]
+    },
+    "source_url": "https://nzism.gcsb.govt.nz/",
+    "checked_on": "2026-11-27"
+  }
+]
