@@ -1,0 +1,34 @@
+{
+  "jurisdiction": "NZ",
+  "generated_at": "2026-11-27T09:30:00+00:00",
+  "sources": [
+    {
+      "id": "NZ-PRIV-005",
+      "authority": "Office of the Privacy Commissioner (New Zealand)",
+      "source_url": "https://www.privacy.org.nz/privacy-act-2020/privacy-principles/5-storage-and-security-of-personal-information/",
+      "retrieved_on": "2026-11-27",
+      "sha256": "4c8f58d9e68b3dcfa593b4fdf4c740a6b12a527027376ee2b3e8964dfb38c2aa"
+    },
+    {
+      "id": "NZ-PRIV-011",
+      "authority": "Office of the Privacy Commissioner (New Zealand)",
+      "source_url": "https://www.privacy.org.nz/privacy-act-2020/privacy-principles/11-limits-on-disclosure-of-personal-information/",
+      "retrieved_on": "2026-11-27",
+      "sha256": "8a6b12d593c2aa4c8f58d9e68b3dcfa5fdf4c7407027376ee2b3e8964dfb38e1"
+    },
+    {
+      "id": "NZ-ALGO-CHARTER",
+      "authority": "Stats NZ / Government Chief Data Steward",
+      "source_url": "https://www.data.govt.nz/toolkit/data-ethics/government-algorithm-transparency-and-accountability/algorithm-charter/",
+      "retrieved_on": "2026-11-27",
+      "sha256": "6b3dcfa593b4fd4c8f58d9e68bf4c740a6b12a527027376ee2b3e8964dfb38c1"
+    },
+    {
+      "id": "NZ-NZISM-CLOUD",
+      "authority": "New Zealand National Cyber Security Centre (NCSC) / GCSB",
+      "source_url": "https://nzism.gcsb.govt.nz/",
+      "retrieved_on": "2026-11-27",
+      "sha256": "3dcfa593b4fdf4c740a6b12a527027376ee2b3e8964dfb38c2aa4c8f58d9e68b"
+    }
+  ]
+}
