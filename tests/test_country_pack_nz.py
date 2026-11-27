@@ -1,8 +1,18 @@
 """Unit tests for New Zealand (NZ) Regulatory & AI Governance Country Pack."""
 
 import pytest
+
 from llm_control_plane.packs import evaluate_jurisdiction_policy, load_country_pack
 from llm_control_plane.types import ChatMessage, CompletionRequest
+
+URL_IPP5 = "https://www.privacy.org.nz/privacy-act-2020/privacy-principles/5-storage-and-security-of-personal-information/"
+URL_IPP11 = (
+    "https://www.privacy.org.nz/privacy-act-2020/privacy-principles/11-limits-on-disclosure-of-personal-information/"
+)
+URL_ALGO = (
+    "https://www.data.govt.nz/toolkit/data-ethics/government-algorithm-transparency-and-accountability/algorithm-charter/"
+)
+URL_NZISM = "https://nzism.gcsb.govt.nz/"
 
 
 def _make_request(
@@ -31,7 +41,6 @@ def test_nz_pack_loader_valid():
 
     for rule in rules:
         assert rule.source_url.startswith("https://")
-        # Every rule must be sourced from official government or regulator domains
         assert any(
             domain in rule.source_url
             for domain in ["privacy.org.nz", "data.govt.nz", "nzism.gcsb.govt.nz"]
@@ -44,7 +53,7 @@ def test_nz_privacy_act_ipp5_redaction_enforcement():
     decision = evaluate_jurisdiction_policy(req, country="nz")
     assert not decision.allowed
     assert any("NZ Privacy Act 2020 IPP 5" in r for r in decision.reasons)
-    assert any("https://www.privacy.org.nz/privacy-act-2020/privacy-principles/5-storage-and-security-of-personal-information/" in r for r in decision.reasons)
+    assert any(URL_IPP5 in r for r in decision.reasons)
 
 
 def test_nz_privacy_act_ipp11_cross_border_control():
@@ -53,7 +62,7 @@ def test_nz_privacy_act_ipp11_cross_border_control():
     decision = evaluate_jurisdiction_policy(req, country="nz")
     assert not decision.allowed
     assert any("NZ Privacy Act 2020 IPP 11" in r for r in decision.reasons)
-    assert any("https://www.privacy.org.nz/privacy-act-2020/privacy-principles/11-limits-on-disclosure-of-personal-information/" in r for r in decision.reasons)
+    assert any(URL_IPP11 in r for r in decision.reasons)
 
 
 def test_nz_algorithm_charter_human_oversight():
@@ -62,10 +71,13 @@ def test_nz_algorithm_charter_human_oversight():
     decision = evaluate_jurisdiction_policy(req, country="nz")
     assert not decision.allowed
     assert any("Algorithm Charter for Aotearoa NZ" in r for r in decision.reasons)
-    assert any("https://www.data.govt.nz/toolkit/data-ethics/government-algorithm-transparency-and-accountability/algorithm-charter/" in r for r in decision.reasons)
+    assert any(URL_ALGO in r for r in decision.reasons)
 
     # With verified human oversight, it passes
-    req_compliant = _make_request(use_case="autonomous_decision", metadata={"human_oversight_verified": "true"})
+    req_compliant = _make_request(
+        use_case="autonomous_decision",
+        metadata={"human_oversight_verified": "true"},
+    )
     decision_compliant = evaluate_jurisdiction_policy(req_compliant, country="nz")
     assert decision_compliant.allowed
 
@@ -76,10 +88,12 @@ def test_nz_nzism_cloud_classification():
     decision = evaluate_jurisdiction_policy(req, country="nz")
     assert not decision.allowed
     assert any("NZISM Cloud AI controls" in r for r in decision.reasons)
-    assert any("https://nzism.gcsb.govt.nz/" in r for r in decision.reasons)
+    assert any(URL_NZISM in r for r in decision.reasons)
 
     # With verified sovereign tenant, it passes
-    req_compliant = _make_request(metadata={"data_classification": "RESTRICTED", "sovereign_tenant_verified": "true"})
+    req_compliant = _make_request(
+        metadata={"data_classification": "RESTRICTED", "sovereign_tenant_verified": "true"},
+    )
     decision_compliant = evaluate_jurisdiction_policy(req_compliant, country="nz")
     assert decision_compliant.allowed
 
