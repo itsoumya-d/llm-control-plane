@@ -13,6 +13,56 @@ It is built as a reviewable engineering artifact, not a hosted product. The core
 
 ---
 
+## Verify-and-Repair Loop
+
+LLM Control Plane includes an automated verify-and-repair engine (`llm_control_plane.verify_repair`) that evaluates gateway output envelopes against a structured, weighted rubric (`rubric.json`). Mechanical defects (missing default envelope fields, unformatted trace IDs, negative token usage, or negative costs) are repaired deterministically up to 3 rounds and appended to an immutable JSONL audit ledger. Semantic or non-mechanical defects (such as missing model completions or undefined providers) are reported for human triage without fabrication.
+
+### Scoring Rubric
+
+| Check Name | Weight | Category | Fault Type | Description |
+|---|---|---|---|---|
+| `required_envelope` | 20 | Presence | Mechanical | Envelope contains all required audit, tracing, and metric fields |
+| `trace_id_format` | 10 | Format | Mechanical | Trace ID is non-empty and stripped of whitespace |
+| `usage_metrics_non_negative` | 20 | Range | Mechanical | Prompt and completion tokens are >= 0 and total is consistent |
+| `cost_and_latency_bounds` | 20 | Range | Mechanical | `cost_usd` and `latency_ms` are non-negative numeric floats |
+| `content_presence` | 30 | Content | Non-mechanical | Model response text and provider identifier are non-empty |
+
+**Passing Threshold:** 80 / 100
+
+### Before and After Scoring Example
+
+#### Before Repair (Score: 40/100 — Failed)
+```json
+{
+  "text": "Generated response summary.",
+  "provider": "anthropic",
+  "model": "claude-3-5-sonnet",
+  "trace_id": "  tr-whitespace-1234  ",
+  "usage": { "prompt_tokens": -10, "completion_tokens": -5, "total_tokens": 999 },
+  "cost_usd": -0.02,
+  "latency_ms": -50.0
+}
+```
+*Failures:* `trace_id_format` (-15), `usage_metrics_non_negative` (-20), `cost_and_latency_bounds` (-20), `required_envelope` (missing `audit_seq`, -25).
+
+#### After Repair (Round 1, Score: 100/100 — Passed)
+```json
+{
+  "text": "Generated response summary.",
+  "provider": "anthropic",
+  "model": "claude-3-5-sonnet",
+  "trace_id": "tr-whitespace-1234",
+  "usage": { "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0 },
+  "cost_usd": 0.0,
+  "latency_ms": 0.0,
+  "audit_seq": 0,
+  "redactions": {}
+}
+```
+*Repairs:* Trimmed `trace_id`, clamped negative usage to 0, clamped negative metrics to 0.0, defaulted missing `audit_seq` to 0. Recorded in ledger.
+
+---
+
 ## Architecture
 
 ```mermaid

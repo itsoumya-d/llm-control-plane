@@ -1,0 +1,45 @@
+{
+  "threshold": 80,
+  "checks": [
+    {
+      "name": "required_envelope",
+      "weight": 20,
+      "field": "envelope",
+      "type": "presence",
+      "description": "Output envelope must include text, provider, model, usage, cost_usd, latency_ms, trace_id, and audit_seq",
+      "mechanical": true
+    },
+    {
+      "name": "trace_id_format",
+      "weight": 10,
+      "field": "trace_id",
+      "type": "format",
+      "description": "Trace ID must be a non-empty string stripped of surrounding whitespace",
+      "mechanical": true
+    },
+    {
+      "name": "usage_metrics_non_negative",
+      "weight": 20,
+      "field": "usage",
+      "type": "range",
+      "description": "Usage prompt_tokens and completion_tokens must be >= 0 with total_tokens consistent",
+      "mechanical": true
+    },
+    {
+      "name": "cost_and_latency_bounds",
+      "weight": 20,
+      "field": "metrics",
+      "type": "range",
+      "description": "cost_usd and latency_ms must be non-negative numeric floats",
+      "mechanical": true
+    },
+    {
+      "name": "content_presence",
+      "weight": 30,
+      "field": "text",
+      "type": "content",
+      "description": "Completion text must be a valid non-empty string and provider must be specified",
+      "mechanical": false
+    }
+  ]
+}
