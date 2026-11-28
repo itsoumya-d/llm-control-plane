@@ -378,6 +378,20 @@ Not legal or tax advice - check the official source.
 
 ---
 
+## Use it from an agent
+
+To install and register the skill in Claude Code, Codex, or Cursor:
+```bash
+git clone https://github.com/itsoumya-d/llm-control-plane.git
+pip install -e ".[dev]"
+cp -r skills/llm-control-plane ~/.agents/skills/
+```
+
+First prompt to give your agent:
+> "Run the `llm-control-plane` skill to verify gateway health and check the cryptographic audit chain."
+
+---
+
 ## Testing
 
 ```bash
