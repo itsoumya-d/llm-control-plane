@@ -258,11 +258,62 @@ llm_control_plane/
   flowtraders_infra_platform_orchestrator.py Flow Traders Infrastructure Platform Orchestrator: reusable Terraform module verification, OPA/policy-as-code evaluation, state drift detection, GitHub Actions CI/CD guardrails and rollback triggers, hybrid Kubernetes cluster supervision (cloud GKE and on-prem k3s), Kafka broker health and partition skew watchdogs, and Linux fleet host lifecycle supervisor
   complyadvantage_gtm_pipeline_orchestrator.py ComplyAdvantage Founding GTM Systems & Applied AI Pipeline Orchestrator: multi-source resilient market scrapers with exponential backoff & domain deduplication, Clay-style cascading enrichment waterfalls with cost-logic optimization, algorithmic defendable account scoring with regulatory enforcement weighting, event-driven signal outbound play runners, LLM account intelligence agents with PII redaction and token budgets, and idempotent CRM webhook synchronization with dead-letter queue (DLQ) support
   qualtrics_observability_engine.py Qualtrics Observability Infrastructure & Customer Experience Correlation Engine: high-throughput telemetry stream ingestion with deduplication and adaptive backpressure, Pearson/Spearman customer impact correlation (p99 latency, SLA breach tracking), automated MTTR reduction root cause analyzers with runbook dispatch, and declarative Amazon EKS Prometheus ServiceMonitor/OpenTelemetry agent automation with drift reconciliation
+  engineering_productivity_engine.py Engineering Productivity & DORA Metrics Analytics Engine: DORA performance indicator computation, PR cycle time tracking, test coverage health monitoring, flaky test incident logging, and automated SDLC delivery friction scoring
   api.py           FastAPI adapter
   demo.py          deterministic end-to-end demo
   bench.py         local micro-benchmarks
 tests/             539 tests covering gateway, audit, eval, API, OpenRouter, Ray Core, SingleStore, Doppler, MotherDuck, Modal sandbox, Together AI, ClickHouse auth, Poolside scheduler, Tavily engine, Resend MTA transport, SEO rank engine, Lakehouse analytics engine, Cerebras MLIR, LangGraph mesh, Fly triage, WCC automation, Railway orchestrator, Pinecone Experience telemetry, Replit Cloud orchestrator, Decagon Agent Platform runtime, Airbyte Agent Infrastructure, Supabase AI Platform, and Braintrust SDK observability engine
 ```
+
+---
+
+## Engineering Productivity & DORA Metrics Analytics
+
+### What it does
+
+`EngineeringProductivityAnalyzer` evaluates engineering velocity, delivery stability, and software development lifecycle (SDLC) friction across microservices:
+
+1. **DORA Indicators**: Computes Deployment Frequency, Mean Lead Time for Changes, Change Failure Rate (CFR), and Mean Time to Restore (MTTR), scoring teams against standard DORA performance tiers (ELITE, HIGH, MEDIUM, LOW).
+2. **Cycle Times & Quality Health**: Analyzes PR review turnaround latencies, CI build times, test coverage percentiles, and flaky test occurrences.
+3. **Delivery Friction Scoring**: Computes a continuous friction score (0.0 to 1.0) and flags delivery bottlenecks across engineering workflows.
+
+### Runnable Example
+
+```python
+from llm_control_plane import (
+    EngineeringProductivityAnalyzer,
+    DeploymentEvent,
+    DeploymentStatus,
+    PullRequestCycle,
+)
+
+# 1. Initialize analyzer over a rolling 30-day window
+analyzer = EngineeringProductivityAnalyzer(observation_window_days=30.0)
+
+# 2. Record deployment events
+analyzer.record_deployment(
+    DeploymentEvent("dep-101", "gateway-api", lead_time_minutes=25.0, status=DeploymentStatus.SUCCESS)
+)
+analyzer.record_deployment(
+    DeploymentEvent("dep-102", "gateway-api", lead_time_minutes=45.0, status=DeploymentStatus.FAILURE, restoration_time_minutes=30.0)
+)
+
+# 3. Compute DORA metrics report
+dora = analyzer.compute_dora_metrics("gateway-api")
+print(f"Tier: {dora.classification.value}, CFR: {dora.change_failure_rate_percent}%, MTTR: {dora.mean_time_to_restore_minutes}m")
+
+# 4. Evaluate pull request cycle efficiency and friction signals
+analyzer.record_pr_cycle(
+    PullRequestCycle("pr-55", "gateway-api", review_latency_hours=3.5, ci_duration_minutes=6.0, test_coverage_percent=88.0)
+)
+health = analyzer.evaluate_quality_health("gateway-api")
+print(f"Friction Score: {health.friction_score}, Active Bottlenecks: {health.bottlenecks}")
+```
+
+### Limits
+
+- Aggregates metrics from telemetry events in memory; persistence across distributed agent runs requires streaming events to persistent storage or timeseries backends.
+- DORA tier thresholds use standard industry four-key benchmarks and can be calibrated per organizational maturity stage.
 
 ---
 

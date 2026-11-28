@@ -398,6 +398,15 @@ from .dataguard_compliance_orchestrator import (
     DataGuardComplianceOrchestrator,
     EvidenceType,
 )
+from .engineering_productivity_engine import (
+    DeploymentEvent,
+    DeploymentStatus,
+    DORAMetricsReport,
+    DORAPerformanceTier,
+    EngineeringProductivityAnalyzer,
+    PullRequestCycle,
+    QualityHealthSummary,
+)
 from .fiskaly_fiscal_audit_engine import (
     CloudTSECryptographicSigner,
     FiscalAnomalyType,
@@ -996,4 +1005,11 @@ __all__ = [
     "WorkflowState",
     "SourceFreshnessWarning",
     "check_source_freshness",
+    "DeploymentEvent",
+    "DeploymentStatus",
+    "DORAMetricsReport",
+    "DORAPerformanceTier",
+    "EngineeringProductivityAnalyzer",
+    "PullRequestCycle",
+    "QualityHealthSummary",
 ]
