@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-11-28T00:00:00Z",
+  "sources": [
+    {
+      "id": "anthropic-models",
+      "topic": "providers",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "sha256": "4b9cb798033ef63ecb4c80327f272c7247a83d73bdfbc1fc14ae8e8012bbecf4",
+      "last_checked": "2026-11-28T00:00:00Z"
+    },
+    {
+      "id": "openai-models",
+      "topic": "providers",
+      "source_url": "https://platform.openai.com/docs/models",
+      "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      "last_checked": "2026-11-28T00:00:00Z"
+    },
+    {
+      "id": "cerebras-specs",
+      "topic": "hardware",
+      "source_url": "https://inference-docs.cerebras.net/",
+      "sha256": "8277e0910d750195b448797616e091ad708094b219e24ec14691136b85097de4",
+      "last_checked": "2026-11-28T00:00:00Z"
+    }
+  ]
+}

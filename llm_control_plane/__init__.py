@@ -350,6 +350,7 @@ from .types import (
     RouteTarget,
     Usage,
 )
+from .watch import SourceFreshnessWarning, check_source_freshness
 from .zilliz_cloud_platform_orchestrator import (
     BackupSnapshot,
     CloudProvider,
@@ -993,4 +994,6 @@ __all__ = [
     "ShipmentMode",
     "WorkflowEvent",
     "WorkflowState",
+    "SourceFreshnessWarning",
+    "check_source_freshness",
 ]

@@ -299,6 +299,15 @@ CI runs the suite on Python 3.9, 3.11, and 3.12, plus lint, coverage, and a pack
 
 ---
 
+## How it stays current
+
+- **What is watched**: Official upstream API specifications, model releases, and provider documentation locked in `sources.lock.json` (Anthropic model catalogs, OpenAI API specifications, Cerebras inference guidelines).
+- **When it runs**: A scheduled GitHub Actions workflow (`.github/workflows/watch.yml`) executes daily at `06:00 UTC` via `scripts/watch.py` without external dependencies.
+- **Human approval required**: Automated scripts never mutate business policies or route configurations directly. When an upstream content drift or hash divergence is detected, the run records unified diffs to `watch/<topic>/<YYYY-MM-DD>.json`, updates `watch/latest.json`, and opens an actionable GitHub Issue for an engineer to review and approve rule adjustments. If an upstream host is unreachable, the run captures the error gracefully and exits 0 to prevent spurious CI failures.
+- **Runtime freshness checks**: At startup, `llm_control_plane.watch.check_source_freshness()` verifies that production configurations do not lag unreviewed upstream changes beyond configurable age thresholds.
+
+---
+
 ## License
 
 MIT © 2026 Soumya Debnath
