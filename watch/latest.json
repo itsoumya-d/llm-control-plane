@@ -1,0 +1,25 @@
+{
+  "updated_at": "2026-11-28T14:42:56.781441+00:00",
+  "sources": {
+    "anthropic-models": {
+      "status": "changed",
+      "old_hash": "4b9cb798033ef63ecb4c80327f272c7247a83d73bdfbc1fc14ae8e8012bbecf4",
+      "new_hash": "5a97cead5944ce3bf1b6b9797349541e50233b11585a9723889ace4e94d790c4",
+      "last_changed": "2026-11-28T14:42:56.781441+00:00",
+      "last_checked": "2026-11-28T14:42:56.781441+00:00"
+    },
+    "openai-models": {
+      "status": "changed",
+      "old_hash": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      "new_hash": "0e4e1213b76ad689d0e9227f46f9ef2747950f310d47c9619017aea1ea064849",
+      "last_changed": "2026-11-28T14:42:56.781441+00:00",
+      "last_checked": "2026-11-28T14:42:56.781441+00:00"
+    },
+    "cerebras-specs": {
+      "status": "unreachable",
+      "error": "<urlopen error [Errno -2] Name or service not known>",
+      "last_checked": "2026-11-28T14:42:56.781441+00:00",
+      "last_hash": "8277e0910d750195b448797616e091ad708094b219e24ec14691136b85097de4"
+    }
+  }
+}
