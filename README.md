@@ -392,6 +392,40 @@ First prompt to give your agent:
 
 ---
 
+## Archive Health and Artifact Forward-Verification Engine
+
+The archive health evaluator (`llm_control_plane.archive_health`) verifies package and model artifact repositories for forward semantic version progression, dependency closure, and release execution readiness.
+
+### What It Does
+- **Monotonic Forward Progression**: Evaluates artifact releases across versions to guarantee semantic versions advance monotonically, preventing version rollback or regression.
+- **Dependency Closure & Integrity**: Scans package dependency requirements against archive manifests to catch missing or unresolved downstream dependencies.
+- **Audit-Grade Verification**: Calculates deterministic SHA-256 manifest digests and generates an immutable evaluation trail with health classifications (`HEALTHY`, `DEGRADED`, `CRITICAL`).
+
+### Runnable Example
+
+```python
+from llm_control_plane import (
+    ArchiveStatus,
+    PackageArtifact,
+    evaluate_archive_health,
+)
+
+artifacts = [
+    PackageArtifact(name="libcore", version="1.0.0", sha256="8f12..."),
+    PackageArtifact(name="libcore", version="1.1.0", sha256="9a34..."),
+    PackageArtifact(name="app-server", version="2.0.0", dependencies=["libcore>=1.0.0"]),
+]
+
+report = evaluate_archive_health(artifacts)
+print(f"Archive Status: {report.status.value} (Score: {report.overall_score}/100)")
+# Archive Status: HEALTHY (Score: 100.0/100)
+```
+
+### Limitations
+- Evaluates declared dependency strings and semantic version progression within the specified archive scope; deep dynamic cyclic graph resolution beyond direct dependency declarations should be supplemented with external solver tools.
+
+---
+
 ## Testing
 
 ```bash
