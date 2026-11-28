@@ -367,6 +367,75 @@ print(f"Friction Score: {health.friction_score}, Active Bottlenecks: {health.bot
 
 ---
 
+## Code Task Evaluation & Benchmark Harness
+
+### What it does
+
+`CodeTaskEvalHarness` provides automated evaluation and grading for programming tasks across Python, TypeScript, and JavaScript:
+
+1. **Syntax Verification**: Detects syntax errors using AST parsing for Python and structural bracket/comment/literal balance verification for TypeScript and JavaScript.
+2. **Static Quality & Complexity**: Measures cyclomatic complexity, presence of explanatory documentation/comments, and line length violations to produce a continuous code quality score (0.0 to 100.0).
+3. **Safe Test Execution**: Executes unit test assertions in isolated namespaces with duration tracking, assertion comparisons, and runtime error isolation.
+4. **Structured Grading**: Assigns standardized evaluation grades (`PERFECT`, `PASS`, `PARTIAL`, `FAIL`) with actionable feedback per test case.
+
+### Runnable Example
+
+```python
+from llm_control_plane import (
+    CodeCandidateSubmission,
+    CodeLanguage,
+    CodeProblem,
+    CodeTaskEvalHarness,
+    TestCase,
+)
+
+harness = CodeTaskEvalHarness()
+
+# 1. Register problem with test cases
+harness.register_problem(
+    CodeProblem(
+        problem_id="two-sum",
+        title="Two Sum",
+        language=CodeLanguage.PYTHON,
+        description="Find two numbers that add up to target.",
+        entrypoint="two_sum",
+        test_cases=[
+            TestCase(case_id="tc-1", entrypoint="two_sum", args=[[2, 7, 11, 15], 9], expected=[0, 1]),
+            TestCase(case_id="tc-2", entrypoint="two_sum", args=[[3, 2, 4], 6], expected=[1, 2]),
+        ],
+    )
+)
+
+# 2. Evaluate candidate submission
+code = '''def two_sum(nums, target):
+    lookup = {}
+    for i, num in enumerate(nums):
+        diff = target - num
+        if diff in lookup:
+            return [lookup[diff], i]
+        lookup[num] = i
+    return []
+'''
+
+submission = CodeCandidateSubmission(
+    submission_id="sub-001",
+    problem_id="two-sum",
+    candidate_id="cand-dev-1",
+    language=CodeLanguage.PYTHON,
+    source_code=code,
+)
+
+report = harness.evaluate_submission(submission)
+print(f"Grade: {report.grade.value}, Pass Rate: {report.pass_rate_percent}%, Quality: {report.code_quality_score}/100")
+```
+
+### Limits
+
+- Dynamic test execution for Python runs in an isolated in-process namespace; full OS sandboxing with cgroups/seccomp should be layered for untrusted multi-tenant code execution.
+- TypeScript and JavaScript verification in Python environments evaluates structural syntax, AST bracket balance, and token patterns; executing compiled JS/TS natively requires Node.js/V8 sub-processes.
+
+---
+
 ## Regulatory Jurisdiction Packs
 
 | Jurisdiction | Code | Key Standards Enforced | Rules As Of | Status |
