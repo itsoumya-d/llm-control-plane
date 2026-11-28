@@ -383,6 +383,16 @@ from .binance_conversational_agent_orchestrator import (
     TradeStrategyProposal,
     TurnMessage,
 )
+from .code_task_eval_harness import (
+    CodeCandidateSubmission,
+    CodeEvaluationReport,
+    CodeLanguage,
+    CodeProblem,
+    CodeTaskEvalHarness,
+    EvaluationGrade,
+    TestCase,
+    TestCaseResult,
+)
 from .complyadvantage_gtm_pipeline_orchestrator import (
     AccountTier,
     CrmWebhookSyncDispatcher,
@@ -1024,4 +1034,12 @@ __all__ = [
     "ArchiveStatus",
     "PackageArtifact",
     "evaluate_archive_health",
+    "CodeCandidateSubmission",
+    "CodeEvaluationReport",
+    "CodeLanguage",
+    "CodeProblem",
+    "CodeTaskEvalHarness",
+    "EvaluationGrade",
+    "TestCase",
+    "TestCaseResult",
 ]
