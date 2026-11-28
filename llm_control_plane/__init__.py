@@ -1,5 +1,12 @@
 """LLM Control Plane: gateway, evaluations, cost attribution, and audit trails."""
 
+from llm_control_plane.archive_health import (
+    ArchiveHealthPolicy,
+    ArchiveHealthReport,
+    ArchiveStatus,
+    PackageArtifact,
+    evaluate_archive_health,
+)
 from llm_control_plane.bitpanda_elastic_secops_platform import (
     CloudThreatHunter,
     DORAClassification,
@@ -1012,4 +1019,9 @@ __all__ = [
     "EngineeringProductivityAnalyzer",
     "PullRequestCycle",
     "QualityHealthSummary",
+    "ArchiveHealthPolicy",
+    "ArchiveHealthReport",
+    "ArchiveStatus",
+    "PackageArtifact",
+    "evaluate_archive_health",
 ]
